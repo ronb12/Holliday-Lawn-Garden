@@ -307,56 +307,51 @@
         <div class="metrics-grid">
             <div class="metric-card">
                 <div class="metric-title">Revenue Growth</div>
-                <div class="metric-value" id="revenue-growth">+12.5%</div>
-                <div class="metric-change positive">↑ 12.5% from last month</div>
+                <div class="metric-value" id="revenue-growth">—</div>
+                <div class="metric-change" id="revenue-growth-change">vs. last month</div>
             </div>
             <div class="metric-card">
-                <div class="metric-title">Customer Acquisition</div>
-                <div class="metric-value" id="customer-acquisition">+8.2%</div>
-                <div class="metric-change positive">↑ 8.2% from last month</div>
+                <div class="metric-title">New Customers</div>
+                <div class="metric-value" id="customer-acquisition">—</div>
+                <div class="metric-change" id="customer-acquisition-change">this month</div>
             </div>
             <div class="metric-card">
                 <div class="metric-title">Appointment Completion</div>
-                <div class="metric-value" id="appointment-completion">94.7%</div>
-                <div class="metric-change positive">↑ 2.1% from last month</div>
+                <div class="metric-value" id="appointment-completion">—</div>
+                <div class="metric-change" id="appointment-completion-change">of all appointments</div>
             </div>
             <div class="metric-card">
-                <div class="metric-title">Customer Satisfaction</div>
-                <div class="metric-value" id="customer-satisfaction">4.8/5</div>
-                <div class="metric-change positive">↑ 0.2 from last month</div>
+                <div class="metric-title">This Month Revenue</div>
+                <div class="metric-value" id="customer-satisfaction">—</div>
+                <div class="metric-change" id="customer-satisfaction-change">current month</div>
             </div>
         </div>
         
         <div class="chart-section">
-            <h3 class="chart-title">Revenue Trends</h3>
-            <div class="chart-container">
-                <div class="chart-placeholder">
-                    <i class="fas fa-chart-line fa-3x" style="color: #ddd; margin-bottom: 1rem;"></i>
-                    <p>Revenue chart will be displayed here</p>
-                    <p>Data loading...</p>
-                </div>
+            <h3 class="chart-title">Revenue Trends (Last 6 Months)</h3>
+            <div class="chart-container" id="chart-revenue">
+                <div style="text-align:center;padding:2rem;color:#aaa;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
             </div>
         </div>
-        
+
+        <div class="chart-section">
+            <h3 class="chart-title">Appointments (Last 6 Months)</h3>
+            <div class="chart-container" id="chart-appts">
+                <div style="text-align:center;padding:2rem;color:#aaa;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+            </div>
+        </div>
+
         <div class="chart-section">
             <h3 class="chart-title">Service Distribution</h3>
-            <div class="chart-container">
-                <div class="chart-placeholder">
-                    <i class="fas fa-chart-pie fa-3x" style="color: #ddd; margin-bottom: 1rem;"></i>
-                    <p>Service distribution chart will be displayed here</p>
-                    <p>Data loading...</p>
-                </div>
+            <div class="chart-container" id="chart-services">
+                <div style="text-align:center;padding:2rem;color:#aaa;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
             </div>
         </div>
-        
+
         <div class="chart-section">
-            <h3 class="chart-title">Customer Growth</h3>
-            <div class="chart-container">
-                <div class="chart-placeholder">
-                    <i class="fas fa-chart-bar fa-3x" style="color: #ddd; margin-bottom: 1rem;"></i>
-                    <p>Customer growth chart will be displayed here</p>
-                    <p>Data loading...</p>
-                </div>
+            <h3 class="chart-title">Customer Growth (Last 6 Months)</h3>
+            <div class="chart-container" id="chart-customers">
+                <div style="text-align:center;padding:2rem;color:#aaa;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
             </div>
         </div>
     </main>
