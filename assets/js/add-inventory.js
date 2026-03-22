@@ -11,24 +11,23 @@ const firebaseConfig = {
     appId: "1:135322230444:web:1a487b25a48aae07368909"
 };
 
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
+const app  = initializeApp(firebaseConfig);
+const db   = getFirestore(app);
 const auth = getAuth(app);
 
-const urlParams  = new URLSearchParams(window.location.search);
-const editId     = urlParams.get('id');
-const isEdit     = !!editId;
+const urlParams   = new URLSearchParams(window.location.search);
+const editId      = urlParams.get('id');
+const isEdit      = !!editId;
 
-const form       = document.getElementById('inventory-form');
-const alertEl    = document.getElementById('alert');
-const submitBtn  = document.getElementById('submit-btn');
+const form        = document.getElementById('inventory-form');
+const alertEl     = document.getElementById('alert');
+const submitBtn   = document.getElementById('submit-btn');
 const submitLabel = document.getElementById('submit-label');
-const pageTitle  = document.getElementById('page-title');
 
 if (isEdit) {
-    pageTitle.textContent = 'Edit Inventory Item';
+    document.getElementById('page-title').textContent = 'Edit Inventory Item';
+    document.getElementById('page-sub').textContent   = 'Update the details below.';
     submitLabel.textContent = 'Save Changes';
-    document.querySelector('p[style]').textContent = 'Update the details below.';
 }
 
 onAuthStateChanged(auth, async (user) => {
@@ -36,8 +35,7 @@ onAuthStateChanged(auth, async (user) => {
     try {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (!userDoc.exists() || userDoc.data().role !== 'admin') {
-            window.location.href = 'admin-login.html';
-            return;
+            window.location.href = 'admin-login.html'; return;
         }
         if (isEdit) await loadItem();
     } catch (e) {
@@ -49,19 +47,28 @@ async function loadItem() {
     try {
         const snap = await getDoc(doc(db, 'inventory', editId));
         if (!snap.exists()) { showAlert('Item not found.', 'error'); return; }
-        const data = snap.data();
-        document.getElementById('name').value        = data.name        || '';
-        document.getElementById('sku').value         = data.sku         || '';
-        document.getElementById('category').value    = data.category    || '';
-        document.getElementById('supplier').value    = data.supplier    || '';
-        document.getElementById('description').value = data.description || '';
-        document.getElementById('quantity').value    = data.quantity    ?? '';
-        document.getElementById('reorderLevel').value = data.reorderLevel ?? 10;
-        document.getElementById('price').value       = data.price       ?? '';
-        document.getElementById('location').value    = data.location    || '';
+        const d = snap.data();
+        setValue('name',         d.name);
+        setValue('sku',          d.sku);
+        setValue('category',     d.category);
+        setValue('brand',        d.brand);
+        setValue('supplier',     d.supplier);
+        setValue('unit',         d.unit);
+        setValue('description',  d.description);
+        setValue('quantity',     d.quantity);
+        setValue('reorderLevel', d.reorderLevel ?? 5);
+        setValue('location',     d.location);
+        setValue('condition',    d.condition);
+        setValue('cost',         d.cost);
+        setValue('price',        d.price);
     } catch (e) {
         showAlert('Failed to load item: ' + e.message, 'error');
     }
+}
+
+function setValue(id, val) {
+    const el = document.getElementById(id);
+    if (el && val !== undefined && val !== null) el.value = val;
 }
 
 form.addEventListener('submit', async (e) => {
@@ -70,44 +77,49 @@ form.addEventListener('submit', async (e) => {
     submitLabel.textContent = isEdit ? 'Saving…' : 'Adding…';
 
     const data = {
-        name:         document.getElementById('name').value.trim(),
-        sku:          document.getElementById('sku').value.trim(),
-        category:     document.getElementById('category').value,
-        supplier:     document.getElementById('supplier').value.trim(),
-        description:  document.getElementById('description').value.trim(),
-        quantity:     parseInt(document.getElementById('quantity').value) || 0,
-        reorderLevel: parseInt(document.getElementById('reorderLevel').value) || 10,
-        price:        parseFloat(document.getElementById('price').value) || 0,
-        location:     document.getElementById('location').value.trim(),
+        name:         val('name'),
+        sku:          val('sku'),
+        category:     val('category'),
+        brand:        val('brand'),
+        supplier:     val('supplier'),
+        unit:         val('unit'),
+        description:  val('description'),
+        quantity:     num('quantity'),
+        reorderLevel: num('reorderLevel') || 5,
+        location:     val('location'),
+        condition:    val('condition'),
+        cost:         flt('cost'),
+        price:        flt('price'),
         updatedAt:    serverTimestamp(),
     };
 
     try {
         if (isEdit) {
             await updateDoc(doc(db, 'inventory', editId), data);
-            showAlert('Item updated successfully!', 'success');
+            showAlert('Item updated!', 'success');
         } else {
             data.createdAt = serverTimestamp();
             await addDoc(collection(db, 'inventory'), data);
-            showAlert('Item added successfully!', 'success');
+            showAlert('Item added to inventory!', 'success');
             form.reset();
         }
         setTimeout(() => { window.location.href = 'inventory.html'; }, 1200);
     } catch (err) {
         showAlert('Error: ' + err.message, 'error');
         submitBtn.disabled = false;
-        submitLabel.textContent = isEdit ? 'Save Changes' : 'Add Item';
+        submitLabel.textContent = isEdit ? 'Save Changes' : 'Add to Inventory';
     }
 });
 
+const val = (id) => (document.getElementById(id)?.value || '').trim();
+const num = (id) => parseInt(document.getElementById(id)?.value) || 0;
+const flt = (id) => parseFloat(document.getElementById(id)?.value) || 0;
+
 function showAlert(msg, type) {
-    alertEl.textContent = msg;
-    alertEl.style.display = 'block';
+    alertEl.textContent    = msg;
+    alertEl.style.display  = 'block';
     alertEl.style.background = type === 'success' ? '#e8f5e9' : '#ffebee';
     alertEl.style.color      = type === 'success' ? '#2e7d32' : '#c62828';
 }
 
-window.logout = async () => {
-    await signOut(auth);
-    window.location.href = 'admin-login.html';
-};
+window.logout = async () => { await signOut(auth); window.location.href = 'admin-login.html'; };

@@ -120,9 +120,14 @@
                     <label for="category-filter">Category</label>
                     <select id="category-filter">
                         <option value="">All Categories</option>
-                        <option value="equipment">Equipment</option>
-                        <option value="supplies">Supplies</option>
-                        <option value="fertilizer">Fertilizer</option>
+                        <option value="equipment">Equipment & Machinery</option>
+                        <option value="tools">Hand Tools</option>
+                        <option value="fuel-oil">Fuel & Oil</option>
+                        <option value="fertilizer">Fertilizer & Chemicals</option>
+                        <option value="seeds-plants">Seeds & Plants</option>
+                        <option value="mulch-soil">Mulch & Soil</option>
+                        <option value="irrigation">Irrigation & Hoses</option>
+                        <option value="safety">Safety Equipment</option>
                         <option value="other">Other</option>
                     </select>
                 </div>
@@ -143,6 +148,10 @@
                     <button class="btn btn-secondary btn-small" onclick="exportInventory()">
                         <i class="fas fa-download"></i>
                         Export
+                    </button>
+                    <button class="btn btn-small" style="background:#c62828;color:#fff;" onclick="clearAllInventory()">
+                        <i class="fas fa-trash"></i>
+                        Clear All
                     </button>
                     <button class="btn btn-primary btn-small" onclick="refreshInventory()">
                         <i class="fas fa-sync-alt"></i>
