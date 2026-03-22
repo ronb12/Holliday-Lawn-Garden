@@ -1,5 +1,5 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getFirestore, collection, deleteDoc, getDocs, doc, getDoc, query, orderBy, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getFirestore, collection, addDoc, updateDoc, deleteDoc, getDocs, doc, getDoc, query, orderBy, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 const firebaseConfig = {
@@ -156,7 +156,99 @@ function showError(msg) {
     loadingDiv.style.display = 'none';
 }
 
-window.editItem = (id) => { window.location.href = `add-inventory.html?id=${id}`; };
+// ── Modal helpers ──────────────────────────────────────────────
+window.openAddModal = () => {
+    document.getElementById('modal-title').innerHTML = '<i class="fas fa-plus" style="color:#2e7d32;margin-right:0.5rem;"></i>Add Inventory Item';
+    document.getElementById('modal-submit-label').textContent = 'Add to Inventory';
+    document.getElementById('edit-id').value = '';
+    document.getElementById('inventory-form').reset();
+    document.getElementById('f-reorder').value = 5;
+    document.getElementById('modal-alert').style.display = 'none';
+    document.getElementById('inventory-modal').classList.add('open');
+};
+
+window.closeModal = () => {
+    document.getElementById('inventory-modal').classList.remove('open');
+};
+
+window.handleOverlayClick = (e) => {
+    if (e.target === document.getElementById('inventory-modal')) closeModal();
+};
+
+window.editItem = async (id) => {
+    try {
+        const snap = await getDoc(doc(db, 'inventory', id));
+        if (!snap.exists()) return;
+        const d = snap.data();
+        document.getElementById('modal-title').innerHTML = '<i class="fas fa-edit" style="color:#2e7d32;margin-right:0.5rem;"></i>Edit Inventory Item';
+        document.getElementById('modal-submit-label').textContent = 'Save Changes';
+        document.getElementById('edit-id').value = id;
+        setVal('f-name',        d.name);
+        setVal('f-sku',         d.sku);
+        setVal('f-category',    d.category);
+        setVal('f-brand',       d.brand);
+        setVal('f-supplier',    d.supplier);
+        setVal('f-unit',        d.unit);
+        setVal('f-description', d.description);
+        setVal('f-quantity',    d.quantity);
+        setVal('f-reorder',     d.reorderLevel ?? 5);
+        setVal('f-location',    d.location);
+        setVal('f-condition',   d.condition);
+        setVal('f-cost',        d.cost);
+        setVal('f-price',       d.price);
+        document.getElementById('modal-alert').style.display = 'none';
+        document.getElementById('inventory-modal').classList.add('open');
+    } catch (e) { showError('Could not load item: ' + e.message); }
+};
+
+function setVal(id, val) {
+    const el = document.getElementById(id);
+    if (el && val !== undefined && val !== null) el.value = val;
+}
+
+window.submitInventoryForm = async (e) => {
+    e.preventDefault();
+    const editId = document.getElementById('edit-id').value;
+    const btn    = document.getElementById('modal-submit');
+    const label  = document.getElementById('modal-submit-label');
+    btn.disabled = true;
+    label.textContent = editId ? 'Saving…' : 'Adding…';
+
+    const data = {
+        name:         gv('f-name'),
+        sku:          gv('f-sku'),
+        category:     gv('f-category'),
+        brand:        gv('f-brand'),
+        supplier:     gv('f-supplier'),
+        unit:         gv('f-unit'),
+        description:  gv('f-description'),
+        quantity:     parseInt(gv('f-quantity')) || 0,
+        reorderLevel: parseInt(gv('f-reorder'))  || 5,
+        location:     gv('f-location'),
+        condition:    gv('f-condition'),
+        cost:         parseFloat(gv('f-cost'))  || 0,
+        price:        parseFloat(gv('f-price')) || 0,
+        updatedAt:    serverTimestamp(),
+    };
+
+    try {
+        if (editId) {
+            await updateDoc(doc(db, 'inventory', editId), data);
+        } else {
+            data.createdAt = serverTimestamp();
+            await addDoc(collection(db, 'inventory'), data);
+        }
+        closeModal();
+    } catch (err) {
+        const al = document.getElementById('modal-alert');
+        al.textContent = 'Error: ' + err.message;
+        al.style.cssText = 'display:block;background:#ffebee;color:#c62828;padding:0.65rem 1rem;border-radius:6px;';
+        btn.disabled = false;
+        label.textContent = editId ? 'Save Changes' : 'Add to Inventory';
+    }
+};
+
+function gv(id) { return (document.getElementById(id)?.value || '').trim(); }
 
 window.deleteItem = async (id) => {
     if (!confirm('Delete this inventory item?')) return;
