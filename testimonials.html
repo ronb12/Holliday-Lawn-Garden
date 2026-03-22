@@ -160,9 +160,71 @@
         <section class="testimonials-section">
             <div class="container">
                 <h2>What Our Customers Say</h2>
-                <div style="text-align:center;padding:3rem 1rem;color:#555;">
-                    <p style="font-size:1.1rem;margin-bottom:1rem;">No testimonials yet. Be the first to share your experience!</p>
-                    <a href="contact.html" style="display:inline-block;padding:0.75rem 1.5rem;background:#2e7d32;color:#fff;border-radius:6px;text-decoration:none;font-weight:600;">Contact Us</a>
+                <div id="reviews-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem;margin-bottom:2rem;">
+                    <div style="text-align:center;padding:2rem;color:#555;grid-column:1/-1;" id="reviews-loading">
+                        <i class="fas fa-spinner fa-spin" style="font-size:1.5rem;color:#4caf50;"></i>
+                        <p>Loading reviews...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Submit a Review -->
+        <section style="background:#f1f8e9;padding:3rem 0;">
+            <div class="container">
+                <div style="max-width:600px;margin:0 auto;">
+                    <h2 style="text-align:center;color:#2e7d32;margin-bottom:0.5rem;"><i class="fas fa-star"></i> Share Your Experience</h2>
+                    <p style="text-align:center;color:#555;margin-bottom:2rem;">We'd love to hear from you! Your review helps other customers and improves our service.</p>
+
+                    <div id="review-alert" style="display:none;padding:0.9rem 1.1rem;border-radius:7px;margin-bottom:1.25rem;font-weight:500;"></div>
+
+                    <form id="review-form" style="background:white;border-radius:12px;padding:2rem;box-shadow:0 4px 16px rgba(0,0,0,0.08);">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+                            <div>
+                                <label style="display:block;font-size:0.85rem;font-weight:600;color:#444;margin-bottom:0.4rem;">Your Name *</label>
+                                <input type="text" id="r-name" required placeholder="John Doe" style="width:100%;padding:0.7rem 0.9rem;border:1.5px solid #ddd;border-radius:7px;font-size:0.95rem;box-sizing:border-box;font-family:inherit;"/>
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:0.85rem;font-weight:600;color:#444;margin-bottom:0.4rem;">Email (optional)</label>
+                                <input type="email" id="r-email" placeholder="john@email.com" style="width:100%;padding:0.7rem 0.9rem;border:1.5px solid #ddd;border-radius:7px;font-size:0.95rem;box-sizing:border-box;font-family:inherit;"/>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom:1rem;">
+                            <label style="display:block;font-size:0.85rem;font-weight:600;color:#444;margin-bottom:0.5rem;">Rating *</label>
+                            <div id="star-rating" style="display:flex;gap:0.4rem;font-size:1.8rem;cursor:pointer;">
+                                <span data-val="1" style="color:#ddd;">&#9733;</span>
+                                <span data-val="2" style="color:#ddd;">&#9733;</span>
+                                <span data-val="3" style="color:#ddd;">&#9733;</span>
+                                <span data-val="4" style="color:#ddd;">&#9733;</span>
+                                <span data-val="5" style="color:#ddd;">&#9733;</span>
+                            </div>
+                            <input type="hidden" id="r-rating" value="0"/>
+                        </div>
+
+                        <div style="margin-bottom:1rem;">
+                            <label style="display:block;font-size:0.85rem;font-weight:600;color:#444;margin-bottom:0.4rem;">Service Used</label>
+                            <select id="r-service" style="width:100%;padding:0.7rem 0.9rem;border:1.5px solid #ddd;border-radius:7px;font-size:0.95rem;font-family:inherit;">
+                                <option value="">Select a service...</option>
+                                <option value="Lawn Maintenance">Lawn Maintenance</option>
+                                <option value="Landscaping">Landscaping</option>
+                                <option value="Garden Care">Garden Care</option>
+                                <option value="Pressure Washing">Pressure Washing</option>
+                                <option value="Commercial Services">Commercial Services</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div style="margin-bottom:1.5rem;">
+                            <label style="display:block;font-size:0.85rem;font-weight:600;color:#444;margin-bottom:0.4rem;">Your Review *</label>
+                            <textarea id="r-review" required rows="4" placeholder="Tell us about your experience with our team and service..." style="width:100%;padding:0.7rem 0.9rem;border:1.5px solid #ddd;border-radius:7px;font-size:0.95rem;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>
+                        </div>
+
+                        <button type="submit" id="review-btn" style="width:100%;padding:1rem;background:#2e7d32;color:white;border:none;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;font-family:inherit;transition:background 0.2s;">
+                            <i class="fas fa-paper-plane"></i> <span id="review-btn-label">Submit Review</span>
+                        </button>
+                        <p style="text-align:center;font-size:0.8rem;color:#888;margin-top:0.75rem;">Reviews are approved before being published.</p>
+                    </form>
                 </div>
             </div>
         </section>
@@ -218,5 +280,112 @@
             </div>
         </div>
     </footer>
+
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getFirestore, collection, addDoc, query, where, orderBy, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyACm0j7I8RX4ExIQRoejfk1HZMOQRGigBw",
+        authDomain: "holiday-lawn-and-garden.firebaseapp.com",
+        projectId: "holiday-lawn-and-garden",
+        storageBucket: "holiday-lawn-and-garden.firebasestorage.app",
+        messagingSenderId: "135322230444",
+        appId: "1:135322230444:web:1a487b25a48aae07368909"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Star rating interaction
+    let selectedRating = 0;
+    const stars = document.querySelectorAll('#star-rating span');
+    stars.forEach(star => {
+        star.addEventListener('mouseover', () => highlightStars(+star.dataset.val));
+        star.addEventListener('mouseout', () => highlightStars(selectedRating));
+        star.addEventListener('click', () => {
+            selectedRating = +star.dataset.val;
+            document.getElementById('r-rating').value = selectedRating;
+            highlightStars(selectedRating);
+        });
+    });
+    function highlightStars(n) {
+        stars.forEach(s => s.style.color = +s.dataset.val <= n ? '#f9a825' : '#ddd');
+    }
+
+    // Load approved reviews
+    async function loadReviews() {
+        const listEl = document.getElementById('reviews-list');
+        try {
+            const snap = await getDocs(query(collection(db, 'reviews'), where('approved', '==', true), orderBy('createdAt', 'desc')));
+            document.getElementById('reviews-loading').remove();
+            if (snap.empty) {
+                listEl.innerHTML = '<div style="text-align:center;padding:2rem;color:#555;grid-column:1/-1;"><p>No reviews yet — be the first!</p></div>';
+                return;
+            }
+            snap.forEach(doc => {
+                const r = doc.data();
+                const stars = '&#9733;'.repeat(r.rating || 5) + '&#9734;'.repeat(5 - (r.rating || 5));
+                const card = document.createElement('div');
+                card.style.cssText = 'background:white;border-radius:10px;padding:1.5rem;box-shadow:0 2px 10px rgba(0,0,0,0.08);';
+                card.innerHTML = `
+                    <div style="color:#f9a825;font-size:1.2rem;margin-bottom:0.5rem;">${stars}</div>
+                    <p style="color:#333;margin:0 0 1rem;font-style:italic;">"${r.review}"</p>
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <strong style="color:#2e7d32;">${r.name}</strong>
+                        ${r.service ? `<span style="font-size:0.8rem;background:#e8f5e9;color:#2e7d32;padding:0.2rem 0.6rem;border-radius:12px;">${r.service}</span>` : ''}
+                    </div>
+                    ${r.createdAt ? `<div style="font-size:0.75rem;color:#999;margin-top:0.4rem;">${new Date(r.createdAt.toDate ? r.createdAt.toDate() : r.createdAt).toLocaleDateString()}</div>` : ''}
+                `;
+                listEl.appendChild(card);
+            });
+        } catch (err) {
+            document.getElementById('reviews-loading').innerHTML = '<p style="color:#888;">Could not load reviews.</p>';
+        }
+    }
+    loadReviews();
+
+    // Submit review form
+    document.getElementById('review-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        const btn = document.getElementById('review-btn');
+        const label = document.getElementById('review-btn-label');
+        const alertEl = document.getElementById('review-alert');
+        const rating = +document.getElementById('r-rating').value;
+
+        if (rating === 0) {
+            alertEl.style.cssText = 'display:block;background:#ffebee;color:#c62828;padding:0.9rem;border-radius:7px;margin-bottom:1rem;font-weight:500;border:1px solid #ef9a9a;';
+            alertEl.textContent = 'Please select a star rating.';
+            return;
+        }
+
+        btn.disabled = true;
+        label.textContent = 'Submitting...';
+        alertEl.style.display = 'none';
+
+        try {
+            await addDoc(collection(db, 'reviews'), {
+                name:      document.getElementById('r-name').value.trim(),
+                email:     document.getElementById('r-email').value.trim(),
+                rating,
+                service:   document.getElementById('r-service').value,
+                review:    document.getElementById('r-review').value.trim(),
+                approved:  false,
+                createdAt: new Date()
+            });
+            alertEl.style.cssText = 'display:block;background:#e8f5e9;color:#2e7d32;padding:0.9rem;border-radius:7px;margin-bottom:1rem;font-weight:500;border:1px solid #a5d6a7;';
+            alertEl.textContent = 'Thank you for your review! It will appear after approval.';
+            document.getElementById('review-form').reset();
+            selectedRating = 0;
+            highlightStars(0);
+            document.getElementById('r-rating').value = 0;
+        } catch (err) {
+            alertEl.style.cssText = 'display:block;background:#ffebee;color:#c62828;padding:0.9rem;border-radius:7px;margin-bottom:1rem;font-weight:500;';
+            alertEl.textContent = 'Something went wrong. Please try again.';
+        } finally {
+            btn.disabled = false;
+            label.textContent = 'Submit Review';
+        }
+    });
+</script>
 </body>
 </html>

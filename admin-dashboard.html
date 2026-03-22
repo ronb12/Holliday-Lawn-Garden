@@ -519,14 +519,29 @@
         </div>
 
         <div class="dashboard-grid">
-            <div class="dashboard-card">
+            <div class="dashboard-card" style="position:relative;">
+                <span id="badge-appointments" style="display:none;position:absolute;top:12px;right:12px;background:#e53935;color:#fff;border-radius:50%;width:22px;height:22px;font-size:0.75rem;font-weight:700;display:none;align-items:center;justify-content:center;"></span>
                 <div class="card-icon">
                     <i class="fas fa-calendar-check"></i>
                 </div>
                 <div class="card-title">Appointments</div>
+                <div id="pending-appt-label" style="font-size:0.8rem;color:#e53935;font-weight:600;margin-bottom:0.5rem;display:none;"></div>
                 <div class="card-actions">
                     <a href="appointments.html" class="card-btn">View All</a>
                     <a href="add-appointment.html" class="card-btn">Add New</a>
+                </div>
+            </div>
+
+            <div class="dashboard-card" style="position:relative;">
+                <span id="badge-quotes" style="display:none;position:absolute;top:12px;right:12px;background:#f57c00;color:#fff;border-radius:50%;width:22px;height:22px;font-size:0.75rem;font-weight:700;display:none;align-items:center;justify-content:center;"></span>
+                <div class="card-icon">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                <div class="card-title">Quote Requests</div>
+                <div id="pending-quotes-label" style="font-size:0.8rem;color:#f57c00;font-weight:600;margin-bottom:0.5rem;display:none;"></div>
+                <div class="card-actions">
+                    <a href="quotes.html" class="card-btn">View Quotes</a>
+                    <a href="request-quote.html" class="card-btn">New Quote</a>
                 </div>
             </div>
 
@@ -585,14 +600,29 @@
                 </div>
             </div>
 
-            <div class="dashboard-card">
+            <div class="dashboard-card" style="position:relative;">
+                <span id="badge-messages" style="display:none;position:absolute;top:12px;right:12px;background:#1565c0;color:#fff;border-radius:50%;width:22px;height:22px;font-size:0.75rem;font-weight:700;display:none;align-items:center;justify-content:center;"></span>
                 <div class="card-icon">
                     <i class="fas fa-envelope"></i>
                 </div>
                 <div class="card-title">Communication</div>
+                <div id="unread-msg-label" style="font-size:0.8rem;color:#1565c0;font-weight:600;margin-bottom:0.5rem;display:none;"></div>
                 <div class="card-actions">
                     <a href="messages.html" class="card-btn">View Messages</a>
                     <a href="bulk-message.html" class="card-btn">Send Bulk Message</a>
+                </div>
+            </div>
+
+            <div class="dashboard-card" style="position:relative;">
+                <span id="badge-reviews" style="display:none;position:absolute;top:12px;right:12px;background:#6a1b9a;color:#fff;border-radius:50%;width:22px;height:22px;font-size:0.75rem;font-weight:700;display:none;align-items:center;justify-content:center;"></span>
+                <div class="card-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="card-title">Reviews</div>
+                <div id="pending-reviews-label" style="font-size:0.8rem;color:#6a1b9a;font-weight:600;margin-bottom:0.5rem;display:none;"></div>
+                <div class="card-actions">
+                    <a href="reviews.html" class="card-btn">View Reviews</a>
+                    <a href="testimonials.html" class="card-btn">Testimonials Page</a>
                 </div>
             </div>
         </div>
@@ -695,5 +725,55 @@
         });
     </script>
 <script src="assets/js/hide-loading.js"></script>
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getFirestore, collection, query, where, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyACm0j7I8RX4ExIQRoejfk1HZMOQRGigBw",
+        authDomain: "holiday-lawn-and-garden.firebaseapp.com",
+        projectId: "holiday-lawn-and-garden",
+        storageBucket: "holiday-lawn-and-garden.firebasestorage.app",
+        messagingSenderId: "135322230444",
+        appId: "1:135322230444:web:1a487b25a48aae07368909"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    function showBadge(badgeId, labelId, count, singular, plural) {
+        const badge = document.getElementById(badgeId);
+        const label = document.getElementById(labelId);
+        if (!badge || !label) return;
+        if (count > 0) {
+            badge.textContent = count > 99 ? '99+' : count;
+            badge.style.display = 'flex';
+            label.textContent = `${count} ${count === 1 ? singular : plural}`;
+            label.style.display = 'block';
+        } else {
+            badge.style.display = 'none';
+            label.style.display = 'none';
+        }
+    }
+
+    // Pending appointments
+    onSnapshot(query(collection(db, 'appointments'), where('status', '==', 'pending')), snap => {
+        showBadge('badge-appointments', 'pending-appt-label', snap.size, 'pending request', 'pending requests');
+    });
+
+    // New quote requests
+    onSnapshot(query(collection(db, 'quote-requests'), where('status', '==', 'new')), snap => {
+        showBadge('badge-quotes', 'pending-quotes-label', snap.size, 'new quote request', 'new quote requests');
+    });
+
+    // Unread messages
+    onSnapshot(query(collection(db, 'messages'), where('read', '==', false), where('sentByAdmin', '!=', true)), snap => {
+        showBadge('badge-messages', 'unread-msg-label', snap.size, 'unread message', 'unread messages');
+    });
+
+    // Pending reviews
+    onSnapshot(query(collection(db, 'reviews'), where('approved', '==', false)), snap => {
+        showBadge('badge-reviews', 'pending-reviews-label', snap.size, 'review awaiting approval', 'reviews awaiting approval');
+    });
+</script>
 </body>
 </html>

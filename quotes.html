@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Quote Requests - Holliday's Lawn &amp; Garden Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <link href="assets/css/main.css" rel="stylesheet"/>
+    <link href="assets/css/admin-dashboard.css" rel="stylesheet"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon/favicon-32x32.png"/>
+</head>
+<body>
+    <header class="admin-header">
+        <div class="logo">
+            <img src="assets/images/hollidays-logo.optimized-1280.png" alt="Holliday's Lawn &amp; Garden"/>
+            <span style="font-weight:700;color:#2c5530;">Admin Dashboard</span>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-secondary" onclick="window.location.href='admin-dashboard.html'">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </button>
+            <button class="btn btn-danger" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </header>
+
+    <main class="dashboard-main">
+        <nav aria-label="Breadcrumb" style="padding:0.6rem 0 0.2rem;font-size:0.85rem;color:#777;">
+            <a href="admin-dashboard.html" style="color:#2e7d32;text-decoration:none;font-weight:500;"><i class="fas fa-home"></i> Dashboard</a>
+            <span style="margin:0 0.4rem;">/</span>
+            <span style="color:#555;font-weight:600;">Quote Requests</span>
+        </nav>
+
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Quote Requests</h1>
+                <p class="page-subtitle">Manage incoming quote requests from potential customers</p>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-number" id="total-quotes">0</div><div class="stat-label">Total Requests</div></div>
+            <div class="stat-card"><div class="stat-number" id="new-quotes">0</div><div class="stat-label">New</div></div>
+            <div class="stat-card"><div class="stat-number" id="reviewed-quotes">0</div><div class="stat-label">Reviewed</div></div>
+            <div class="stat-card"><div class="stat-number" id="converted-quotes">0</div><div class="stat-label">Converted</div></div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-section">
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label for="search-quotes">Search</label>
+                    <input type="text" id="search-quotes" placeholder="Name, email, or service..."/>
+                </div>
+                <div class="filter-group">
+                    <label for="status-filter">Status</label>
+                    <select id="status-filter">
+                        <option value="">All Statuses</option>
+                        <option value="new">New</option>
+                        <option value="reviewed">Reviewed</option>
+                        <option value="converted">Converted to Job</option>
+                        <option value="declined">Declined</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="messages-table">
+            <div class="table-header">
+                <h3 class="table-title">Quote Requests</h3>
+            </div>
+            <div class="table-container">
+                <div id="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading quote requests...</div>
+                <div id="error" class="error" style="display:none;"></div>
+                <table id="quotes-table" style="display:none;">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Name</th>
+                            <th>Contact</th>
+                            <th>Services</th>
+                            <th>Property</th>
+                            <th>Timing</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="quotes-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, getDocs, updateDoc, deleteDoc, doc, query, orderBy, onSnapshot, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyACm0j7I8RX4ExIQRoejfk1HZMOQRGigBw",
+            authDomain: "holiday-lawn-and-garden.firebaseapp.com",
+            projectId: "holiday-lawn-and-garden",
+            storageBucket: "holiday-lawn-and-garden.firebasestorage.app",
+            messagingSenderId: "135322230444",
+            appId: "1:135322230444:web:1a487b25a48aae07368909"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        let quotes = [];
+
+        onAuthStateChanged(auth, async user => {
+            if (!user) { window.location.href = 'admin-login.html'; return; }
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (!userDoc.exists() || userDoc.data().role !== 'admin') { window.location.href = 'admin-login.html'; return; }
+            loadQuotes();
+        });
+
+        function loadQuotes() {
+            onSnapshot(query(collection(db, 'quote-requests'), orderBy('createdAt', 'desc')), snap => {
+                quotes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                updateStats();
+                renderTable(quotes);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('quotes-table').style.display = 'table';
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('total-quotes').textContent = quotes.length;
+            document.getElementById('new-quotes').textContent = quotes.filter(q => q.status === 'new').length;
+            document.getElementById('reviewed-quotes').textContent = quotes.filter(q => q.status === 'reviewed').length;
+            document.getElementById('converted-quotes').textContent = quotes.filter(q => q.status === 'converted').length;
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('quotes-tbody');
+            tbody.innerHTML = '';
+            if (!data.length) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:#777;">No quote requests found.</td></tr>';
+                return;
+            }
+            data.forEach(q => {
+                const date = q.createdAt ? new Date(q.createdAt.toDate ? q.createdAt.toDate() : q.createdAt).toLocaleDateString() : 'N/A';
+                const statusColors = { new: '#1565c0', reviewed: '#e65100', converted: '#2e7d32', declined: '#c62828' };
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${date}</td>
+                    <td><strong>${q.firstName || ''} ${q.lastName || ''}</strong></td>
+                    <td><div>${q.email || 'N/A'}</div><div style="font-size:0.8rem;color:#777;">${q.phone || ''}</div></td>
+                    <td style="font-size:0.85rem;">${(q.services || []).join(', ') || 'N/A'}</td>
+                    <td style="font-size:0.85rem;">${q.propertySize || ''} ${q.propertyType || ''}</td>
+                    <td style="font-size:0.85rem;">${q.timing || 'N/A'}</td>
+                    <td><span style="background:${statusColors[q.status]||'#777'};color:white;padding:0.2rem 0.6rem;border-radius:12px;font-size:0.75rem;font-weight:600;">${q.status || 'new'}</span></td>
+                    <td>
+                        <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+                            <button class="btn btn-secondary btn-small" onclick="viewQuote('${q.id}')"><i class="fas fa-eye"></i> View</button>
+                            <select style="font-size:0.8rem;padding:0.25rem 0.4rem;border-radius:4px;border:1px solid #ddd;" onchange="updateStatus('${q.id}', this.value)">
+                                <option value="">Update status</option>
+                                <option value="new">New</option>
+                                <option value="reviewed">Reviewed</option>
+                                <option value="converted">Converted</option>
+                                <option value="declined">Declined</option>
+                            </select>
+                        </div>
+                    </td>
+                `;
+                document.getElementById('quotes-tbody').appendChild(row);
+            });
+        }
+
+        window.viewQuote = function(id) {
+            const q = quotes.find(x => x.id === id);
+            if (!q) return;
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:2000;padding:1rem;';
+            modal.innerHTML = `
+                <div style="background:white;border-radius:12px;padding:2rem;max-width:560px;width:100%;max-height:85vh;overflow-y:auto;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+                        <h3 style="margin:0;color:#2e7d32;">Quote Request Details</h3>
+                        <button onclick="this.closest('div[style*=position]').remove()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">&times;</button>
+                    </div>
+                    <p><strong>Name:</strong> ${q.firstName || ''} ${q.lastName || ''}</p>
+                    <p><strong>Email:</strong> <a href="mailto:${q.email}">${q.email || 'N/A'}</a></p>
+                    <p><strong>Phone:</strong> ${q.phone || 'N/A'}</p>
+                    <p><strong>Address:</strong> ${q.address || 'N/A'}</p>
+                    <p><strong>Services:</strong> ${(q.services || []).join(', ') || 'N/A'}</p>
+                    <p><strong>Property Size:</strong> ${q.propertySize || 'N/A'}</p>
+                    <p><strong>Property Type:</strong> ${q.propertyType || 'N/A'}</p>
+                    <p><strong>Timing:</strong> ${q.timing || 'N/A'}</p>
+                    <p><strong>Notes:</strong> ${q.notes || 'None'}</p>
+                    <div style="margin-top:1.5rem;display:flex;gap:0.75rem;">
+                        <a href="mailto:${q.email}?subject=Your Quote Request - Holliday's Lawn & Garden" class="btn btn-primary" style="flex:1;text-align:center;text-decoration:none;"><i class="fas fa-envelope"></i> Reply by Email</a>
+                        <a href="tel:${q.phone}" class="btn btn-secondary" style="flex:1;text-align:center;text-decoration:none;"><i class="fas fa-phone"></i> Call</a>
+                    </div>
+                </div>`;
+            document.body.appendChild(modal);
+            modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+        };
+
+        window.updateStatus = async function(id, status) {
+            if (!status) return;
+            try { await updateDoc(doc(db, 'quote-requests', id), { status }); }
+            catch(e) { alert('Failed to update status.'); }
+        };
+
+        // Filtering
+        document.getElementById('search-quotes').addEventListener('input', filter);
+        document.getElementById('status-filter').addEventListener('change', filter);
+        function filter() {
+            const term = document.getElementById('search-quotes').value.toLowerCase();
+            const status = document.getElementById('status-filter').value;
+            renderTable(quotes.filter(q => {
+                const matchSearch = !term || `${q.firstName} ${q.lastName} ${q.email} ${(q.services||[]).join(' ')}`.toLowerCase().includes(term);
+                const matchStatus = !status || q.status === status;
+                return matchSearch && matchStatus;
+            }));
+        }
+
+        window.logout = function() {
+            signOut(auth).then(() => window.location.href = 'admin-login.html');
+        };
+    </script>
+    <script src="assets/js/hide-loading.js"></script>
+</body>
+</html>
