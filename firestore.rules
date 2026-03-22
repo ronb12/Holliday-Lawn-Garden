@@ -3,38 +3,67 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ── Helper functions ──────────────────────────────────────────
-    // Checks the caller is authenticated
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // Checks the caller has role == 'admin' in their users doc
+    // Safe isAdmin: reads the users doc directly without recursion.
+    // Works because the users rule allows an authenticated user to
+    // read their OWN document unconditionally (uid == userId).
     function isAdmin() {
       return isAuthenticated() &&
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
-    // Checks the caller owns the document via a userId field
     function isOwner() {
       return isAuthenticated() && resource.data.userId == request.auth.uid;
     }
 
-    // Checks incoming write sets userId to the caller's uid
     function isCreatingOwn() {
       return isAuthenticated() && request.resource.data.userId == request.auth.uid;
     }
 
-    // ── Admin-only collections ────────────────────────────────────
-    // These hold business data that only admins should access.
-
-    match /appointments/{document} {
+    // ── Users ─────────────────────────────────────────────────────
+    // IMPORTANT: a user must ALWAYS be able to read their own document
+    // without calling isAdmin() — otherwise isAdmin() deadlocks.
+    match /users/{userId} {
+      allow read:  if isAuthenticated() && request.auth.uid == userId;
+      allow write: if isAuthenticated() && request.auth.uid == userId;
+      // Admins can read/write any user doc
       allow read, write: if isAdmin();
     }
 
+    // ── Appointments ──────────────────────────────────────────────
+    // Public can create (online booking form); admins have full access;
+    // authenticated users can read their own.
+    match /appointments/{document} {
+      allow create: if true; // public booking form (no login required)
+      allow read, update, delete: if isAdmin();
+      allow read: if isOwner();
+    }
+
+    // ── Quote Requests ────────────────────────────────────────────
+    // Public can submit; only admins can read/manage.
+    match /quote-requests/{document} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ── Reviews ───────────────────────────────────────────────────
+    // Public can submit; only approved reviews visible to public;
+    // admins can read all and approve/delete.
+    match /reviews/{document} {
+      allow create: if true;
+      allow read:   if resource.data.approved == true || isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
+    // ── Customers ─────────────────────────────────────────────────
     match /customers/{document} {
       allow read, write: if isAdmin();
     }
 
+    // ── Staff & Contractors ───────────────────────────────────────
     match /staff/{document} {
       allow read, write: if isAdmin();
     }
@@ -44,6 +73,11 @@ service cloud.firestore {
     }
 
     match /contractor_projects/{document} {
+      allow read, write: if isAdmin();
+    }
+
+    // ── Inventory / Equipment / Supplies ──────────────────────────
+    match /inventory/{document} {
       allow read, write: if isAdmin();
     }
 
@@ -59,20 +93,28 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
+    // ── Messages ──────────────────────────────────────────────────
     match /messages/{document} {
       allow read, write: if isAdmin();
     }
 
+    // bulk-messages (hyphenated collection name used in code)
+    match /bulk-messages/{document} {
+      allow read, write: if isAdmin();
+    }
+
+    // legacy camelCase name (kept for backwards compatibility)
     match /bulkMessages/{document} {
       allow read, write: if isAdmin();
     }
 
+    // ── Notifications ─────────────────────────────────────────────
     match /notifications/{document} {
       allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
       allow write: if isAdmin();
     }
 
-    // ── Schedule (admin writes; any logged-in user reads own) ─────
+    // ── Schedule ──────────────────────────────────────────────────
     match /schedule/{document} {
       allow read: if isAdmin() || isOwner();
       allow write: if isAdmin();
@@ -83,9 +125,7 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // ── Payments / invoices / billing ─────────────────────────────
-    // Admins have full access; customers can only read their own records.
-
+    // ── Payments / Invoices / Billing ─────────────────────────────
     match /payments/{document} {
       allow read: if isAdmin() || isOwner();
       allow write: if isAdmin();
@@ -101,20 +141,19 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // ── Services (customers can see their own history) ────────────
+    // ── Services ──────────────────────────────────────────────────
     match /services/{document} {
       allow read: if isAdmin() || isOwner();
       allow write: if isAdmin();
     }
 
-    // ── Service requests (customers can create + view their own) ──
     match /serviceRequests/{document} {
       allow create: if isCreatingOwn();
       allow read:   if isAdmin() || isOwner();
       allow update, delete: if isAdmin();
     }
 
-    // ── Real-time chat / typing indicators ───────────────────────
+    // ── Chat ──────────────────────────────────────────────────────
     match /chats/{document} {
       allow read, write: if isAuthenticated();
     }
@@ -123,15 +162,16 @@ service cloud.firestore {
       allow read, write: if isAuthenticated();
     }
 
-    // ── User profiles ─────────────────────────────────────────────
-    // Each user can read/write only their own document.
-    // Admins can read any user document.
-    match /users/{userId} {
-      allow read:  if isAuthenticated() && (request.auth.uid == userId || isAdmin());
-      allow write: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+    // ── Analytics / Reports ───────────────────────────────────────
+    match /analytics/{document} {
+      allow read, write: if isAdmin();
     }
 
-    // ── Deny everything else by default ──────────────────────────
+    match /reports/{document} {
+      allow read, write: if isAdmin();
+    }
+
+    // ── Deny everything else ──────────────────────────────────────
     match /{document=**} {
       allow read, write: if false;
     }
