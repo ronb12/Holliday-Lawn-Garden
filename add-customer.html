@@ -175,16 +175,15 @@
                 <div class="form-section">
                     <h3>Service Information</h3>
                     <div class="form-group">
-                        <label for="services">Services Needed</label>
-                        <select id="services" name="services" multiple>
-                            <option value="lawn-mowing">Lawn Mowing</option>
-                            <option value="landscaping">Landscaping</option>
-                            <option value="irrigation">Irrigation</option>
-                            <option value="maintenance">Maintenance</option>
-                            <option value="fertilization">Fertilization</option>
-                            <option value="pest-control">Pest Control</option>
-                        </select>
-                        <span class="form-help">Hold Ctrl / Cmd to select multiple services</span>
+                        <label>Services Needed</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-label"><input type="checkbox" name="services" value="lawn-mowing"> Lawn Mowing</label>
+                            <label class="checkbox-label"><input type="checkbox" name="services" value="landscaping"> Landscaping</label>
+                            <label class="checkbox-label"><input type="checkbox" name="services" value="irrigation"> Irrigation</label>
+                            <label class="checkbox-label"><input type="checkbox" name="services" value="maintenance"> Maintenance</label>
+                            <label class="checkbox-label"><input type="checkbox" name="services" value="fertilization"> Fertilization</label>
+                            <label class="checkbox-label"><input type="checkbox" name="services" value="pest-control"> Pest Control</label>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="notes">Additional Notes</label>

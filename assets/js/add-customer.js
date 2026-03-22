@@ -54,6 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const data = Object.fromEntries(new FormData(form));
+      // Collect all checked services as an array
+      data.services = Array.from(form.querySelectorAll('input[name="services"]:checked')).map(cb => cb.value);
       try {
         await addDoc(collection(db, 'customers'), {
           ...data,
