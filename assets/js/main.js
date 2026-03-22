@@ -64,32 +64,19 @@ function createInstallButton() {
     existingBtn.remove();
   }
 
-  // Check if we're on mobile
-  const isMobile = window.innerWidth <= 768;
-  
-  // Check if we're on the index page
-  const isIndexPage = window.location.pathname.endsWith('index.html') || 
-                     window.location.pathname.endsWith('/') || 
-                     window.location.pathname === '';
-  
-  // Only show install button on mobile and index page
-  if (!isMobile || !isIndexPage) {
-    return;
-  }
-
   // Create the install button
   const installBtn = document.createElement('button');
   installBtn.id = 'installBtn';
   installBtn.className = 'pwa-install-button';
   installBtn.innerHTML = '<i class="fas fa-download"></i> Install App';
   installBtn.title = 'Install Holliday\'s Lawn & Garden App';
-  
-  // Add styles to the button - positioned at top for mobile
+
+  // Position bottom-right on desktop, bottom-center on mobile
+  const isMobile = window.innerWidth <= 768;
   installBtn.style.cssText = `
     position: fixed;
-    top: 90px;
-    left: 50%;
-    transform: translateX(-50%);
+    bottom: 24px;
+    ${isMobile ? 'left: 50%; transform: translateX(-50%);' : 'right: 24px;'}
     background: #4caf50;
     color: white;
     border: none;
@@ -110,15 +97,16 @@ function createInstallButton() {
   `;
 
   // Add hover effect
+  const baseTransform = isMobile ? 'translateX(-50%)' : '';
   installBtn.addEventListener('mouseenter', () => {
     installBtn.style.background = '#45a049';
-    installBtn.style.transform = 'translateX(-50%) translateY(-1px)';
+    installBtn.style.transform = `${baseTransform} translateY(-2px)`;
     installBtn.style.boxShadow = '0 6px 16px rgba(0,0,0,0.2)';
   });
 
   installBtn.addEventListener('mouseleave', () => {
     installBtn.style.background = '#4caf50';
-    installBtn.style.transform = 'translateX(-50%) translateY(0)';
+    installBtn.style.transform = baseTransform;
     installBtn.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
   });
 
@@ -158,11 +146,10 @@ function createInstallButton() {
   // Add the button to the body
   document.body.appendChild(installBtn);
 
-  // Auto-hide the button after 10 seconds if not clicked (shorter for mobile)
+  // Fade button slightly after 10 seconds if not clicked
   setTimeout(() => {
     if (installBtn && installBtn.style.display !== 'none') {
       installBtn.style.opacity = '0.7';
-      installBtn.style.transform = 'translateX(-50%) scale(0.95)';
     }
   }, 10000);
 }
