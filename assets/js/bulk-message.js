@@ -63,9 +63,7 @@ onAuthStateChanged(auth, async (user) => {
 async function loadCustomers() {
     try {
         const customersRef = collection(db, 'customers');
-        const q = query(customersRef, orderBy('createdAt', 'desc'));
-        
-        const snapshot = await getDocs(q);
+        const snapshot = await getDocs(customersRef);
         customers = [];
         snapshot.forEach((doc) => {
             customers.push({
@@ -104,7 +102,7 @@ function updateCustomerList() {
                    ${selectedCustomerIds.has(customer.id) ? 'checked' : ''}
                    onchange="toggleCustomer('${customer.id}')">
             <div class="customer-info">
-                <div class="customer-name">${customer.name || 'N/A'}</div>
+                <div class="customer-name">${customer.name || [customer.firstName, customer.lastName].filter(Boolean).join(' ') || 'N/A'}</div>
                 <div class="customer-email">${customer.email || 'N/A'}</div>
             </div>
         `;
@@ -113,7 +111,7 @@ function updateCustomerList() {
 }
 
 // Toggle customer selection
-function toggleCustomer(customerId) {
+window.toggleCustomer = function(customerId) {
     if (selectedCustomerIds.has(customerId)) {
         selectedCustomerIds.delete(customerId);
     } else {
@@ -171,7 +169,7 @@ function selectAllCustomers() {
 }
 
 // Load message templates
-function loadTemplate(templateType) {
+window.loadTemplate = function(templateType) {
     const templates = {
         'welcome': {
             subject: 'Welcome to Holliday\'s Lawn & Garden!',
@@ -203,7 +201,7 @@ function loadTemplate(templateType) {
 }
 
 // Preview message
-function previewMessage() {
+window.previewMessage = function() {
     if (selectedCustomerIds.size === 0) {
         alert('Please select at least one customer to send the message to.');
         return;
@@ -228,12 +226,12 @@ function previewMessage() {
 }
 
 // Close preview modal
-function closePreview() {
+window.closePreview = function() {
     document.getElementById('preview-modal').style.display = 'none';
 }
 
 // Send bulk message
-async function sendBulkMessage() {
+window.sendBulkMessage = async function() {
     if (selectedCustomerIds.size === 0) {
         alert('Please select at least one customer to send the message to.');
         return;
@@ -325,6 +323,35 @@ async function loadMessageHistory() {
     }
 }
 
+// View bulk message details
+window.viewMessageDetails = async function(messageId) {
+    try {
+        const snap = await getDoc(doc(db, 'bulk-messages', messageId));
+        if (!snap.exists()) return;
+        const m = snap.data();
+        const modal = document.createElement('div');
+        modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:2000;';
+        modal.innerHTML = `
+            <div style="background:#fff;padding:2rem;border-radius:8px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                    <h3 style="margin:0;">${m.subject}</h3>
+                    <button onclick="this.closest('div[style*=position]').remove()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">&times;</button>
+                </div>
+                <p><strong>Type:</strong> ${m.type}</p>
+                <p><strong>Recipients:</strong> ${m.recipientCount}</p>
+                <p><strong>Sent:</strong> ${m.sentAt ? new Date(m.sentAt.toDate()).toLocaleString() : 'N/A'}</p>
+                <div style="background:#f8f9fa;padding:1rem;border-radius:4px;margin-top:1rem;">
+                    <strong>Message:</strong>
+                    <pre style="white-space:pre-wrap;font-family:inherit;margin-top:0.5rem;">${m.content}</pre>
+                </div>
+            </div>`;
+        document.body.appendChild(modal);
+        modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+    } catch (err) {
+        console.error('Error loading message details:', err);
+    }
+};
+
 // Setup event listeners
 function setupEventListeners() {
     selectAllCheckbox.addEventListener('change', selectAllCustomers);
@@ -334,7 +361,7 @@ function setupEventListeners() {
 }
 
 // Logout function
-function logout() {
+window.logout = function() {
     signOut(auth).then(() => {
         window.location.href = 'admin-login.html';
     }).catch((error) => {
