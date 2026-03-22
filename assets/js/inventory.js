@@ -1,5 +1,5 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getFirestore, collection, deleteDoc, doc, getDoc, query, orderBy, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getFirestore, collection, deleteDoc, getDocs, doc, getDoc, query, orderBy, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 const firebaseConfig = {
@@ -179,6 +179,19 @@ window.exportInventory = () => {
 };
 
 window.refreshInventory = () => loadInventory();
+
+window.clearAllInventory = async () => {
+    if (!confirm('Are you sure you want to delete ALL inventory items? This cannot be undone.')) return;
+    if (!confirm('Final confirmation — delete all inventory items?')) return;
+    try {
+        const snap = await getDocs(collection(db, 'inventory'));
+        const deletes = snap.docs.map(d => deleteDoc(doc(db, 'inventory', d.id)));
+        await Promise.all(deletes);
+        showError('');
+    } catch (e) {
+        showError('Failed to clear inventory: ' + e.message);
+    }
+};
 
 window.logout = async () => {
     await signOut(auth);
