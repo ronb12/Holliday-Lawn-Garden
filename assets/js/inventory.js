@@ -166,10 +166,12 @@ window.openAddModal = () => {
     document.getElementById('f-reorder').value = 5;
     document.getElementById('modal-alert').style.display = 'none';
     document.getElementById('inventory-modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
 };
 
 window.closeModal = () => {
     document.getElementById('inventory-modal').classList.remove('open');
+    document.body.style.overflow = '';
 };
 
 window.handleOverlayClick = (e) => {
