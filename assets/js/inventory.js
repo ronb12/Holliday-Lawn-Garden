@@ -1,181 +1,142 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getFirestore, collection, deleteDoc, doc, getDoc, query, orderBy, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-// Check authentication
+
+const firebaseConfig = {
+    apiKey: "AIzaSyACm0j7I8RX4ExIQRoejfk1HZMOQRGigBw",
+    authDomain: "holiday-lawn-and-garden.firebaseapp.com",
+    projectId: "holiday-lawn-and-garden",
+    storageBucket: "holiday-lawn-and-garden.firebasestorage.app",
+    messagingSenderId: "135322230444",
+    appId: "1:135322230444:web:1a487b25a48aae07368909"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let inventory = [];
+let filteredInventory = [];
+
+const loadingDiv      = document.getElementById('loading');
+const errorDiv        = document.getElementById('error');
+const inventoryTable  = document.getElementById('inventory-table');
+const inventoryTbody  = document.getElementById('inventory-tbody');
+const totalItemsEl    = document.getElementById('total-items');
+const instockEl       = document.getElementById('instock-items');
+const lowStockEl      = document.getElementById('lowstock-items');
+const outOfStockEl    = document.getElementById('outofstock-items');
+const searchInput     = document.getElementById('search-item');
+const categoryFilter  = document.getElementById('category-filter');
+const statusFilter    = document.getElementById('status-filter');
+const sortBySelect    = document.getElementById('sort-by');
+
 onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        try {
-            // Check if user is admin by looking up their role in Firestore
-            const userDoc = await getDoc(doc(db, "users", user.uid));
-            if (userDoc.exists() && userDoc.data().role === "admin") {
-                loadInventory();
-                setupEventListeners();
-            } else {
-                window.location.href = 'admin-login.html';
-            }
-        } catch (error) {
-            console.error('Error checking admin role:', error);
+    if (!user) { window.location.href = 'admin-login.html'; return; }
+    try {
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists() && userDoc.data().role === 'admin') {
+            loadInventory();
+            setupEventListeners();
+        } else {
             window.location.href = 'admin-login.html';
         }
-    } else {
+    } catch (e) {
         window.location.href = 'admin-login.html';
     }
 });
-// Load inventory from Firebase
-async function loadInventory() {
-    try {
-        loadingDiv.style.display = 'block';
-        inventoryTable.style.display = 'none';
-        errorDiv.style.display = 'none';
 
-        const inventoryRef = collection(db, 'inventory');
-        const q = query(inventoryRef, orderBy('createdAt', 'desc'));
-        
-        onSnapshot(q, (snapshot) => {
-            inventory = [];
-            snapshot.forEach((doc) => {
-                inventory.push({
-                    id: doc.id,
-                    ...doc.data()
-                });
-            });
-            
-            updateStats();
-            filterInventory();
-            loadingDiv.style.display = 'none';
-            inventoryTable.style.display = 'table';
-        });
+function loadInventory() {
+    loadingDiv.style.display = 'block';
+    inventoryTable.style.display = 'none';
+    errorDiv.style.display = 'none';
 
-    } catch (error) {
-        console.error('Error loading inventory:', error);
-        showError('Failed to load inventory. Please try again.');
-    }
+    const q = query(collection(db, 'inventory'), orderBy('createdAt', 'desc'));
+    onSnapshot(q, (snapshot) => {
+        inventory = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        updateStats();
+        filterInventory();
+        loadingDiv.style.display = 'none';
+        inventoryTable.style.display = 'table';
+    }, (err) => {
+        showError('Failed to load inventory: ' + err.message);
+    });
 }
 
-// Update statistics
 function updateStats() {
-    const total = inventory.length;
-    const lowStock = inventory.filter(item => (item.quantity || 0) <= (item.reorderLevel || 10) && (item.quantity || 0) > 0).length;
-    const outOfStock = inventory.filter(item => (item.quantity || 0) === 0).length;
-    const totalValue = inventory.reduce((sum, item) => sum + ((item.quantity || 0) * (item.price || 0)), 0);
+    const total    = inventory.length;
+    const instock  = inventory.filter(i => (i.quantity || 0) > (i.reorderLevel || 10)).length;
+    const lowStock = inventory.filter(i => (i.quantity || 0) <= (i.reorderLevel || 10) && (i.quantity || 0) > 0).length;
+    const outOf    = inventory.filter(i => (i.quantity || 0) === 0).length;
 
-    totalItemsEl.textContent = total;
-    lowStockEl.textContent = lowStock;
-    outOfStockEl.textContent = outOfStock;
-    totalValueEl.textContent = `$${totalValue.toFixed(2)}`;
+    totalItemsEl.textContent  = total;
+    instockEl.textContent     = instock;
+    lowStockEl.textContent    = lowStock;
+    outOfStockEl.textContent  = outOf;
 }
 
-// Filter inventory
 function filterInventory() {
-    const searchTerm = searchInput.value.toLowerCase();
-    const categoryFilterValue = categoryFilter.value;
-    const statusFilterValue = statusFilter.value;
-    const sortBy = sortBySelect.value;
+    const search   = searchInput.value.toLowerCase();
+    const category = categoryFilter.value;
+    const status   = statusFilter.value;
+    const sort     = sortBySelect.value;
 
     filteredInventory = inventory.filter(item => {
-        const matchesSearch = !searchTerm || 
-            item.name?.toLowerCase().includes(searchTerm) ||
-            item.sku?.toLowerCase().includes(searchTerm) ||
-            item.category?.toLowerCase().includes(searchTerm);
-        
-        const matchesCategory = !categoryFilterValue || item.category === categoryFilterValue;
-        const matchesStatus = !statusFilterValue || 
-            (statusFilterValue === 'in-stock' && (item.quantity || 0) > 0) ||
-            (statusFilterValue === 'low-stock' && (item.quantity || 0) <= (item.reorderLevel || 10) && (item.quantity || 0) > 0) ||
-            (statusFilterValue === 'out-of-stock' && (item.quantity || 0) === 0);
+        const matchSearch = !search ||
+            item.name?.toLowerCase().includes(search) ||
+            item.sku?.toLowerCase().includes(search) ||
+            item.category?.toLowerCase().includes(search);
 
-        return matchesSearch && matchesCategory && matchesStatus;
+        const matchCategory = !category || item.category === category;
+
+        const qty = item.quantity || 0;
+        const reorder = item.reorderLevel || 10;
+        const matchStatus = !status ||
+            (status === 'instock'  && qty > reorder) ||
+            (status === 'low'      && qty <= reorder && qty > 0) ||
+            (status === 'out'      && qty === 0);
+
+        return matchSearch && matchCategory && matchStatus;
     });
 
-    // Sort inventory
     filteredInventory.sort((a, b) => {
-        switch (sortBy) {
-            case 'name':
-                return (a.name || '').localeCompare(b.name || '');
-            case 'quantity':
-                return (a.quantity || 0) - (b.quantity || 0);
-            case 'price':
-                return (b.price || 0) - (a.price || 0);
-            case 'category':
-                return (a.category || '').localeCompare(b.category || '');
-            default:
-                return 0;
-        }
+        if (sort === 'quantity') return (a.quantity || 0) - (b.quantity || 0);
+        if (sort === 'category') return (a.category || '').localeCompare(b.category || '');
+        return (a.name || '').localeCompare(b.name || '');
     });
 
     renderInventory();
 }
 
-// Render inventory in table
 function renderInventory() {
     inventoryTbody.innerHTML = '';
-
-    if (filteredInventory.length === 0) {
-        inventoryTbody.innerHTML = `
-            <tr>
-                <td colspan="8" style="text-align: center; padding: 2rem; color: #666;">
-                    No inventory items found matching your criteria.
-                </td>
-            </tr>
-        `;
+    if (!filteredInventory.length) {
+        inventoryTbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2rem;color:#666;">No inventory items found.</td></tr>`;
         return;
     }
-
     filteredInventory.forEach(item => {
+        const qty = item.quantity || 0;
+        const reorder = item.reorderLevel || 10;
+        const statusKey = qty === 0 ? 'out' : qty <= reorder ? 'low' : 'instock';
+        const statusLabel = qty === 0 ? 'Out of Stock' : qty <= reorder ? 'Low Stock' : 'In Stock';
         const row = document.createElement('tr');
-        const stockStatus = (item.quantity || 0) === 0 ? 'out-of-stock' : 
-                           (item.quantity || 0) <= (item.reorderLevel || 10) ? 'low-stock' : 'in-stock';
-        
         row.innerHTML = `
-            <td>
-                <div>
-                    <strong>${item.name || 'N/A'}</strong>
-                    <br>
-                    <small style="color: #666;">SKU: ${item.sku || 'N/A'}</small>
-                </div>
-            </td>
-            <td>
-                <span style="text-transform: capitalize;">${item.category || 'N/A'}</span>
-            </td>
-            <td>
-                <strong>${item.quantity || 0}</strong>
-            </td>
-            <td>
-                <strong>$${(item.price || 0).toFixed(2)}</strong>
-            </td>
-            <td>
-                <span class="stock-status status-${stockStatus}">
-                    ${stockStatus.replace('-', ' ')}
-                </span>
-            </td>
-            <td>
-                ${item.supplier || 'N/A'}
-            </td>
-            <td>
-                ${formatDate(item.createdAt)}
-            </td>
+            <td><strong>${item.name || 'N/A'}</strong><br><small style="color:#666;">SKU: ${item.sku || 'N/A'}</small></td>
+            <td style="text-transform:capitalize;">${item.category || 'N/A'}</td>
+            <td><strong>${qty}</strong></td>
+            <td><strong>$${(item.price || 0).toFixed(2)}</strong></td>
+            <td><span class="item-status status-${statusKey}">${statusLabel}</span></td>
+            <td>${formatDate(item.updatedAt || item.createdAt)}</td>
             <td>
                 <div class="action-buttons">
-                    <button class="btn btn-secondary btn-small" onclick="viewItem('${item.id}')">
-                        <i class="fas fa-eye"></i>
-                        View
-                    </button>
-                    <button class="btn btn-primary btn-small" onclick="editItem('${item.id}')">
-                        <i class="fas fa-edit"></i>
-                        Edit
-                    </button>
-                    <button class="btn btn-danger btn-small" onclick="deleteItem('${item.id}')">
-                        <i class="fas fa-trash"></i>
-                        Delete
-                    </button>
+                    <button class="btn btn-primary btn-small" onclick="editItem('${item.id}')"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="btn btn-danger btn-small" onclick="deleteItem('${item.id}')"><i class="fas fa-trash"></i> Delete</button>
                 </div>
-            </td>
-        `;
+            </td>`;
         inventoryTbody.appendChild(row);
     });
 }
 
-// Setup event listeners
 function setupEventListeners() {
     searchInput.addEventListener('input', filterInventory);
     categoryFilter.addEventListener('change', filterInventory);
@@ -183,64 +144,43 @@ function setupEventListeners() {
     sortBySelect.addEventListener('change', filterInventory);
 }
 
-// Utility functions
-function formatDate(date) {
-    if (!date) return 'N/A';
-    const d = date.toDate ? date.toDate() : new Date(date);
+function formatDate(ts) {
+    if (!ts) return 'N/A';
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
     return d.toLocaleDateString();
 }
 
-function showError(message) {
-    errorDiv.textContent = message;
+function showError(msg) {
+    errorDiv.textContent = msg;
     errorDiv.style.display = 'block';
     loadingDiv.style.display = 'none';
 }
 
-// Global functions
-window.viewItem = function(itemId) {
-    alert(`View item ${itemId}`);
-};
+window.editItem = (id) => { window.location.href = `add-inventory.html?id=${id}`; };
 
-window.editItem = function(itemId) {
-    window.location.href = `add-inventory.html?id=${itemId}`;
-};
-
-window.deleteItem = async function(itemId) {
-    if (confirm('Are you sure you want to delete this item?')) {
-        try {
-            await deleteDoc(doc(db, 'inventory', itemId));
-        } catch (error) {
-            console.error('Error deleting item:', error);
-            showError('Failed to delete item. Please try again.');
-        }
-    }
-};
-
-window.exportInventory = function() {
-    const csvContent = "data:text/csv;charset=utf-8," + 
-        "Name,SKU,Category,Quantity,Price,Status,Supplier\n" +
-        filteredInventory.map(item => 
-            `"${item.name || ''}","${item.sku || ''}","${item.category || ''}","${item.quantity || 0}","${item.price || 0}","${(item.quantity || 0) === 0 ? 'out-of-stock' : (item.quantity || 0) <= (item.reorderLevel || 10) ? 'low-stock' : 'in-stock'}","${item.supplier || ''}"`
-        ).join('\n');
-    
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "inventory.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-};
-
-window.refreshInventory = function() {
-    loadInventory();
-};
-
-window.logout = async function() {
+window.deleteItem = async (id) => {
+    if (!confirm('Delete this inventory item?')) return;
     try {
-        await signOut(auth);
-        window.location.href = 'admin-login.html';
-    } catch (error) {
-        console.error('Error signing out:', error);
+        await deleteDoc(doc(db, 'inventory', id));
+    } catch (e) {
+        showError('Failed to delete item: ' + e.message);
     }
+};
+
+window.exportInventory = () => {
+    const csv = "data:text/csv;charset=utf-8,Name,SKU,Category,Quantity,Price,Supplier\n" +
+        filteredInventory.map(i =>
+            `"${i.name||''}","${i.sku||''}","${i.category||''}","${i.quantity||0}","${i.price||0}","${i.supplier||''}"`
+        ).join('\n');
+    const a = document.createElement('a');
+    a.href = encodeURI(csv);
+    a.download = 'inventory.csv';
+    a.click();
+};
+
+window.refreshInventory = () => loadInventory();
+
+window.logout = async () => {
+    await signOut(auth);
+    window.location.href = 'admin-login.html';
 };

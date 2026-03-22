@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Add Inventory Item - Admin Dashboard</title>
+    <link href="assets/css/main.min.css" rel="stylesheet"/>
+    <link href="assets/css/admin-dashboard.css" rel="stylesheet"/>
+    <link href="assets/css/forms.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon/favicon-32x32.png"/>
+    <meta content="#2e7d32" name="theme-color"/>
+    <link rel="stylesheet" href="assets/css/mobile.css">
+</head>
+<body>
+    <header class="admin-header">
+        <div class="container header-content">
+            <div class="logo">
+                <img src="assets/images/hollidays-logo.optimized-1280.png" alt="Holliday's Lawn & Garden"/>
+                <span style="font-weight:700;color:#2c5530;">Admin Dashboard</span>
+            </div>
+            <nav class="admin-nav">
+                <a href="admin-dashboard.html">Dashboard</a>
+                <a href="appointments.html">Appointments</a>
+                <a href="customers.html">Customers</a>
+                <a href="payments.html">Payments</a>
+                <a href="inventory.html" class="active">Inventory</a>
+                <a href="staff.html">Staff</a>
+                <a href="analytics.html">Analytics</a>
+                <a href="messages.html">Messages</a>
+                <button class="btn btn-danger" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main style="max-width:800px;margin:2rem auto;padding:0 2rem;">
+        <div style="background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.07);padding:2rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;border-bottom:1px solid #e0e0e0;padding-bottom:1rem;">
+                <div>
+                    <h1 id="page-title" style="font-size:1.6rem;font-weight:700;color:#2c5530;margin:0;">Add Inventory Item</h1>
+                    <p style="color:#666;margin:0.25rem 0 0;">Fill in the details below to add a new item to inventory.</p>
+                </div>
+                <a href="inventory.html" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+            </div>
+
+            <div id="alert" style="display:none;padding:0.75rem 1rem;border-radius:6px;margin-bottom:1.5rem;font-weight:500;"></div>
+
+            <form id="inventory-form">
+                <!-- Basic Info -->
+                <div class="form-section">
+                    <h3>Item Details</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="name">Item Name <span style="color:#c62828;">*</span></label>
+                            <input type="text" id="name" name="name" required placeholder="e.g. Lawn Mower Blade">
+                        </div>
+                        <div class="form-group">
+                            <label for="sku">SKU / Item Code</label>
+                            <input type="text" id="sku" name="sku" placeholder="e.g. LMB-001">
+                        </div>
+                        <div class="form-group">
+                            <label for="category">Category <span style="color:#c62828;">*</span></label>
+                            <select id="category" name="category" required>
+                                <option value="">Select category...</option>
+                                <option value="equipment">Equipment</option>
+                                <option value="supplies">Supplies</option>
+                                <option value="fertilizer">Fertilizer</option>
+                                <option value="tools">Tools</option>
+                                <option value="parts">Parts & Accessories</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="supplier">Supplier / Brand</label>
+                            <input type="text" id="supplier" name="supplier" placeholder="e.g. John Deere">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description" rows="3" placeholder="Brief description of the item..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Stock & Pricing -->
+                <div class="form-section">
+                    <h3>Stock & Pricing</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="quantity">Quantity in Stock <span style="color:#c62828;">*</span></label>
+                            <input type="number" id="quantity" name="quantity" required min="0" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="reorderLevel">Reorder Alert Level</label>
+                            <input type="number" id="reorderLevel" name="reorderLevel" min="0" placeholder="10" value="10">
+                            <span class="form-help">Alert when stock falls to or below this number</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="price">Unit Cost ($)</label>
+                            <input type="number" id="price" name="price" min="0" step="0.01" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label for="location">Storage Location</label>
+                            <input type="text" id="location" name="location" placeholder="e.g. Shed A, Shelf 2">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="inventory.html" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary" id="submit-btn">
+                        <i class="fas fa-save"></i>
+                        <span id="submit-label">Add Item</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script type="module" src="assets/js/add-inventory.js"></script>
+</body>
+</html>
