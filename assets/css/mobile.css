@@ -507,6 +507,65 @@ table {
     }
 }
 
+/* ---- Mobile tab bar — consistent across all pages ---- */
+.mobile-tab-bar {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #388e3c !important;
+    z-index: 10000;
+    height: 60px;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.15);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    justify-content: space-around;
+    align-items: stretch;
+}
+
+.mobile-tab-bar a {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff !important;
+    text-decoration: none !important;
+    font-size: 0.7rem;
+    gap: 2px;
+    padding: 0.25rem 0;
+    transition: background 0.2s;
+    min-height: 60px;
+}
+
+.mobile-tab-bar a i {
+    font-size: 1.2rem;
+}
+
+.mobile-tab-bar a:hover,
+.mobile-tab-bar a.active {
+    background: #2e7d32 !important;
+    color: #c8e6c9 !important;
+}
+
+@media (max-width: 768px) {
+    .mobile-tab-bar {
+        display: flex !important;
+    }
+
+    body {
+        padding-bottom: 60px;
+    }
+}
+
+@media (min-width: 769px) {
+    .mobile-tab-bar {
+        display: none !important;
+    }
+}
+
 /* ---- Prevent hover effects on touch devices ---- */
 @media (hover: none) {
     .dashboard-card:hover,
