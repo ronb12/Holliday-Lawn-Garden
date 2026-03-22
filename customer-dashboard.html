@@ -1082,7 +1082,7 @@ body {
                             </div>
                             <div class="info-item">
                                 <span class="label">Member Since:</span>
-                                <span class="value">January 2024</span>
+                                <span class="value" id="member-since">January 2024</span>
                             </div>
                         </div>
                     </div>
@@ -1414,7 +1414,8 @@ body {
             function displayUserData(user) {
                 const customerName = document.getElementById('customer-name');
                 const customerEmail = document.getElementById('customer-email');
-                
+                const memberSinceEl = document.getElementById('member-since');
+
                 // Display full name from firstName and lastName
                 if (customerName && user.firstName && user.lastName) {
                     customerName.textContent = `${user.firstName} ${user.lastName}`;
@@ -1423,12 +1424,21 @@ body {
                 } else if (customerName && user.name) {
                     customerName.textContent = user.name;
                 }
-                
+
                 // Display email
                 if (customerEmail && user.email) {
                     customerEmail.textContent = user.email;
                 }
-                
+
+                // Display member since from createdAt field
+                if (memberSinceEl) {
+                    const createdAt = user.createdAt;
+                    if (createdAt) {
+                        const date = createdAt.toDate ? createdAt.toDate() : new Date(createdAt);
+                        memberSinceEl.textContent = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                    }
+                }
+
                 // Show welcome message with user's name
                 const welcomeTitle = document.querySelector('.welcome-section h1');
                 if (welcomeTitle && user.firstName) {
@@ -1442,12 +1452,29 @@ body {
                     const servicesRef = collection(db, 'services');
                     const q = query(servicesRef, where('userId', '==', userId));
                     const querySnapshot = await getDocs(q);
-                    
+
                     const serviceList = document.querySelector('.service-list');
                     if (serviceList && !querySnapshot.empty) {
-                        // Update service list with real data
-                        // This would replace the static service items
-                        console.log('Service history loaded from Firebase');
+                        serviceList.innerHTML = '';
+                        querySnapshot.forEach((docSnap) => {
+                            const s = docSnap.data();
+                            const dateStr = s.date
+                                ? (s.date.toDate ? s.date.toDate() : new Date(s.date)).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+                                : '';
+                            const statusClass = s.status === 'completed' ? 'completed' : 'scheduled';
+                            const statusLabel = s.status ? s.status.charAt(0).toUpperCase() + s.status.slice(1) : 'Scheduled';
+                            const iconClass = s.type === 'fertilization' ? 'fa-seedling' : s.type === 'cleanup' ? 'fa-broom' : 'fa-leaf';
+
+                            serviceList.innerHTML += `
+                                <div class="service-item">
+                                    <div class="service-icon"><i class="fas ${iconClass}"></i></div>
+                                    <div class="service-details">
+                                        <h3>${s.name || s.type || 'Service'}</h3>
+                                        <p>${statusClass === 'completed' ? 'Completed on' : 'Scheduled for'} ${dateStr}</p>
+                                        <span class="service-status ${statusClass}">${statusLabel}</span>
+                                    </div>
+                                </div>`;
+                        });
                     }
                 } catch (error) {
                     console.error('Error loading service history:', error);
@@ -1460,10 +1487,43 @@ body {
                     const billingRef = collection(db, 'billing');
                     const q = query(billingRef, where('userId', '==', userId));
                     const querySnapshot = await getDocs(q);
-                    
+
                     if (!querySnapshot.empty) {
-                        // Update billing summary with real data
-                        console.log('Billing data loaded from Firebase');
+                        // Use the most recent billing record
+                        let latest = null;
+                        querySnapshot.forEach((docSnap) => {
+                            const d = docSnap.data();
+                            if (!latest || (d.dueDate && (!latest.dueDate || d.dueDate > latest.dueDate))) {
+                                latest = d;
+                            }
+                        });
+
+                        if (latest) {
+                            const balanceEls = document.querySelectorAll('.billing-item .amount, .payment-item .amount');
+                            balanceEls.forEach(el => {
+                                el.textContent = `$${parseFloat(latest.balance || latest.amount || 0).toFixed(2)}`;
+                            });
+
+                            const paymentAmountInput = document.getElementById('payment-amount');
+                            if (paymentAmountInput && latest.balance) {
+                                paymentAmountInput.value = parseFloat(latest.balance).toFixed(2);
+                            }
+
+                            const billingItems = document.querySelectorAll('.billing-item');
+                            billingItems.forEach(item => {
+                                const label = item.querySelector('.label');
+                                const value = item.querySelector('.value');
+                                if (!label || !value) return;
+                                if (label.textContent.includes('Last Payment') && latest.lastPaymentDate) {
+                                    const d = latest.lastPaymentDate.toDate ? latest.lastPaymentDate.toDate() : new Date(latest.lastPaymentDate);
+                                    value.textContent = d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                                }
+                                if (label.textContent.includes('Next Due') && latest.dueDate) {
+                                    const d = latest.dueDate.toDate ? latest.dueDate.toDate() : new Date(latest.dueDate);
+                                    value.textContent = d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                                }
+                            });
+                        }
                     }
                 } catch (error) {
                     console.error('Error loading billing data:', error);
@@ -1494,21 +1554,20 @@ body {
                 });
             });
 
-            // Add loading states to action buttons
+            // Add visual feedback to non-link action buttons only
             const actionButtons = document.querySelectorAll('.action-btn');
             actionButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    // Add loading state
-                    const originalText = this.innerHTML;
-                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
-                    this.style.pointerEvents = 'none';
-                    
-                    // Simulate loading (remove this in production)
-                    setTimeout(() => {
-                        this.innerHTML = originalText;
-                        this.style.pointerEvents = 'auto';
-                    }, 1000);
-                });
+                if (button.tagName === 'BUTTON') {
+                    button.addEventListener('click', function() {
+                        const originalText = this.innerHTML;
+                        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+                        this.style.pointerEvents = 'none';
+                        setTimeout(() => {
+                            this.innerHTML = originalText;
+                            this.style.pointerEvents = 'auto';
+                        }, 500);
+                    });
+                }
             });
 
             // Add notification system

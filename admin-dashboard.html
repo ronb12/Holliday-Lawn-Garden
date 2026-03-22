@@ -350,6 +350,43 @@
             display: none;
         }
 
+        /* Stats Bar */
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.25rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+            min-width: 160px;
+            flex: 1;
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            color: #2e7d32;
+        }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #2e7d32;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .admin-header {
@@ -447,7 +484,39 @@
     <!-- Main Content -->
     <main class="dashboard-main">
         <h1 class="dashboard-title">Welcome, Admin</h1>
-        
+
+        <!-- Stats Bar -->
+        <div id="admin-stats-bar" style="display:none; gap:1.5rem; flex-wrap:wrap; justify-content:center; margin-bottom:2rem;">
+            <div class="stat-card">
+                <i class="fas fa-users stat-icon"></i>
+                <div class="stat-info">
+                    <span class="stat-value" id="stat-customers">0</span>
+                    <span class="stat-label">Customers</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-calendar-check stat-icon"></i>
+                <div class="stat-info">
+                    <span class="stat-value" id="stat-appointments">0</span>
+                    <span class="stat-label">Appointments</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-credit-card stat-icon"></i>
+                <div class="stat-info">
+                    <span class="stat-value" id="stat-payments">0</span>
+                    <span class="stat-label">Payments</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-user-tie stat-icon"></i>
+                <div class="stat-info">
+                    <span class="stat-value" id="stat-staff">0</span>
+                    <span class="stat-label">Staff</span>
+                </div>
+            </div>
+        </div>
+
         <div class="dashboard-grid">
             <div class="dashboard-card">
                 <div class="card-icon">

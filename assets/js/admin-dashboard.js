@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, collection, getCountFromServer } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 console.log("Admin dashboard script loading...");
 
@@ -91,10 +91,20 @@ onAuthStateChanged(auth, async (user) => {
         console.log("User is admin, allowing access");
         // User is admin, allow access
         hideLoading();
-        showSuccess("Welcome back, Admin!");
+
+        // Update the dashboard title with the admin's name
+        const adminData = userDoc.data();
+        const adminName = adminData.firstName || adminData.name || user.displayName || user.email || "Admin";
+        const dashTitle = document.querySelector(".dashboard-title");
+        if (dashTitle) dashTitle.textContent = `Welcome, ${adminName}`;
+
+        showSuccess(`Welcome back, ${adminName}!`);
         setTimeout(() => {
           if (successMessage) successMessage.style.display = "none";
         }, 3000);
+
+        // Load and display stats
+        loadAdminStats();
       } else {
         console.log("User is not admin, showing error");
         // User is not admin, show error but do not log out
@@ -131,4 +141,29 @@ if (logoutBtn) {
       hideLoading();
     }
   });
+}
+
+// Load and display admin stats in the stats bar
+async function loadAdminStats() {
+  const statsBar = document.getElementById("admin-stats-bar");
+  if (!statsBar) return;
+
+  const collections = [
+    { id: "stat-customers", label: "Customers", icon: "fas fa-users", col: "users" },
+    { id: "stat-appointments", label: "Appointments", icon: "fas fa-calendar-check", col: "appointments" },
+    { id: "stat-payments", label: "Payments", icon: "fas fa-credit-card", col: "payments" },
+    { id: "stat-staff", label: "Staff", icon: "fas fa-user-tie", col: "staff" },
+  ];
+
+  statsBar.style.display = "flex";
+
+  for (const s of collections) {
+    try {
+      const snap = await getCountFromServer(collection(db, s.col));
+      const el = document.getElementById(s.id);
+      if (el) el.textContent = snap.data().count;
+    } catch {
+      // If collection doesn't exist or access denied, leave as 0
+    }
+  }
 }
