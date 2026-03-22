@@ -35,11 +35,12 @@ service cloud.firestore {
 
     // ── Appointments ──────────────────────────────────────────────
     // Public can create (online booking form); admins have full access;
-    // authenticated users can read their own.
+    // authenticated users can read/cancel their own.
     match /appointments/{document} {
       allow create: if true; // public booking form (no login required)
       allow read, update, delete: if isAdmin();
       allow read: if isOwner();
+      allow update: if isOwner() && request.resource.data.status == 'cancelled';
     }
 
     // ── Quote Requests ────────────────────────────────────────────
@@ -154,8 +155,11 @@ service cloud.firestore {
     }
 
     // ── Chat ──────────────────────────────────────────────────────
+    // Customers can read/write their own chat messages; admins have full access.
     match /chats/{document} {
-      allow read, write: if isAuthenticated();
+      allow read, write: if isAdmin();
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
     }
 
     match /typing/{document} {

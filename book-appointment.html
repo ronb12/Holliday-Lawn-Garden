@@ -207,8 +207,19 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Set min date to today
-        document.getElementById('b-date').min = new Date().toISOString().split('T')[0];
+        // Set min date to today and block Fridays
+        const dateInput = document.getElementById('b-date');
+        dateInput.min = new Date().toISOString().split('T')[0];
+        dateInput.addEventListener('input', function() {
+            const d = new Date(this.value + 'T00:00:00');
+            if (d.getDay() === 5) { // 5 = Friday
+                this.setCustomValidity('We are closed on Fridays. Please select another day.');
+                this.reportValidity();
+                this.value = '';
+            } else {
+                this.setCustomValidity('');
+            }
+        });
 
         window.toggleRecurring = function(cb) {
             document.getElementById('recurring-opts').classList.toggle('visible', cb.checked);

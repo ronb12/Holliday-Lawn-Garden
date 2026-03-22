@@ -15,9 +15,6 @@
     <!-- jsPDF Library for PDF Generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
-    <!-- jsPDF Library for PDF Generation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
     <style>
         body { font-family: 'Montserrat', sans-serif; background: #f8f9fa; color: #333; margin: 0; }
         .container { max-width: 800px; margin: 0 auto; padding: 20px; }
@@ -142,13 +139,13 @@
         function printReceipt() { window.print(); }
         
         function downloadPDF() {
-            // Check if jsPDF is loaded
-            if (typeof window.jsPDF === 'undefined') {
+            // jsPDF v2.x UMD exposes the namespace as window.jspdf (lowercase p)
+            if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
                 alert('PDF generation library is loading. Please try again in a moment.');
                 return;
             }
 
-            const { jsPDF } = window.jsPDF;
+            const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             
             // Get receipt data
