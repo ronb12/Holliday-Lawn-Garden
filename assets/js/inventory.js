@@ -289,3 +289,8 @@ window.logout = async () => {
     await signOut(auth);
     window.location.href = 'admin-login.html';
 };
+
+// Auto-open modal if URL has #add
+if (window.location.hash === '#add') {
+    window.addEventListener('load', () => openAddModal());
+}
