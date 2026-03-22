@@ -1150,6 +1150,34 @@ body {
                         </div>
                     </div>
 
+                    <!-- Messages from Admin -->
+                    <div class="dashboard-card">
+                        <h2><i class="fas fa-envelope"></i> Messages <span id="msg-badge" style="background:#388e3c;color:#fff;border-radius:50%;padding:0 6px;font-size:0.75rem;margin-left:4px;display:inline-block;min-width:18px;text-align:center;line-height:18px;vertical-align:middle"></span></h2>
+                        <div id="messages-list" style="max-height:260px;overflow-y:auto">
+                            <p class="empty-state" style="color:#888;text-align:center;padding:1rem;">No messages yet.</p>
+                        </div>
+                    </div>
+
+                    <!-- Send Message to Admin -->
+                    <div class="dashboard-card">
+                        <h2><i class="fas fa-paper-plane"></i> Contact Us</h2>
+                        <form id="send-message-form" style="display:flex;flex-direction:column;gap:0.75rem">
+                            <div>
+                                <label for="msg-subject" style="display:block;margin-bottom:0.25rem;font-weight:500;color:#333">Subject</label>
+                                <input type="text" id="msg-subject" placeholder="e.g. Question about my service" maxlength="120"
+                                    style="width:100%;padding:0.6rem 0.75rem;border:1px solid #ccc;border-radius:6px;font-size:0.95rem;box-sizing:border-box">
+                            </div>
+                            <div>
+                                <label for="msg-body" style="display:block;margin-bottom:0.25rem;font-weight:500;color:#333">Message</label>
+                                <textarea id="msg-body" rows="4" placeholder="Type your message here..." required maxlength="1000"
+                                    style="width:100%;padding:0.6rem 0.75rem;border:1px solid #ccc;border-radius:6px;font-size:0.95rem;box-sizing:border-box;resize:vertical"></textarea>
+                            </div>
+                            <button type="submit" class="btn-primary" style="align-self:flex-end;padding:0.6rem 1.5rem;border:none;border-radius:6px;cursor:pointer;font-size:0.95rem;font-weight:500">
+                                <i class="fas fa-paper-plane"></i> Send Message
+                            </button>
+                        </form>
+                    </div>
+
                     <!-- Contact Information -->
                     <div class="dashboard-card contact-info">
                         <h2><i class="fas fa-address-book"></i> Contact Information</h2>
@@ -1261,9 +1289,9 @@ body {
     </footer>
     <script type="module">
         // Import Firebase modules
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js';
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js';
-        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js';
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs, addDoc, onSnapshot, orderBy, limit, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
         // Firebase configuration
         const firebaseConfig = {
@@ -1291,11 +1319,9 @@ body {
             // Check authentication state
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
-                    // User is signed in, load their data from Firebase
-                    await loadUserDataFromFirebase(user.uid);
+                    await loadUserDataFromFirebase(user);
                 } else {
-                    // User is not signed in, try localStorage as fallback
-                    loadUserDataFromLocalStorage();
+                    window.location.href = 'login.html';
                 }
             });
 
@@ -1326,74 +1352,73 @@ body {
             }
 
             // Load user data from Firebase
-            async function loadUserDataFromFirebase(userId) {
+            async function loadUserDataFromFirebase(authUser) {
                 try {
-                    const userDocRef = doc(db, 'users', userId);
-                    const userDoc = await getDoc(userDocRef);
-                    
-                    if (userDoc.exists()) {
-                        const userData = userDoc.data();
-                        displayUserData(userData);
-                        
-                        // Also load service history and billing data
-                        await loadServiceHistory(userId);
-                        await loadBillingData(userId);
-                    } else {
-                        console.log('No user document found, using localStorage fallback');
-                        loadUserDataFromLocalStorage();
+                    const userDocRef = doc(db, 'users', authUser.uid);
+                    let userDoc = await getDoc(userDocRef);
+
+                    if (!userDoc.exists()) {
+                        // Auto-create the user document from Auth data
+                        const nameParts = (authUser.displayName || '').split(' ');
+                        await setDoc(userDocRef, {
+                            email: authUser.email,
+                            firstName: nameParts[0] || '',
+                            lastName: nameParts.slice(1).join(' ') || '',
+                            displayName: authUser.displayName || '',
+                            role: 'customer',
+                            createdAt: serverTimestamp()
+                        });
+                        userDoc = await getDoc(userDocRef);
                     }
+
+                    displayUserData(userDoc.data(), authUser);
+                    await loadServiceHistory(authUser.uid);
+                    await loadBillingData(authUser.uid);
+                    await loadUpcomingServices(authUser.uid);
+                    loadMessages(authUser.uid);
                 } catch (error) {
                     console.error('Error loading user data from Firebase:', error);
-                    loadUserDataFromLocalStorage();
-                }
-            }
-
-            // Load user data from localStorage (fallback)
-            function loadUserDataFromLocalStorage() {
-                const userData = localStorage.getItem('user');
-                if (userData) {
-                    try {
-                        const user = JSON.parse(userData);
-                        displayUserData(user);
-                    } catch (error) {
-                        console.log('Error loading user data from localStorage:', error);
-                    }
+                    // Show auth email at minimum
+                    const el = document.getElementById('customer-name');
+                    if (el) el.textContent = authUser.displayName || authUser.email || 'Customer';
+                    const emailEl = document.getElementById('customer-email');
+                    if (emailEl) emailEl.textContent = authUser.email || '';
                 }
             }
 
             // Display user data in the dashboard
-            function displayUserData(user) {
+            function displayUserData(user, authUser) {
                 const customerName = document.getElementById('customer-name');
                 const customerEmail = document.getElementById('customer-email');
                 const memberSinceEl = document.getElementById('member-since');
 
-                // Display full name from firstName and lastName
-                if (customerName && user.firstName && user.lastName) {
-                    customerName.textContent = `${user.firstName} ${user.lastName}`;
-                } else if (customerName && user.firstName) {
-                    customerName.textContent = user.firstName;
-                } else if (customerName && user.name) {
-                    customerName.textContent = user.name;
-                }
+                // Display full name
+                const fullName = (user.firstName && user.lastName)
+                    ? `${user.firstName} ${user.lastName}`
+                    : user.firstName || user.displayName || user.name
+                    || (authUser && (authUser.displayName || authUser.email)) || 'Customer';
+                if (customerName) customerName.textContent = fullName;
 
                 // Display email
-                if (customerEmail && user.email) {
-                    customerEmail.textContent = user.email;
-                }
+                const email = user.email || (authUser && authUser.email) || '';
+                if (customerEmail) customerEmail.textContent = email;
 
-                // Display member since from createdAt field
+                // Display member since
                 if (memberSinceEl) {
                     const createdAt = user.createdAt;
                     if (createdAt) {
                         const date = createdAt.toDate ? createdAt.toDate() : new Date(createdAt);
                         memberSinceEl.textContent = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                    } else if (authUser && authUser.metadata && authUser.metadata.creationTime) {
+                        memberSinceEl.textContent = new Date(authUser.metadata.creationTime).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
                     }
                 }
 
-                // Show welcome message with user's name
+                // Welcome heading
+                const firstName = user.firstName || (authUser && authUser.displayName ? authUser.displayName.split(' ')[0] : '');
                 const welcomeTitle = document.querySelector('.welcome-section h1');
-                if (welcomeTitle && user.firstName) {
-                    welcomeTitle.textContent = `Welcome, ${user.firstName}!`;
+                if (welcomeTitle && firstName) {
+                    welcomeTitle.textContent = `Welcome, ${firstName}!`;
                 }
             }
 
@@ -1479,6 +1504,109 @@ body {
                 } catch (error) {
                     console.error('Error loading billing data:', error);
                 }
+            }
+
+            // Load upcoming / scheduled appointments into #schedule-list
+            async function loadUpcomingServices(userId) {
+                const scheduleList = document.getElementById('schedule-list');
+                if (!scheduleList) return;
+                try {
+                    const q = query(
+                        collection(db, 'appointments'),
+                        where('userId', '==', userId),
+                        where('status', 'in', ['pending', 'scheduled', 'confirmed'])
+                    );
+                    const snap = await getDocs(q);
+                    if (snap.empty) return; // keep empty-state message
+                    const monthNames = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+                    let html = '';
+                    snap.docs
+                        .sort((a, b) => {
+                            const da = a.data().preferredDate || a.data().date || '';
+                            const db2 = b.data().preferredDate || b.data().date || '';
+                            return da < db2 ? -1 : 1;
+                        })
+                        .slice(0, 5)
+                        .forEach(docSnap => {
+                            const s = docSnap.data();
+                            const rawDate = s.preferredDate || s.date || '';
+                            const d = rawDate ? (rawDate.toDate ? rawDate.toDate() : new Date(rawDate)) : null;
+                            const day = d ? d.getDate() : '—';
+                            const mon = d ? monthNames[d.getMonth()] : '—';
+                            const time = s.preferredTime || s.time || '';
+                            const timeMap = { morning:'8:00 AM – 12:00 PM', afternoon:'12:00 PM – 4:00 PM', evening:'4:00 PM – 6:00 PM' };
+                            const displayTime = timeMap[time] || time || 'Time TBD';
+                            const statusClass = s.status === 'confirmed' ? 'completed' : 'scheduled';
+                            html += `
+                                <div class="schedule-item">
+                                    <div class="schedule-date"><span class="day">${day}</span><span class="month">${mon}</span></div>
+                                    <div class="schedule-details">
+                                        <h3>${s.serviceType ? s.serviceType.replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase()) : s.type || 'Service'}</h3>
+                                        <p>${s.notes || s.serviceNotes || 'Scheduled service'}</p>
+                                        <span class="schedule-time">${displayTime}</span>
+                                        <span class="service-status ${statusClass}" style="margin-left:0.5rem">${s.status.charAt(0).toUpperCase()+s.status.slice(1)}</span>
+                                    </div>
+                                </div>`;
+                        });
+                    scheduleList.innerHTML = html;
+                } catch (err) {
+                    console.error('Error loading upcoming services:', err);
+                }
+            }
+
+            // Load messages from admin (via chats collection) into #messages-list
+            function loadMessages(userId) {
+                const msgList = document.getElementById('messages-list');
+                if (!msgList) return;
+                try {
+                    const q = query(
+                        collection(db, 'chats'),
+                        where('userId', '==', userId),
+                        where('from', '==', 'admin'),
+                        orderBy('sentAt', 'desc'),
+                        limit(10)
+                    );
+                    onSnapshot(q, (snap) => {
+                        if (snap.empty) {
+                            msgList.innerHTML = '<p class="empty-state" style="color:#888;text-align:center;padding:1rem;">No messages yet.</p>';
+                            return;
+                        }
+                        let html = '';
+                        snap.docs.forEach(docSnap => {
+                            const m = docSnap.data();
+                            const ts = m.sentAt ? (m.sentAt.toDate ? m.sentAt.toDate() : new Date(m.sentAt)) : new Date();
+                            const dateStr = ts.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+                            const unread = m.read === false ? ' style="font-weight:700;border-left:3px solid #388e3c;padding-left:0.5rem"' : '';
+                            html += `<div class="message-item"${unread}>
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem">
+                                    <strong>${m.subject || 'Message from Holliday Lawn & Garden'}</strong>
+                                    <span style="font-size:0.8rem;color:#888">${dateStr}</span>
+                                </div>
+                                <p style="margin:0;color:#555;font-size:0.9rem">${m.message || ''}</p>
+                            </div>`;
+                        });
+                        msgList.innerHTML = html;
+                        // Update unread badge
+                        const badge = document.getElementById('msg-badge');
+                        const unreadCount = snap.docs.filter(d => d.data().read === false).length;
+                        if (badge) badge.textContent = unreadCount > 0 ? unreadCount : '';
+                    });
+                } catch (err) {
+                    console.error('Error loading messages:', err);
+                }
+            }
+
+            // Send message to admin via chats collection
+            async function sendMessageToAdmin(userId, userEmail, subject, message) {
+                await addDoc(collection(db, 'chats'), {
+                    userId,
+                    userEmail,
+                    subject,
+                    message,
+                    from: 'customer',
+                    sentAt: serverTimestamp(),
+                    read: false
+                });
             }
 
             // Add click handlers for service items
@@ -1673,6 +1801,32 @@ body {
                     closePaymentModal();
                 }
             });
+
+            // Send message to admin form
+            const sendMsgForm = document.getElementById('send-message-form');
+            if (sendMsgForm) {
+                sendMsgForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const subjectEl = document.getElementById('msg-subject');
+                    const bodyEl = document.getElementById('msg-body');
+                    const sendBtn = sendMsgForm.querySelector('button[type="submit"]');
+                    const subject = subjectEl ? subjectEl.value.trim() : '';
+                    const message = bodyEl ? bodyEl.value.trim() : '';
+                    if (!message) return;
+                    try {
+                        if (sendBtn) { sendBtn.disabled = true; sendBtn.textContent = 'Sending...'; }
+                        const user = auth.currentUser;
+                        await sendMessageToAdmin(user.uid, user.email, subject, message);
+                        showNotification('Message sent to Holliday Lawn & Garden!', 'success');
+                        sendMsgForm.reset();
+                    } catch (err) {
+                        console.error('Error sending message:', err);
+                        showNotification('Failed to send message. Please try again.', 'error');
+                    } finally {
+                        if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = 'Send Message'; }
+                    }
+                });
+            }
 
             // PayPal Smart Payment Buttons
             let paypalButtons = null;
