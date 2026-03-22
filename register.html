@@ -20,6 +20,7 @@
 <link href="assets/css/hero.css" rel="stylesheet"/>
 <link href="assets/css/main.min.css" rel="stylesheet"/>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+<link rel="stylesheet" href="assets/css/forms.css">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon/favicon-32x32.png" />
 <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon/favicon-16x16.png" />
 <link rel="apple-touch-icon" sizes="180x180" href="assets/images/favicon/apple-touch-icon.png" />
@@ -489,27 +490,29 @@
 <span id="success-text"></span>
 </div>
 <form class="register-form" id="register-form">
+<div class="form-row">
 <div class="form-group">
-<label for="firstName">First Name</label>
-<input id="firstName" name="firstName" required="" type="text"/>
+<label for="firstName">First Name *</label>
+<input id="firstName" name="firstName" required="" type="text" placeholder="First name"/>
 </div>
 <div class="form-group">
-<label for="lastName">Last Name</label>
-<input id="lastName" name="lastName" required="" type="text"/>
+<label for="lastName">Last Name *</label>
+<input id="lastName" name="lastName" required="" type="text" placeholder="Last name"/>
+</div>
 </div>
 <div class="form-group">
-<label for="email">Email Address</label>
-<input id="email" name="email" required="" type="email"/>
+<label for="email">Email Address *</label>
+<input id="email" name="email" required="" type="email" placeholder="you@example.com"/>
 </div>
 <div class="form-group">
 <label for="phone">Phone Number</label>
-<input id="phone" name="phone" required="" type="tel"/>
+<input id="phone" name="phone" required="" type="tel" placeholder="(504) 555-0100"/>
 </div>
 <div class="form-group">
-<label for="password">Password</label>
+<label for="password">Password *</label>
 <div class="password-input">
-<input id="password" name="password" required="" type="password"/>
-<button class="toggle-password" onclick="togglePassword('password')" style="font-family: 'Montserrat', 'Inter', system-ui, sans-serif;" type="button">
+<input id="password" name="password" required="" type="password" placeholder="Create a strong password"/>
+<button class="toggle-password" onclick="togglePassword('password')" type="button">
 <i class="fas fa-eye"></i>
 </button>
 </div>
@@ -522,10 +525,10 @@
 </div>
 </div>
 <div class="form-group">
-<label for="confirmPassword">Confirm Password</label>
+<label for="confirmPassword">Confirm Password *</label>
 <div class="password-input">
-<input id="confirmPassword" name="confirmPassword" required="" type="password"/>
-<button class="toggle-password" onclick="togglePassword('confirmPassword')" style="font-family: 'Montserrat', 'Inter', system-ui, sans-serif;" type="button">
+<input id="confirmPassword" name="confirmPassword" required="" type="password" placeholder="Re-enter your password"/>
+<button class="toggle-password" onclick="togglePassword('confirmPassword')" type="button">
 <i class="fas fa-eye"></i>
 </button>
 </div>
@@ -536,10 +539,10 @@
 <span>I agree to the <a href="terms.html" target="_blank">Terms of Service</a> and <a href="privacy-policy.html" target="_blank">Privacy Policy</a></span>
 </label>
 </div>
-<button class="btn-primary" style="font-family: 'Montserrat', 'Inter', system-ui, sans-serif;" type="submit">
+<button class="btn-primary" type="submit">
 <i class="fas fa-user-plus"></i>
  Create Account
- </button>
+</button>
 </form>
 <div class="back-to-login">
 <p>Already have an account? <a href="login.html">Log in here</a></p>

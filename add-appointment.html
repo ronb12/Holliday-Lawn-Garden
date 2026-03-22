@@ -8,6 +8,7 @@
     <link href="assets/css/main.min.css" rel="stylesheet"/>
     <link href="assets/css/admin-dashboard.css" rel="stylesheet"/>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="assets/css/forms.css">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon/favicon-32x32.png" />
     <link rel="manifest" href="manifest.json" />
     <meta content="#2e7d32" name="theme-color"/>
@@ -206,22 +207,22 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="customerName">Customer Name *</label>
-                            <input type="text" id="customerName" name="customerName" required>
+                            <input type="text" id="customerName" name="customerName" required placeholder="Full name">
                         </div>
                         <div class="form-group">
                             <label for="customerEmail">Customer Email *</label>
-                            <input type="email" id="customerEmail" name="customerEmail" required>
+                            <input type="email" id="customerEmail" name="customerEmail" required placeholder="customer@example.com">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
                             <label for="customerPhone">Customer Phone *</label>
-                            <input type="tel" id="customerPhone" name="customerPhone" required>
+                            <input type="tel" id="customerPhone" name="customerPhone" required placeholder="(504) 555-0100">
                         </div>
                         <div class="form-group">
                             <label for="serviceType">Service Type *</label>
                             <select id="serviceType" name="serviceType" required>
-                                <option value="">Select a service</option>
+                                <option value="">Select a service…</option>
                                 <option value="lawn-maintenance">Lawn Maintenance</option>
                                 <option value="landscaping">Landscaping</option>
                                 <option value="garden-care">Garden Care</option>
@@ -245,7 +246,7 @@
                     </div>
                     <div class="form-group">
                         <label for="address">Service Address *</label>
-                        <textarea id="address" name="address" rows="3" required></textarea>
+                        <textarea id="address" name="address" rows="3" required placeholder="123 Main St, New Orleans, LA 70115"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="notes">Additional Notes</label>

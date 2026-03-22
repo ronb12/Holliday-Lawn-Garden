@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="assets/css/main.min.css">
   <link rel="stylesheet" href="assets/css/customer-dashboard.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/forms.css">
   <style>
     body {
       padding-top: 70px;
@@ -251,32 +252,43 @@
       <form class="schedule-form" id="maintenanceForm">
         <h1>Schedule Maintenance</h1>
         <div class="success-message" id="successMessage">Your request has been submitted!</div>
-        <label for="name">Full Name</label>
-        <input type="text" id="name" name="name" required>
 
-        <label for="email">Email Address</label>
-        <input type="email" id="email" name="email" required>
+        <div class="form-group">
+          <label for="name">Full Name *</label>
+          <input type="text" id="name" name="name" required placeholder="e.g. Jane Smith">
+        </div>
 
-        <label for="service">Service Type</label>
-        <select id="service" name="service" required>
-          <option value="">Select a service</option>
-          <option value="lawn-maintenance">Lawn Maintenance</option>
-          <option value="landscaping">Landscaping</option>
-          <option value="garden-care">Garden Care</option>
-          <option value="commercial">Commercial Services</option>
-          <option value="pressure-washing">Pressure Washing</option>
-          <option value="hedge-trimming">Hedge Trimming</option>
-          <option value="irrigation">Irrigation</option>
-          <option value="other">Other</option>
-        </select>
+        <div class="form-group">
+          <label for="email">Email Address *</label>
+          <input type="email" id="email" name="email" required placeholder="you@example.com">
+        </div>
 
-        <label for="date">Preferred Date</label>
-        <input type="date" id="date" name="date" required>
+        <div class="form-group">
+          <label for="service">Service Type *</label>
+          <select id="service" name="service" required>
+            <option value="">Select a service…</option>
+            <option value="lawn-maintenance">Lawn Maintenance</option>
+            <option value="landscaping">Landscaping</option>
+            <option value="garden-care">Garden Care</option>
+            <option value="commercial">Commercial Services</option>
+            <option value="pressure-washing">Pressure Washing</option>
+            <option value="hedge-trimming">Hedge Trimming</option>
+            <option value="irrigation">Irrigation</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
 
-        <label for="details">Additional Details</label>
-        <textarea id="details" name="details" rows="3" placeholder="Let us know anything special..."></textarea>
+        <div class="form-group">
+          <label for="date">Preferred Date *</label>
+          <input type="date" id="date" name="date" required>
+        </div>
 
-        <button type="submit">Submit Request</button>
+        <div class="form-group">
+          <label for="details">Additional Details</label>
+          <textarea id="details" name="details" rows="3" placeholder="Any special requirements or things we should know…"></textarea>
+        </div>
+
+        <button type="submit"><i class="fas fa-calendar-check"></i> Submit Request</button>
       </form>
     </div>
   </main>
