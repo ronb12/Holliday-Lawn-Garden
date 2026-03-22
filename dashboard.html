@@ -312,50 +312,7 @@
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <link rel="manifest" href="manifest.json" />
 <!-- Firebase SDK -->
-<script defer="" src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.min.js" type="module">
- import { AccessibilityEnhancer } from '/assets/js/modules/accessibility.js';
- import { } from '/assets/js/modules/config.js';
- import { } from '/assets/js/modules/config.min.js';
- import { initializeDashboard, loadUserData, setupRealtimeListeners, updateDashboardUI, updateServiceRequestUI, removeServiceRequestUI, initializeEventListeners, handleLogout, editProfile } from '/assets/js/modules/customer_dashboard.js';
- import { initializeDashboard, loadUserData, setupRealtimeListeners, updateDashboardUI, updateServiceRequestUI, removeServiceRequestUI, initializeEventListeners, handleLogout, editProfile } from '/assets/js/modules/customer_dashboard.min.js';
- import { initializeDashboard, checkAuth, loadUserData, loadServiceRequests, for, loadUpcomingServices, loadRecentPayments, updateDashboardStats, showNewRequestForm, closeModal, submitServiceRequest, showPaymentForm, syncWithGoogleCalendar, logout, showLoading, hideLoading, showError, showSuccess, initializeChat, sendMessage, handleTyping, editMessage, deleteMessage, markMessagesAsRead, handleChatError, initializeNotifications, getNotificationIcon, formatTimestamp, markNotificationAsRead, markAllAsRead, toggleNotifications, handleFileSelect, removeFile } from '/assets/js/modules/dashboard.js';
- import { initializeDashboard, checkAuth, loadUserData, loadServiceRequests, loadUpcomingServices, loadRecentPayments, updateDashboardStats, showNewRequestForm, closeModal, submitServiceRequest, showPaymentForm, syncWithGoogleCalendar, logout, showLoading, hideLoading, showError, showSuccess, initializeChat, sendMessage, handleTyping, editMessage, deleteMessage, markMessagesAsRead, handleChatError, initializeNotifications, getNotificationIcon, formatTimestamp, markNotificationAsRead, markAllAsRead, toggleNotifications, handleFileSelect, removeFile } from '/assets/js/modules/dashboard.min.js';
- import { handleFileSelect, displayFile, removeFile, uploadFiles, formatFileSize, showNotification } from '/assets/js/modules/document_upload.js';
- import { handleFileSelect, displayFile, removeFile, uploadFiles, formatFileSize, showNotification } from '/assets/js/modules/document_upload.min.js';
- import { showError, handleError, handleFirebaseError, ErrorHandler } from '/assets/js/modules/error_handler.js';
- import { showError, handleError, handleFirebaseError, ErrorHandler } from '/assets/js/modules/error_handler.min.js';
- import { ErrorHandler } from '/assets/js/modules/error_handling.js';
- import { ErrorHandler } from '/assets/js/modules/error_handling.min.js';
- import { app, auth, db, storage, analytics } from '/assets/js/modules/firebase.js';
- import { app, auth, db, analytics, googleProvider } from '/assets/js/modules/firebase.js';
- import { FormValidator } from '/assets/js/modules/form_validation.js';
- import { FormValidator } from '/assets/js/modules/form_validation.min.js';
- import { HeadingEnhancer } from '/assets/js/modules/heading_enhancer.js';
- import { ImageLoader } from '/assets/js/modules/image_loader.js';
- import { ImageOptimizer } from '/assets/js/modules/image_optimization.js';
- import { ImageOptimizer } from '/assets/js/modules/image_optimization.min.js';
- import { ImageOptimizer } from '/assets/js/modules/image_optimizer.js';
- import { ImageOptimizer } from '/assets/js/modules/image_optimizer.min.js';
- import { } from '/assets/js/modules/login.js';
- import { } from '/assets/js/modules/login.min.js';
- import { initializeUI, setupEventListeners, registerServiceWorker, initializeFirebase, handleFormSubmit, handleNavigation } from '/assets/js/modules/main.js';
- import { initializeUI, setupEventListeners, registerServiceWorker, initializeFirebase, handleFormSubmit, handleNavigation } from '/assets/js/modules/main.min.js';
- import { MetaEnhancer } from '/assets/js/modules/meta_enhancer.js';
- import { Minifier } from '/assets/js/modules/minifier.js';
- import { Minifier } from '/assets/js/modules/minifier.min.js';
- import { } from '/assets/js/modules/mobile_menu.js';
- import { } from '/assets/js/modules/mobile_menu.min.js';
- import { ${this.getExports(content) } from '/assets/js/modules/modularizer.js';
- import { ResourceOptimizer } from '/assets/js/modules/resource_optimizer.js';
- import { createTestResultsContainer, addTestResult, testGoogleSignIn, testEmailSignIn, testPasswordReset, testSignOut, runAuthTests, addTestButton } from '/assets/js/modules/test_auth.js';
- import { createTestResultsContainer, addTestResult, testGoogleSignIn, testEmailSignIn, testPasswordReset, testSignOut, runAuthTests, addTestButton } from '/assets/js/modules/test_auth.min.js';
- import { runTests } from '/assets/js/modules/tests.js';
- import { runTests } from '/assets/js/modules/tests.min.js';
- import { ModuleUpdater } from '/assets/js/modules/update_modules.js';
- import { ResourceUpdater } from '/assets/js/modules/update_resources.js';
- import { ResourceUpdater } from '/assets/js/modules/update_resources.min.js';
- import { UXEnhancer, class
- if } from '/assets/js/modules/ux_enhancer.js';</script>
+<script defer="" src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.min.js"></script>
 <script defer="" src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.min.js" type="module"></script>
 <script defer="" src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.min.js" type="module"></script>
 <script defer="" src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.min.js" type="module"></script>
@@ -368,7 +325,7 @@
  document.addEventListener("DOMContentLoaded", () => {
  if ("serviceWorker" in navigator) {
  navigator.serviceWorker
- .register("/assets/js/service-worker.js")
+ .register("./service-worker.js")
  .then((registration) => {
  })
  .catch((error) => {
