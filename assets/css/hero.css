@@ -1,7 +1,8 @@
 /* Hero Section Styles */
 .hero {
   position: relative;
-  width: 100vw;
+  width: 100%;
+  max-width: 100%;
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -174,26 +175,51 @@
   .hero {
     min-height: 50vh;
   }
-  
+
   .hero-content h1 {
     font-size: 2rem;
   }
-  
+
   .hero-content p {
     font-size: 1rem;
   }
-  
+
   .hero-content {
     padding: 1rem;
     border-radius: 8px;
   }
-  
+
   .cta-buttons {
     flex-direction: column;
   }
-  
+
   .cta-button {
     width: 100%;
     text-align: center;
+  }
+}
+
+@media (max-width: 400px) {
+  .hero {
+    min-height: 45vh;
+  }
+
+  .hero-content h1 {
+    font-size: 1.6rem;
+    letter-spacing: 0;
+  }
+
+  .hero-content p {
+    font-size: 0.9rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .hero-content {
+    padding: 0.875rem;
+  }
+
+  .cta-button {
+    padding: 0.875rem 1.25rem;
+    font-size: 1rem;
   }
 }
