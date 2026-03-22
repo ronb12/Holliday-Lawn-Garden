@@ -1,6 +1,6 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -81,24 +81,27 @@ if (adminLoginForm) {
           window.location.href = 'admin-dashboard.html';
         }, 1500);
       } else {
-        await auth.signOut();
+        await signOut(auth);
         showError('Access denied. Admin privileges required.');
       }
     } catch (error) {
       clearTimeout(timeoutId);
       console.error('Login error:', error);
-      
-      // Provide more specific error messages
-      let errorMessage = 'Invalid email or password. Please try again.';
+
+      let msg = 'Invalid email or password. Please try again.';
       if (error.code === 'auth/network-request-failed') {
-        errorMessage = 'Network error. Please check your internet connection.';
+        msg = 'Network error. Please check your internet connection.';
       } else if (error.code === 'auth/too-many-requests') {
-        errorMessage = 'Too many failed attempts. Please try again later.';
+        msg = 'Too many failed attempts. Please try again later or reset your password.';
       } else if (error.code === 'auth/user-disabled') {
-        errorMessage = 'This account has been disabled.';
+        msg = 'This account has been disabled.';
+      } else if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+        msg = 'Incorrect email or password.';
+      } else if (error.code === 'permission-denied' || error.message?.includes('permission')) {
+        msg = 'Login succeeded but account access could not be verified. Contact support.';
       }
-      
-      showError(errorMessage);
+
+      showError(msg);
     } finally {
       hideLoading();
     }

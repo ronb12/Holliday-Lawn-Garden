@@ -61,10 +61,16 @@
         }
 
         async function redirectAfterLogin(user) {
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            if (userDoc.exists() && userDoc.data().role === 'admin') {
-                window.location.href = 'admin-dashboard.html';
-            } else {
+            try {
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (userDoc.exists() && userDoc.data().role === 'admin') {
+                    window.location.href = 'admin-dashboard.html';
+                } else {
+                    window.location.href = 'customer-dashboard.html';
+                }
+            } catch (firestoreErr) {
+                // Firestore read failed (e.g. rules) — auth is valid, default to customer dashboard
+                console.warn('Could not read user role, defaulting to customer dashboard:', firestoreErr.message);
                 window.location.href = 'customer-dashboard.html';
             }
         }
@@ -93,9 +99,15 @@
                     if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
                         msg = 'Incorrect email or password.';
                     } else if (err.code === 'auth/too-many-requests') {
-                        msg = 'Too many failed attempts. Please try again later.';
+                        msg = 'Too many failed attempts. Please wait a few minutes and try again.';
                     } else if (err.code === 'auth/invalid-email') {
                         msg = 'Please enter a valid email address.';
+                    } else if (err.code === 'auth/network-request-failed') {
+                        msg = 'Network error. Please check your internet connection.';
+                    } else if (err.code === 'permission-denied' || err.message?.includes('permission')) {
+                        // Auth succeeded but Firestore read failed — still redirect to customer dashboard
+                        window.location.href = 'customer-dashboard.html';
+                        return;
                     }
                     showError(msg);
                     btn.disabled = false;
