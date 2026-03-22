@@ -48,7 +48,7 @@
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com;
     font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com;
     img-src 'self' data: https:;
-    connect-src 'self' https://www.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://firebase.googleapis.com https://firebaseinstallations.googleapis.com https://analytics.google.com https://www.googletagmanager.com https://www.google-analytics.com https://ssl.google-analytics.com https://stats.g.doubleclick.net https://accounts.google.com https://www.paypal.com https://www.sandbox.paypal.com https://api.paypal.com https://api.sandbox.paypal.com;
+    connect-src 'self' https://www.gstatic.com https://www.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firestore.googleapis.com https://firebase.googleapis.com https://firebaseinstallations.googleapis.com https://analytics.google.com https://www.googletagmanager.com https://www.google-analytics.com https://ssl.google-analytics.com https://stats.g.doubleclick.net https://accounts.google.com https://www.paypal.com https://www.sandbox.paypal.com https://api.paypal.com https://api.sandbox.paypal.com;
     frame-src 'self' https://accounts.google.com https://www.paypal.com https://www.sandbox.paypal.com;
     ">
 
@@ -1071,11 +1071,11 @@ body {
                         <div class="account-info">
                             <div class="info-item">
                                 <span class="label">Name:</span>
-                                <span class="value" id="customer-name">John Doe</span>
+                                <span class="value" id="customer-name">Loading...</span>
                             </div>
                             <div class="info-item">
                                 <span class="label">Email:</span>
-                                <span class="value" id="customer-email">john.doe@example.com</span>
+                                <span class="value" id="customer-email"></span>
                             </div>
                             <div class="info-item">
                                 <span class="label">Account Status:</span>
@@ -1083,7 +1083,7 @@ body {
                             </div>
                             <div class="info-item">
                                 <span class="label">Member Since:</span>
-                                <span class="value" id="member-since">January 2024</span>
+                                <span class="value" id="member-since">—</span>
                             </div>
                         </div>
                     </div>
@@ -1114,37 +1114,8 @@ body {
                     <!-- Recent Services -->
                     <div class="dashboard-card recent-services">
                         <h2><i class="fas fa-history"></i> Recent Services</h2>
-                        <div class="service-list">
-                            <div class="service-item">
-                                <div class="service-icon">
-                                    <i class="fas fa-leaf"></i>
-                                </div>
-                                <div class="service-details">
-                                    <h3>Lawn Mowing</h3>
-                                    <p>Completed on March 15, 2024</p>
-                                    <span class="service-status completed">Completed</span>
-                                </div>
-                            </div>
-                            <div class="service-item">
-                                <div class="service-icon">
-                                    <i class="fas fa-seedling"></i>
-                                </div>
-                                <div class="service-details">
-                                    <h3>Fertilization</h3>
-                                    <p>Completed on March 1, 2024</p>
-                                    <span class="service-status completed">Completed</span>
-                                </div>
-                            </div>
-                            <div class="service-item">
-                                <div class="service-icon">
-                                    <i class="fas fa-calendar-check"></i>
-                                </div>
-                                <div class="service-details">
-                                    <h3>Spring Cleanup</h3>
-                                    <p>Scheduled for March 30, 2024</p>
-                                    <span class="service-status scheduled">Scheduled</span>
-                                </div>
-                            </div>
+                        <div class="service-list" id="services-list">
+                            <p class="empty-state" style="color:#888;text-align:center;padding:1rem;">No recent services found.</p>
                         </div>
                     </div>
 
@@ -1154,15 +1125,15 @@ body {
                         <div class="billing-info">
                             <div class="billing-item">
                                 <span class="label">Current Balance:</span>
-                                <span class="value amount">$125.00</span>
+                                <span class="value amount" id="current-balance">$0.00</span>
                             </div>
                             <div class="billing-item">
                                 <span class="label">Last Payment:</span>
-                                <span class="value">March 1, 2024</span>
+                                <span class="value" id="last-payment">—</span>
                             </div>
                             <div class="billing-item">
                                 <span class="label">Next Due Date:</span>
-                                <span class="value">April 1, 2024</span>
+                                <span class="value" id="next-due-date">—</span>
                             </div>
                         </div>
                         <div class="billing-actions">
@@ -1174,29 +1145,8 @@ body {
                     <!-- Service Schedule -->
                     <div class="dashboard-card service-schedule">
                         <h2><i class="fas fa-calendar-alt"></i> Upcoming Services</h2>
-                        <div class="schedule-list">
-                            <div class="schedule-item">
-                                <div class="schedule-date">
-                                    <span class="day">30</span>
-                                    <span class="month">MAR</span>
-                                </div>
-                                <div class="schedule-details">
-                                    <h3>Spring Cleanup</h3>
-                                    <p>Comprehensive yard cleanup and preparation</p>
-                                    <span class="schedule-time">9:00 AM - 12:00 PM</span>
-                                </div>
-                            </div>
-                            <div class="schedule-item">
-                                <div class="schedule-date">
-                                    <span class="day">15</span>
-                                    <span class="month">APR</span>
-                                </div>
-                                <div class="schedule-details">
-                                    <h3>Lawn Mowing</h3>
-                                    <p>Regular lawn maintenance service</p>
-                                    <span class="schedule-time">10:00 AM - 11:00 AM</span>
-                                </div>
-                            </div>
+                        <div class="schedule-list" id="schedule-list">
+                            <p class="empty-state" style="color:#888;text-align:center;padding:1rem;">No upcoming services scheduled.</p>
                         </div>
                     </div>
 
@@ -1247,14 +1197,14 @@ body {
                     <div class="payment-details">
                         <div class="payment-item">
                             <span class="label">Current Balance:</span>
-                            <span class="value amount">$125.00</span>
+                            <span class="value amount" id="modal-balance">$0.00</span>
                         </div>
                     </div>
                 </div>
                 <div class="paypal-payment-section">
                     <div class="payment-amount-section">
                         <label for="payment-amount">Payment Amount ($)</label>
-                        <input type="number" id="payment-amount" min="1" step="0.01" value="125.00" required>
+                        <input type="number" id="payment-amount" min="1" step="0.01" value="" required>
                     </div>
                     <div class="paypal-buttons-container">
                         <div id="paypal-button-container"></div>
