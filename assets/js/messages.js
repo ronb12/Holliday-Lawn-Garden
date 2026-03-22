@@ -374,6 +374,90 @@ window.refreshMessages = function() {
     loadMessages();
 };
 
+// ── Send to Individual Customer Modal ──────────────────────────
+window.openSendModal = async function() {
+    const modal = document.getElementById('send-modal');
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    document.getElementById('send-alert').style.display = 'none';
+    document.getElementById('send-form').reset();
+    document.getElementById('send-submit-label').textContent = 'Send Message';
+    document.getElementById('send-submit-btn').disabled = false;
+
+    // Load customers into dropdown
+    const select = document.getElementById('msg-customer');
+    select.innerHTML = '<option value="">Loading...</option>';
+    try {
+        const snap = await getDocs(collection(db, 'customers'));
+        const customers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        if (!customers.length) {
+            select.innerHTML = '<option value="">No customers found</option>';
+            return;
+        }
+        select.innerHTML = '<option value="">Select a customer...</option>' +
+            customers.map(c => {
+                const name  = `${c.firstName || ''} ${c.lastName || ''}`.trim() || c.name || 'Unnamed';
+                const email = c.email || '';
+                return `<option value="${c.id}" data-email="${email}" data-name="${name}">${name}${email ? ' — ' + email : ''}</option>`;
+            }).join('');
+    } catch (e) {
+        select.innerHTML = '<option value="">Error loading customers</option>';
+    }
+};
+
+window.closeSendModal = function() {
+    document.getElementById('send-modal').style.display = 'none';
+    document.body.style.overflow = '';
+};
+
+window.submitSendForm = async function(e) {
+    e.preventDefault();
+    const btn   = document.getElementById('send-submit-btn');
+    const label = document.getElementById('send-submit-label');
+    const alert = document.getElementById('send-alert');
+
+    const select   = document.getElementById('msg-customer');
+    const custId   = select.value;
+    const custName = select.selectedOptions[0]?.dataset.name || '';
+    const custEmail= select.selectedOptions[0]?.dataset.email || '';
+    const subject  = document.getElementById('msg-subject').value.trim();
+    const body     = document.getElementById('msg-body').value.trim();
+    const priority = document.getElementById('msg-priority').value;
+
+    if (!custId || !subject || !body) {
+        alert.textContent = 'Please fill in all required fields.';
+        alert.style.cssText = 'display:block;background:#ffebee;color:#c62828;padding:0.65rem 1rem;border-radius:6px;margin-bottom:1rem;';
+        return;
+    }
+
+    btn.disabled = true;
+    label.textContent = 'Sending…';
+
+    try {
+        await addDoc(collection(db, 'messages'), {
+            recipientId:    custId,
+            recipientName:  custName,
+            recipientEmail: custEmail,
+            subject,
+            content:        body,
+            priority,
+            type:           'outbound',
+            status:         'sent',
+            read:           false,
+            sentByAdmin:    true,
+            createdAt:      new Date()
+        });
+        alert.textContent = `Message sent to ${custName}!`;
+        alert.style.cssText = 'display:block;background:#e8f5e9;color:#2e7d32;padding:0.65rem 1rem;border-radius:6px;margin-bottom:1rem;';
+        setTimeout(() => window.closeSendModal(), 1500);
+    } catch (err) {
+        alert.textContent = 'Failed to send: ' + err.message;
+        alert.style.cssText = 'display:block;background:#ffebee;color:#c62828;padding:0.65rem 1rem;border-radius:6px;margin-bottom:1rem;';
+        btn.disabled = false;
+        label.textContent = 'Send Message';
+    }
+};
+
 window.logout = async function() {
     try {
         await signOut(auth);
