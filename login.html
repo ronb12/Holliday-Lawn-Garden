@@ -9,177 +9,133 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="assets/css/forms.css">
     
-    <!-- Google OAuth Configuration -->
+    <!-- Toggle password visibility (non-module, must stay inline) -->
     <script>
-        // Google OAuth Configuration - Direct popup to Google login
-        const REDIRECT_URI = window.location.origin + '/google-oauth-callback.html';
-        
-        // Handle Google login button click
-        function handleGoogleLogin() {
-            console.log('Google login button clicked');
-            
-            try {
-                const googleBtn = document.querySelector(".google-login-btn");
-                if (!googleBtn) {
-                    console.error('Google login button not found');
-                    alert('Error: Google login button not found');
-                    return;
-                }
-                
-                // Show loading state
-                googleBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Opening Google Login...';
-                googleBtn.disabled = true;
-                
-                // Open Google's sign-in page directly in popup
-                // This will show Google's login page without requiring OAuth setup
-                const googleSignInUrl = 'https://accounts.google.com/signin';
-                
-                console.log('Opening Google Sign-In URL:', googleSignInUrl);
-                
-                // Open Google login popup
-                const popup = window.open(
-                    googleSignInUrl,
-                    'googleLogin',
-                    'width=500,height=600,scrollbars=yes,resizable=yes'
-                );
-                
-                // Check if popup was blocked
-                if (!popup || popup.closed || typeof popup.closed === 'undefined') {
-                    alert('Popup was blocked. Please allow popups for this site and try again.');
-                    googleBtn.innerHTML = '<i class="fab fa-google" style="color: #4285f4; font-size: 18px;"></i> Continue with Google';
-                    googleBtn.disabled = false;
-                    return;
-                }
-                
-                console.log('Google login popup opened successfully');
-                
-                // Monitor popup for completion
-                const checkClosed = setInterval(() => {
-                    if (popup.closed) {
-                        clearInterval(checkClosed);
-                        console.log('Google login popup closed');
-                        
-                        // For demo purposes, simulate successful login
-                        // In a real implementation, you would check the popup's URL or use postMessage
-                        setTimeout(() => {
-                            // Simulate successful Google login
-                            const userInfo = {
-                                email: 'user@example.com',
-                                name: 'Google User',
-                                picture: 'https://via.placeholder.com/150',
-                                sub: 'google_user_' + Date.now()
-                            };
-                            
-                            // Store user info in localStorage
-                            localStorage.setItem('googleUser', JSON.stringify(userInfo));
-                            localStorage.setItem('isLoggedIn', 'true');
-                            
-                            // Show success message
-                            googleBtn.innerHTML = '<i class="fas fa-check"></i> Login Successful!';
-                            googleBtn.style.background = '#4caf50';
-                            googleBtn.style.color = 'white';
-                            
-                            setTimeout(() => {
-                                alert(`Welcome, ${userInfo.name}! You have successfully logged in with Google. Redirecting to customer dashboard...`);
-                                window.location.href = 'customer-dashboard.html';
-                            }, 1000);
-                        }, 1000);
-                    }
-                }, 1000);
-                
-            } catch (error) {
-                console.error('Error in handleGoogleLogin:', error);
-                alert('An error occurred while processing Google login. Please try again.');
-                
-                // Reset button state
-                const googleBtn = document.querySelector(".google-login-btn");
-                if (googleBtn) {
-                    googleBtn.innerHTML = '<i class="fab fa-google" style="color: #4285f4; font-size: 18px;"></i> Continue with Google';
-                    googleBtn.disabled = false;
-                }
-            }
-        }
-        
-        // Initialize everything when DOM is loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Page loaded, setting up Google login popup...');
-            
-            // Update copyright year
-            const yearElement = document.getElementById("current-year");
-            if(yearElement){
-                yearElement.textContent = new Date().getFullYear();
-            }
-            
-            // Set up Google login button
-            const googleBtn = document.querySelector(".google-login-btn");
-            if (googleBtn) {
-                console.log('Google login button found and event listener added');
-                googleBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    console.log('Google login button clicked via event listener');
-                    handleGoogleLogin();
-                });
-            } else {
-                console.error('Google login button not found during setup');
-            }
-            
-            // Set up form submission
-            const loginForm = document.getElementById("loginForm");
-            if (loginForm) {
-                loginForm.addEventListener("submit", function(e) {
-                    e.preventDefault();
-                    
-                    const email = document.getElementById("email").value;
-                    const password = document.getElementById("password").value;
-                    const submitButton = this.querySelector(".login-button");
-                    const buttonText = submitButton.querySelector(".button-text");
-                    const spinner = submitButton.querySelector(".fa-spinner");
-                    
-                    if (!email || !password) {
-                        alert("Please fill in all required fields.");
-                        return;
-                    }
-                    
-                    // Show loading state
-                    submitButton.disabled = true;
-                    buttonText.style.display = "none";
-                    spinner.style.display = "inline-block";
-                    
-                    // Simulate login process
-                    setTimeout(() => {
-                        alert("Login functionality will be implemented with backend integration.");
-                        this.reset();
-                        
-                        // Reset button state
-                        submitButton.disabled = false;
-                        buttonText.style.display = "inline";
-                        spinner.style.display = "none";
-                    }, 1500);
-                });
-            } else {
-                console.error('Login form not found during setup');
-            }
-        });
-
-        // Toggle password visibility
         function togglePassword() {
             const passwordInput = document.getElementById("password");
             const toggleButton = document.querySelector(".toggle-password i");
-            
             if (passwordInput.type === "password") {
                 passwordInput.type = "text";
-                toggleButton.classList.remove("fa-eye");
-                toggleButton.classList.add("fa-eye-slash");
+                toggleButton.classList.replace("fa-eye", "fa-eye-slash");
             } else {
                 passwordInput.type = "password";
-                toggleButton.classList.remove("fa-eye-slash");
-                toggleButton.classList.add("fa-eye");
+                toggleButton.classList.replace("fa-eye-slash", "fa-eye");
+            }
+        }
+        document.getElementById("current-year") &&
+            (document.getElementById("current-year").textContent = new Date().getFullYear());
+    </script>
+
+    <!-- Firebase Authentication (real) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: 'AIzaSyACm0j7I8RX4ExIQRoejfk1HZMOQRGigBw',
+            authDomain: 'holiday-lawn-and-garden.firebaseapp.com',
+            projectId: 'holiday-lawn-and-garden',
+            storageBucket: 'holiday-lawn-and-garden.firebasestorage.app',
+            messagingSenderId: '135322230444',
+            appId: '1:135322230444:web:1a487b25a48aae07368909'
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const googleProvider = new GoogleAuthProvider();
+        googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+        function showError(msg) {
+            let el = document.getElementById('login-error');
+            if (!el) {
+                el = document.createElement('p');
+                el.id = 'login-error';
+                el.style.cssText = 'color:#c62828;background:#ffebee;padding:0.75rem 1rem;border-radius:6px;margin-bottom:1rem;font-size:0.9rem;';
+                document.querySelector('.login-card').insertBefore(el, document.getElementById('loginForm'));
+            }
+            el.textContent = msg;
+            el.style.display = msg ? 'block' : 'none';
+        }
+
+        async function redirectAfterLogin(user) {
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (userDoc.exists() && userDoc.data().role === 'admin') {
+                window.location.href = 'admin-dashboard.html';
+            } else {
+                window.location.href = 'customer-dashboard.html';
             }
         }
 
-        // Simple test function
-        function testButton() {
-            alert('Button test - JavaScript is working!');
+        // ── Email / Password login ──────────────────────────────────
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                showError('');
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                const btn = loginForm.querySelector('.login-button');
+                const btnText = btn.querySelector('.button-text');
+                const spinner = btn.querySelector('.fa-spinner');
+
+                btn.disabled = true;
+                btnText.style.display = 'none';
+                spinner.style.display = 'inline-block';
+
+                try {
+                    const result = await signInWithEmailAndPassword(auth, email, password);
+                    await redirectAfterLogin(result.user);
+                } catch (err) {
+                    let msg = 'Login failed. Please try again.';
+                    if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+                        msg = 'Incorrect email or password.';
+                    } else if (err.code === 'auth/too-many-requests') {
+                        msg = 'Too many failed attempts. Please try again later.';
+                    } else if (err.code === 'auth/invalid-email') {
+                        msg = 'Please enter a valid email address.';
+                    }
+                    showError(msg);
+                    btn.disabled = false;
+                    btnText.style.display = 'inline';
+                    spinner.style.display = 'none';
+                }
+            });
+        }
+
+        // ── Google Sign-In ──────────────────────────────────────────
+        const googleBtn = document.getElementById('googleLoginBtn');
+        if (googleBtn) {
+            googleBtn.addEventListener('click', async () => {
+                showError('');
+                googleBtn.disabled = true;
+                googleBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in…';
+
+                try {
+                    const result = await signInWithPopup(auth, googleProvider);
+                    const user = result.user;
+
+                    // Ensure a user document exists in Firestore
+                    await setDoc(doc(db, 'users', user.uid), {
+                        email: user.email,
+                        displayName: user.displayName || '',
+                        photoURL: user.photoURL || '',
+                        lastLogin: new Date().toISOString()
+                    }, { merge: true });
+
+                    await redirectAfterLogin(user);
+                } catch (err) {
+                    let msg = 'Google sign-in failed. Please try again.';
+                    if (err.code === 'auth/popup-blocked') msg = 'Popup was blocked. Please allow popups for this site.';
+                    else if (err.code === 'auth/popup-closed-by-user') msg = 'Sign-in was cancelled.';
+                    else if (err.code === 'auth/cancelled-popup-request') msg = '';
+                    showError(msg);
+                    googleBtn.disabled = false;
+                    googleBtn.innerHTML = '<i class="fab fa-google" style="color:#4285f4;font-size:18px;"></i> Continue with Google';
+                }
+            });
         }
     </script>
     <style>
