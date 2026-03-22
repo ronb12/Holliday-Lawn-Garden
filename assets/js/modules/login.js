@@ -1,9 +1,9 @@
 // login.js
 // login.js
 
-import { setPersistence, browserLocalPersistence, signInWithEmailAndPassword, signInWithPopup } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js';
+import { setPersistence, browserLocalPersistence, signInWithEmailAndPassword, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { auth, googleProvider, initializeFirebase } from './firebase.js';
-import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js';
+import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 // Initialize Firestore
 const db = getFirestore();
