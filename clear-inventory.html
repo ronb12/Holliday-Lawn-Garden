@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Clear Inventory - Admin</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon/favicon-32x32.png"/>
+    <style>
+        body { font-family: sans-serif; background:#f5f5f5; display:flex; justify-content:center; align-items:center; min-height:100vh; margin:0; }
+        .card { background:#fff; border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,0.1); padding:2.5rem; text-align:center; max-width:440px; width:100%; }
+        .icon { font-size:3rem; margin-bottom:1rem; }
+        h2 { margin:0 0 0.5rem; color:#333; }
+        p { color:#666; margin:0 0 1.5rem; }
+        .status { font-size:1rem; font-weight:500; margin-top:1rem; padding:0.75rem 1rem; border-radius:6px; display:none; }
+        .status.info    { background:#e3f2fd; color:#1565c0; }
+        .status.success { background:#e8f5e9; color:#2e7d32; }
+        .status.error   { background:#ffebee; color:#c62828; }
+        a.btn { display:inline-block; margin-top:1.5rem; padding:0.65rem 1.5rem; background:#2e7d32; color:#fff; text-decoration:none; border-radius:6px; font-weight:600; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon">🗑️</div>
+        <h2>Clear All Inventory</h2>
+        <p>Checking your session and removing all inventory items from Firestore&hellip;</p>
+        <div class="status info" id="status">Authenticating…</div>
+        <a class="btn" href="inventory.html" id="back-link" style="display:none;">Go to Inventory</a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, getDocs, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        const app  = initializeApp({
+            apiKey: "AIzaSyACm0j7I8RX4ExIQRoejfk1HZMOQRGigBw",
+            authDomain: "holiday-lawn-and-garden.firebaseapp.com",
+            projectId: "holiday-lawn-and-garden",
+            storageBucket: "holiday-lawn-and-garden.firebasestorage.app",
+            messagingSenderId: "135322230444",
+            appId: "1:135322230444:web:1a487b25a48aae07368909"
+        });
+        const db   = getFirestore(app);
+        const auth = getAuth(app);
+        const statusEl   = document.getElementById('status');
+        const backLink   = document.getElementById('back-link');
+
+        function show(msg, type) {
+            statusEl.textContent = msg;
+            statusEl.className   = 'status ' + type;
+            statusEl.style.display = 'block';
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                show('Not logged in. Please sign in as admin first.', 'error');
+                backLink.href = 'admin-login.html';
+                backLink.textContent = 'Go to Login';
+                backLink.style.display = 'inline-block';
+                return;
+            }
+
+            show('Deleting inventory items…', 'info');
+            try {
+                const snap = await getDocs(collection(db, 'inventory'));
+                if (snap.empty) {
+                    show('Inventory is already empty.', 'success');
+                    backLink.style.display = 'inline-block';
+                    return;
+                }
+                const deletes = snap.docs.map(d => deleteDoc(doc(db, 'inventory', d.id)));
+                await Promise.all(deletes);
+                show(`Done! Deleted ${snap.size} item${snap.size !== 1 ? 's' : ''}.`, 'success');
+            } catch (err) {
+                show('Error: ' + err.message, 'error');
+            }
+            backLink.style.display = 'inline-block';
+        });
+    </script>
+</body>
+</html>
