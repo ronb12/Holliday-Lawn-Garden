@@ -38,6 +38,7 @@ onAuthStateChanged(auth, async (user) => {
         if (userDoc.exists() && userDoc.data().role === 'admin') {
             loadInventory();
             setupEventListeners();
+            if (window.location.hash === '#add') openAddModal();
         } else {
             window.location.href = 'admin-login.html';
         }
@@ -290,7 +291,3 @@ window.logout = async () => {
     window.location.href = 'admin-login.html';
 };
 
-// Auto-open modal if URL has #add
-if (window.location.hash === '#add') {
-    window.addEventListener('load', () => openAddModal());
-}
