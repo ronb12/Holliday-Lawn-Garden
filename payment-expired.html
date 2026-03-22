@@ -1,27 +1,63 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment Link Expired - Holliday's Lawn &amp; Garden</title>
+    <meta name="description" content="This payment link has expired. Please request a new payment link or contact us." />
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon/favicon-32x32.png" />
+    <link rel="manifest" href="manifest.json" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/css/main.min.css">
     <link rel="stylesheet" href="assets/css/mobile.css">
+    <style>
+        body { font-family: 'Montserrat', sans-serif; margin: 0; background: #f8f9fa; }
+        .error-page { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; padding: 3rem 1rem; }
+        .error-icon { font-size: 4rem; color: #ff9800; margin-bottom: 1rem; }
+        .error-title { font-size: 1.8rem; color: #333; margin: 0 0 0.5rem; }
+        .error-message { color: #666; font-size: 1rem; max-width: 480px; margin: 0 auto 2rem; }
+        .error-actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+        .btn-primary { background: #2e7d32; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: background 0.2s; }
+        .btn-primary:hover { background: #1b5e20; }
+        .btn-secondary { background: #f5f5f5; color: #333; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: background 0.2s; }
+        .btn-secondary:hover { background: #e0e0e0; }
+    </style>
 </head>
-<body><head><link href="https://fonts.googleapis.com" rel="preconnect"/><link href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Montserrat:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Payment Expired - Holliday's Lawn &amp; Garden</title>
-<meta content="Your payment session has expired. Please try again to complete your transaction." name="description"/>
-<link href="assets/css/main.css" rel="stylesheet"/>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
-<script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "WebPage",
-        "name": "Payment Expired - Holliday's Lawn & Garden",
-        "description": "Your payment session has expired. Please try again to complete your transaction.",
-        "url": "https://hollidaylawngarden.com/payment-expired"
-    }
-    </script>
-<style>
-        /* Mobile Menu Styles */
+<body>
+    <main>
+        <div class="error-page">
+            <div class="error-icon"><i class="fas fa-clock"></i></div>
+            <h1 class="error-title">Payment Link Expired</h1>
+            <p class="error-message">This payment link has expired. Please contact us at (504) 717-1887 or 7holliday@gmail.com to receive a new payment link.</p>
+            <div class="error-actions">
+                <a href="contact.html" class="btn-primary"><i class="fas fa-phone"></i> Contact Us</a>
+                <a href="pay-your-bill.html" class="btn-secondary"><i class="fas fa-credit-card"></i> Pay Your Bill</a>
+                <a href="index.html" class="btn-secondary"><i class="fas fa-home"></i> Go Home</a>
+            </div>
+        </div>
+    </main>
 
+    <footer class="footer">
+      <div class="footer-content">
+       <div class="footer-grid">
+        <div class="footer-section"><h3>Contact Us</h3><ul><li><i class="fas fa-phone"></i> Karl Holliday (504) 717-1887</li><li><i class="fas fa-envelope"></i> 7holliday@gmail.com</li></ul></div>
+        <div class="footer-section"><h3>Quick Links</h3><ul><li><a href="about.html">About Us</a></li><li><a href="services.html">Services</a></li><li><a href="education.html">Education</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+        <div class="footer-section"><h3>Customer Portal</h3><ul><li><a href="login.html">Login</a></li><li><a href="register.html">Register</a></li><li><a href="pay-your-bill.html">Pay Your Bill</a></li><li><a href="book-appointment.html">Book Appointment</a></li><li><a href="request-quote.html">Request a Quote</a></li><li><a href="customer-dashboard.html">Dashboard</a></li></ul></div>
+        <div class="footer-section"><h3>Legal</h3><ul><li><a href="privacy.html">Privacy Policy</a></li><li><a href="terms.html">Terms of Service</a></li></ul></div>
+        <div class="footer-section"><h3>Follow Us</h3><div class="social-links"><a href="#" class="social-link" aria-label="Facebook"><i class="fab fa-facebook"></i></a><a href="#" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a><a href="#" class="social-link" aria-label="Twitter"><i class="fab fa-twitter"></i></a><a href="#" class="social-link" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a></div></div>
+       </div>
+       <div class="footer-bottom"><div class="copyright"><p>© <span id="current-year"></span> Holliday's Lawn &amp; Garden. All rights reserved.</p></div></div>
+      </div>
+    </footer>
+
+    <nav class="mobile-tab-bar" aria-label="Mobile navigation">
+        <a href="index.html"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="services.html"><i class="fas fa-tools"></i><span>Services</span></a>
+        <a href="pay-your-bill.html"><i class="fas fa-credit-card"></i><span>Pay Bill</span></a>
+        <a href="contact.html"><i class="fas fa-phone"></i><span>Contact</span></a>
+        <a href="login.html"><i class="fas fa-user"></i><span>Login</span></a>
+    </nav>
+    <script>document.getElementById('current-year') && (document.getElementById('current-year').textContent = new Date().getFullYear());</script>
 </body>
 </html>
