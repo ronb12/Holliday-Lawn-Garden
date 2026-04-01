@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - claude/improve-website-c531F
   workflow_dispatch:
 
 jobs:
