@@ -335,6 +335,117 @@ window.exportCSV = function () {
     a.click();
 };
 
+// ── PDF Print Report ──────────────────────────────────────────────────────────
+window.printPDF = function () {
+    const entries  = filterLocally(allEntries);
+    const period   = document.getElementById('filterPeriod').options[document.getElementById('filterPeriod').selectedIndex].text;
+    const staffSel = document.getElementById('filterStaff');
+    const staffLabel = staffSel.value ? staffSel.options[staffSel.selectedIndex].text : 'All Staff';
+    const today    = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+
+    // Build pay summary grouped by staff
+    const byStaff = {};
+    entries.filter(e => e.totalMinutes != null).forEach(e => {
+        if (!byStaff[e.staffId]) byStaff[e.staffId] = { name: e.staffName || e.staffId, minutes: 0, shifts: 0 };
+        byStaff[e.staffId].minutes += e.totalMinutes;
+        byStaff[e.staffId].shifts++;
+    });
+
+    const summaryRows = Object.entries(byStaff).map(([sid, data]) => {
+        const hours = (data.minutes / 60).toFixed(2);
+        const rate  = payRates[sid] != null ? parseFloat(payRates[sid]).toFixed(2) : null;
+        const pay   = rate != null ? (parseFloat(hours) * parseFloat(rate)).toFixed(2) : null;
+        return `<tr>
+            <td>${data.name}</td>
+            <td>${hours} hrs</td>
+            <td>${rate != null ? '$' + rate + '/hr' : '<span class="na">Not set</span>'}</td>
+            <td class="money">${pay != null ? '$' + pay : '<span class="na">N/A</span>'}</td>
+            <td>${data.shifts}</td>
+        </tr>`;
+    }).join('') || '<tr><td colspan="5" class="na" style="text-align:center;">No completed shifts in this period.</td></tr>';
+
+    const entryRows = entries.map(e => {
+        const inTime  = e.clockIn  ? tsToDate(e.clockIn).toLocaleString()  : '--';
+        const outTime = e.clockOut ? tsToDate(e.clockOut).toLocaleString() : '<em>Active</em>';
+        const dur     = e.totalMinutes != null ? formatMinutes(e.totalMinutes) : (e.clockOut ? '--' : '<em>In progress</em>');
+        return `<tr>
+            <td>${e.staffName || e.staffId}</td>
+            <td>${e.date}</td>
+            <td>${inTime}</td>
+            <td>${outTime}</td>
+            <td>${dur}</td>
+        </tr>`;
+    }).join('') || '<tr><td colspan="5" class="na" style="text-align:center;">No entries found.</td></tr>';
+
+    const win = window.open('', '_blank');
+    win.document.write(`<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Time Clock Report - Holliday's Lawn & Garden</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; font-size: 13px; color: #222; padding: 2rem; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; border-bottom: 3px solid #2e7d32; padding-bottom: 1rem; }
+  .company-name { font-size: 1.4rem; font-weight: 700; color: #2c5530; }
+  .company-sub { color: #555; font-size: 0.85rem; margin-top: 0.2rem; }
+  .report-meta { text-align: right; font-size: 0.82rem; color: #555; }
+  .report-meta strong { color: #222; }
+  h2 { font-size: 1rem; font-weight: 700; color: #2c5530; margin: 1.5rem 0 0.6rem; border-left: 4px solid #4caf50; padding-left: 0.5rem; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+  th { background: #2e7d32; color: #fff; padding: 0.5rem 0.75rem; text-align: left; font-size: 0.82rem; }
+  td { padding: 0.45rem 0.75rem; border-bottom: 1px solid #e0e0e0; }
+  tr:nth-child(even) td { background: #f9f9f9; }
+  .money { font-weight: 700; color: #15803d; }
+  .na { color: #9e9e9e; font-style: italic; }
+  .totals-row td { font-weight: 700; background: #f0fdf4 !important; border-top: 2px solid #4caf50; }
+  .footer { margin-top: 2rem; padding-top: 0.75rem; border-top: 1px solid #ddd; font-size: 0.78rem; color: #888; text-align: center; }
+  @media print {
+    body { padding: 1cm; }
+    button { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <div class="company-name">Holliday's Lawn &amp; Garden</div>
+    <div class="company-sub">Time Clock Report</div>
+  </div>
+  <div class="report-meta">
+    <div><strong>Generated:</strong> ${today}</div>
+    <div><strong>Period:</strong> ${period}</div>
+    <div><strong>Staff:</strong> ${staffLabel}</div>
+  </div>
+</div>
+
+<h2>Pay Summary</h2>
+<table>
+  <thead><tr><th>Staff Member</th><th>Total Hours</th><th>Hourly Rate</th><th>Estimated Pay</th><th>Shifts</th></tr></thead>
+  <tbody>${summaryRows}</tbody>
+  ${Object.keys(byStaff).length ? (() => {
+      const totalHrs = Object.values(byStaff).reduce((s,d) => s + d.minutes, 0) / 60;
+      const totalPay = Object.entries(byStaff).reduce((s,[sid,d]) => {
+          const r = payRates[sid];
+          return s + (r != null ? (d.minutes / 60) * r : 0);
+      }, 0);
+      return `<tfoot><tr class="totals-row"><td>TOTAL</td><td>${totalHrs.toFixed(2)} hrs</td><td></td><td class="money">$${totalPay.toFixed(2)}</td><td>${Object.values(byStaff).reduce((s,d)=>s+d.shifts,0)}</td></tr></tfoot>`;
+  })() : ''}
+</table>
+
+<h2>Time Entries</h2>
+<table>
+  <thead><tr><th>Staff Member</th><th>Date</th><th>Clock In</th><th>Clock Out</th><th>Duration</th></tr></thead>
+  <tbody>${entryRows}</tbody>
+</table>
+
+<div class="footer">Holliday's Lawn &amp; Garden &mdash; Confidential Payroll Report &mdash; Generated ${today}</div>
+<script>window.onload = function(){ window.print(); }<\/script>
+</body>
+</html>`);
+    win.document.close();
+};
+
 // ── Re-render both views whenever entries change ──────────────────────────────
 function rerender() {
     filteredEntries = filterLocally(allEntries);
