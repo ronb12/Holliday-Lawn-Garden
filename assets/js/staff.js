@@ -15,6 +15,25 @@ const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
 const auth = getAuth(app);
 
+// DOM elements
+let loadingDiv, staffTable, errorDiv, searchInput, roleFilter, statusFilter, sortBySelect;
+let totalStaffEl, activeStaffEl, managersEl, avgRatingEl;
+let staff = [], filteredStaff = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadingDiv    = document.getElementById('loading');
+    staffTable    = document.getElementById('staff-table');
+    errorDiv      = document.getElementById('error');
+    searchInput   = document.getElementById('search-staff');
+    roleFilter    = document.getElementById('role-filter');
+    statusFilter  = document.getElementById('status-filter');
+    sortBySelect  = document.getElementById('sort-by');
+    totalStaffEl  = document.getElementById('total-staff');
+    activeStaffEl = document.getElementById('active-staff');
+    managersEl    = document.getElementById('onleave-staff');
+    avgRatingEl   = document.getElementById('inactive-staff');
+});
+
 // Check authentication
 onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -68,17 +87,15 @@ async function loadStaff() {
 
 // Update statistics
 function updateStats() {
-    const total = staff.length;
-    const active = staff.filter(s => s.status === 'active').length;
-    const managers = staff.filter(s => s.role === 'manager').length;
-    const avgRating = staff.length > 0 
-        ? (staff.reduce((sum, s) => sum + (s.rating || 0), 0) / staff.length).toFixed(1)
-        : '0.0';
+    const total    = staff.length;
+    const active   = staff.filter(s => s.status === 'active').length;
+    const onLeave  = staff.filter(s => s.status === 'on-leave').length;
+    const inactive = staff.filter(s => s.status === 'inactive').length;
 
-    totalStaffEl.textContent = total;
-    activeStaffEl.textContent = active;
-    managersEl.textContent = managers;
-    avgRatingEl.textContent = avgRating;
+    if (totalStaffEl)  totalStaffEl.textContent  = total;
+    if (activeStaffEl) activeStaffEl.textContent = active;
+    if (managersEl)    managersEl.textContent    = onLeave;
+    if (avgRatingEl)   avgRatingEl.textContent   = inactive;
 }
 
 // Filter staff
