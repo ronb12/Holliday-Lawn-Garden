@@ -15,24 +15,19 @@ const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
 const auth = getAuth(app);
 
-// DOM elements
-let loadingDiv, staffTable, errorDiv, searchInput, roleFilter, statusFilter, sortBySelect;
-let totalStaffEl, activeStaffEl, managersEl, avgRatingEl;
+// DOM elements — modules are deferred so DOM is already ready here
+const loadingDiv    = document.getElementById('loading');
+const staffTable    = document.getElementById('staff-table');
+const errorDiv      = document.getElementById('error');
+const searchInput   = document.getElementById('search-staff');
+const roleFilter    = document.getElementById('role-filter');
+const statusFilter  = document.getElementById('status-filter');
+const sortBySelect  = document.getElementById('sort-by');
+const totalStaffEl  = document.getElementById('total-staff');
+const activeStaffEl = document.getElementById('active-staff');
+const managersEl    = document.getElementById('onleave-staff');
+const avgRatingEl   = document.getElementById('inactive-staff');
 let staff = [], filteredStaff = [];
-
-document.addEventListener('DOMContentLoaded', () => {
-    loadingDiv    = document.getElementById('loading');
-    staffTable    = document.getElementById('staff-table');
-    errorDiv      = document.getElementById('error');
-    searchInput   = document.getElementById('search-staff');
-    roleFilter    = document.getElementById('role-filter');
-    statusFilter  = document.getElementById('status-filter');
-    sortBySelect  = document.getElementById('sort-by');
-    totalStaffEl  = document.getElementById('total-staff');
-    activeStaffEl = document.getElementById('active-staff');
-    managersEl    = document.getElementById('onleave-staff');
-    avgRatingEl   = document.getElementById('inactive-staff');
-});
 
 // Check authentication
 onAuthStateChanged(auth, async (user) => {
