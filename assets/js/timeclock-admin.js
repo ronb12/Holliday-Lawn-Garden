@@ -115,7 +115,7 @@ async function loadEntries() {
 
     const snap = await getDocs(q);
     allEntries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    applyFilters();
+    rerender();
 }
 
 function periodStart(period) {
@@ -454,22 +454,6 @@ function rerender() {
     updateStatCards();
 }
 
-// Patch applyFilters to call rerender after load
-const _origApply = window.applyFilters;
-window.applyFilters = async function () { await loadEntries(); };
-async function loadEntries() {
-    const period = document.getElementById('filterPeriod').value;
-    const since  = periodStart(period);
-    let q;
-    if (since) {
-        q = query(collection(db, 'timeclock'), where('date', '>=', since), orderBy('date', 'desc'));
-    } else {
-        q = query(collection(db, 'timeclock'), orderBy('date', 'desc'));
-    }
-    const snap = await getDocs(q);
-    allEntries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    rerender();
-}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function tsToDate(ts) {
