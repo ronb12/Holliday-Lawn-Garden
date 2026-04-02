@@ -1,6 +1,20 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getFirestore, collection, getDocs, getDoc, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+const firebaseConfig = {
+    apiKey: "AIzaSyACm0j7I8RX4ExIQRoejfk1HZMOQRGigBw",
+    authDomain: "holiday-lawn-and-garden.firebaseapp.com",
+    projectId: "holiday-lawn-and-garden",
+    storageBucket: "holiday-lawn-and-garden.firebasestorage.app",
+    messagingSenderId: "135322230444",
+    appId: "1:135322230444:web:1a487b25a48aae07368909"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+const auth = getAuth(app);
+
 // Check authentication
 onAuthStateChanged(auth, async (user) => {
     if (user) {
