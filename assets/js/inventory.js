@@ -32,7 +32,7 @@ const statusFilter    = document.getElementById('status-filter');
 const sortBySelect    = document.getElementById('sort-by');
 
 onAuthStateChanged(auth, async (user) => {
-    if (!user) { window.location.href = 'admin-login.html'; return; }
+    if (!user) { window.location.href = 'login.html'; return; }
     try {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists() && userDoc.data().role === 'admin') {
@@ -40,10 +40,10 @@ onAuthStateChanged(auth, async (user) => {
             setupEventListeners();
             if (window.location.hash === '#add') openAddModal();
         } else {
-            window.location.href = 'admin-login.html';
+            window.location.href = 'login.html';
         }
     } catch (e) {
-        window.location.href = 'admin-login.html';
+        window.location.href = 'login.html';
     }
 });
 
@@ -290,6 +290,6 @@ window.clearAllInventory = async () => {
 
 window.logout = async () => {
     await signOut(auth);
-    window.location.href = 'admin-login.html';
+    window.location.href = 'login.html';
 };
 

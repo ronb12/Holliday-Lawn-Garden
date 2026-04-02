@@ -48,14 +48,14 @@ onAuthStateChanged(auth, async (user) => {
                 loadMessageHistory();
                 setupEventListeners();
             } else {
-                window.location.href = 'admin-login.html';
+                window.location.href = 'login.html';
             }
         } catch (error) {
             console.error('Error checking admin role:', error);
-            window.location.href = 'admin-login.html';
+            window.location.href = 'login.html';
         }
     } else {
-        window.location.href = 'admin-login.html';
+        window.location.href = 'login.html';
     }
 });
 
@@ -363,7 +363,7 @@ function setupEventListeners() {
 // Logout function
 window.logout = function() {
     signOut(auth).then(() => {
-        window.location.href = 'admin-login.html';
+        window.location.href = 'login.html';
     }).catch((error) => {
         console.error('Error signing out:', error);
     });

@@ -21,19 +21,19 @@ const auth = getAuth(app);
 document.addEventListener('DOMContentLoaded', () => {
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      window.location.href = 'admin-login.html';
+      window.location.href = 'login.html';
       return;
     }
     // Check if user is admin
     try {
       const userDoc = await getDoc(doc(db, "users", user.uid));
       if (!userDoc.exists() || userDoc.data().role !== "admin") {
-        window.location.href = 'admin-login.html';
+        window.location.href = 'login.html';
         return;
       }
     } catch (error) {
       console.error('Error checking admin role:', error);
-      window.location.href = 'admin-login.html';
+      window.location.href = 'login.html';
       return;
     }
   });
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     logoutBtn.addEventListener('click', async (e) => {
       e.preventDefault();
       await signOut(auth);
-      window.location.href = 'admin-login.html';
+      window.location.href = 'login.html';
     });
   }
 

@@ -66,14 +66,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     loadMessages();
                     setupEventListeners();
                 } else {
-                    window.location.href = 'admin-login.html';
+                    window.location.href = 'login.html';
                 }
             } catch (error) {
                 console.error('Error checking admin role:', error);
-                window.location.href = 'admin-login.html';
+                window.location.href = 'login.html';
             }
         } else {
-            window.location.href = 'admin-login.html';
+            window.location.href = 'login.html';
         }
     });
 });
@@ -461,7 +461,7 @@ window.submitSendForm = async function(e) {
 window.logout = async function() {
     try {
         await signOut(auth);
-        window.location.href = 'admin-login.html';
+        window.location.href = 'login.html';
     } catch (error) {
         console.error('Error signing out:', error);
     }

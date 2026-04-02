@@ -31,15 +31,15 @@ if (isEdit) {
 }
 
 onAuthStateChanged(auth, async (user) => {
-    if (!user) { window.location.href = 'admin-login.html'; return; }
+    if (!user) { window.location.href = 'login.html'; return; }
     try {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (!userDoc.exists() || userDoc.data().role !== 'admin') {
-            window.location.href = 'admin-login.html'; return;
+            window.location.href = 'login.html'; return;
         }
         if (isEdit) await loadItem();
     } catch (e) {
-        window.location.href = 'admin-login.html';
+        window.location.href = 'login.html';
     }
 });
 
@@ -122,4 +122,4 @@ function showAlert(msg, type) {
     alertEl.style.color      = type === 'success' ? '#2e7d32' : '#c62828';
 }
 
-window.logout = async () => { await signOut(auth); window.location.href = 'admin-login.html'; };
+window.logout = async () => { await signOut(auth); window.location.href = 'login.html'; };

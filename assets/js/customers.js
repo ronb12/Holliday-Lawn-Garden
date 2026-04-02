@@ -47,7 +47,7 @@ onAuthStateChanged(auth, async (user) => {
                 setupEventListeners();
             } else {
                 console.log('User is not admin, redirecting to login');
-                window.location.href = 'admin-login.html';
+                window.location.href = 'login.html';
             }
         } catch (error) {
             console.error('Error checking admin role:', error);
@@ -56,7 +56,7 @@ onAuthStateChanged(auth, async (user) => {
         }
     } else {
         console.log('No user signed in, redirecting to login');
-        window.location.href = 'admin-login.html';
+        window.location.href = 'login.html';
     }
 });
 
@@ -309,7 +309,7 @@ window.refreshCustomers = function() {
 window.logout = async function() {
     try {
         await signOut(auth);
-        window.location.href = 'admin-login.html';
+        window.location.href = 'login.html';
     } catch (error) {
         console.error('Error signing out:', error);
     }

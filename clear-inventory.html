@@ -54,7 +54,7 @@
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 show('Not logged in. Please sign in as admin first.', 'error');
-                backLink.href = 'admin-login.html';
+                backLink.href = 'login.html';
                 backLink.textContent = 'Go to Login';
                 backLink.style.display = 'inline-block';
                 return;

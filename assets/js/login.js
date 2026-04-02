@@ -39,7 +39,7 @@ if (loginForm) {
                     if (userDoc.exists() && userDoc.data().role === 'admin') {
                         // Admin user - redirect to admin login
                         await auth.signOut();
-                        window.location.href = "admin-login.html";
+                        window.location.href = "login.html";
                         return;
                     } else {
                         // Not admin and not customer - sign out and show error
@@ -100,7 +100,7 @@ if (googleSignInButton) {
                 if (userDoc.exists() && userDoc.data().role === 'admin') {
                     // Admin user - redirect to admin login
                     await auth.signOut();
-                    window.location.href = "admin-login.html";
+                    window.location.href = "login.html";
                     return;
                 } else {
                     // Not admin and not customer - sign out and show error

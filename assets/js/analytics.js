@@ -20,16 +20,16 @@ const loaded = { payments: false, appointments: false, customers: false };
 
 // Auth check
 onAuthStateChanged(auth, async (user) => {
-    if (!user) { window.location.href = 'admin-login.html'; return; }
+    if (!user) { window.location.href = 'login.html'; return; }
     try {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists() && userDoc.data().role === 'admin') {
             startListeners();
         } else {
-            window.location.href = 'admin-login.html';
+            window.location.href = 'login.html';
         }
     } catch (e) {
-        window.location.href = 'admin-login.html';
+        window.location.href = 'login.html';
     }
 });
 
@@ -202,4 +202,4 @@ function setText(id, val) {
 }
 
 window.refreshAnalytics = () => startListeners();
-window.logout = async () => { await signOut(auth); window.location.href = 'admin-login.html'; };
+window.logout = async () => { await signOut(auth); window.location.href = 'login.html'; };

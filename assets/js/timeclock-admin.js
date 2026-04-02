@@ -26,10 +26,10 @@ let filteredEntries = [];
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
-    if (!user) { window.location.href = 'admin-login.html'; return; }
+    if (!user) { window.location.href = 'login.html'; return; }
     const userDoc = await getDoc(doc(db, 'users', user.uid)).catch(() => null);
     if (!userDoc || !userDoc.exists() || userDoc.data().role !== 'admin') {
-        window.location.href = 'admin-login.html';
+        window.location.href = 'login.html';
         return;
     }
     await Promise.all([loadStaff(), loadPayRates()]);
@@ -483,5 +483,5 @@ function showMsg(text, type) {
 }
 
 window.logout = function () {
-    signOut(auth).then(() => { window.location.href = 'admin-login.html'; });
+    signOut(auth).then(() => { window.location.href = 'login.html'; });
 };

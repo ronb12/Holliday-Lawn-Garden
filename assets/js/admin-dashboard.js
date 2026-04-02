@@ -120,7 +120,7 @@ onAuthStateChanged(auth, async (user) => {
     hideLoading();
     showError("Please log in to access the admin dashboard.");
     setTimeout(() => {
-      window.location.href = "admin-login.html";
+      window.location.href = "login.html";
     }, 2000);
   }
 });
@@ -133,7 +133,7 @@ if (logoutBtn) {
       await signOut(auth);
       showSuccess("Logged out successfully!");
       setTimeout(() => {
-        window.location.href = "admin-login.html";
+        window.location.href = "login.html";
       }, 1500);
     } catch (error) {
       console.error("Logout error:", error);

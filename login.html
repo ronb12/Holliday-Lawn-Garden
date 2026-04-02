@@ -63,13 +63,15 @@
         async function redirectAfterLogin(user) {
             try {
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
-                if (userDoc.exists() && userDoc.data().role === 'admin') {
+                const role = userDoc.exists() ? userDoc.data().role : null;
+                if (role === 'admin') {
                     window.location.href = 'admin-dashboard.html';
+                } else if (role === 'staff') {
+                    window.location.href = 'timeclock.html';
                 } else {
                     window.location.href = 'customer-dashboard.html';
                 }
             } catch (firestoreErr) {
-                // Firestore read failed (e.g. rules) — auth is valid, default to customer dashboard
                 console.warn('Could not read user role, defaulting to customer dashboard:', firestoreErr.message);
                 window.location.href = 'customer-dashboard.html';
             }
@@ -564,7 +566,7 @@
             </nav>
             <div class="login-buttons">
                 <a href="login.html" class="btn-login btn-customer"><i class="fas fa-user"></i>Customer Login</a>
-                <a href="admin-login.html" class="btn-login btn-admin"><i class="fas fa-cog"></i>Admin Login</a>
+                <a href="login.html" class="btn-login btn-admin"><i class="fas fa-cog"></i>Admin Login</a>
             </div>
         </div>
     </header>

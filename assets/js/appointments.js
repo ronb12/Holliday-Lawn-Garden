@@ -47,14 +47,14 @@ onAuthStateChanged(auth, async (user) => {
                 loadAppointments();
                 setupEventListeners();
             } else {
-                window.location.href = 'admin-login.html';
+                window.location.href = 'login.html';
             }
         } catch (error) {
             console.error('Error checking admin status:', error);
-            window.location.href = 'admin-login.html';
+            window.location.href = 'login.html';
         }
     } else {
-        window.location.href = 'admin-login.html';
+        window.location.href = 'login.html';
     }
 });
 

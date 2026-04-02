@@ -116,21 +116,21 @@ const sampleInventory = [
 // Check authentication
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
-        window.location.href = 'admin-login.html';
+        window.location.href = 'login.html';
         return;
     }
     
     try {
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (!userDoc.exists() || userDoc.data().role !== "admin") {
-            window.location.href = 'admin-login.html';
+            window.location.href = 'login.html';
             return;
         }
         addLog('info', 'Admin authentication verified. Ready to proceed with setup.');
         loadInventoryStats();
     } catch (error) {
         console.error('Error checking admin role:', error);
-        window.location.href = 'admin-login.html';
+        window.location.href = 'login.html';
     }
 });
 

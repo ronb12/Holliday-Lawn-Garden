@@ -54,7 +54,7 @@ function showError(message) {
 
 // Check if we're already on the login page to prevent redirect loops
 function isOnLoginPage() {
-  return window.location.pathname.includes('admin-login.html');
+  return window.location.pathname.includes('login.html');
 }
 
 // Check authentication state
@@ -79,7 +79,7 @@ onAuthStateChanged(auth, async (user) => {
         if (!isOnLoginPage()) {
           showError("Access denied. Admin privileges required.");
           setTimeout(() => {
-            window.location.href = "admin-login.html";
+            window.location.href = "login.html";
           }, 2000);
         }
       }
@@ -88,7 +88,7 @@ onAuthStateChanged(auth, async (user) => {
       if (!isOnLoginPage()) {
         showError("Error verifying admin status. Please try again or contact support.");
         setTimeout(() => {
-          window.location.href = "admin-login.html";
+          window.location.href = "login.html";
         }, 2000);
       }
     }
@@ -98,7 +98,7 @@ onAuthStateChanged(auth, async (user) => {
     showLoading("Please log in to access the admin dashboard.");
     if (!isOnLoginPage()) {
       setTimeout(() => {
-        window.location.href = "admin-login.html";
+        window.location.href = "login.html";
       }, 2000);
     }
   }
