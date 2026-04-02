@@ -27,6 +27,7 @@ const totalStaffEl  = document.getElementById('total-staff');
 const activeStaffEl = document.getElementById('active-staff');
 const managersEl    = document.getElementById('onleave-staff');
 const avgRatingEl   = document.getElementById('inactive-staff');
+const staffTbody    = document.getElementById('staff-tbody');
 let staff = [], filteredStaff = [];
 
 // Check authentication
