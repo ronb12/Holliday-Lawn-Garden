@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Holliday's Lawn & Garden</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/css/forms.css">
+    
+    <!-- Toggle password visibility (non-module, must stay inline) -->
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById("password");
+            const toggleButton = document.querySelector(".toggle-password i");
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                toggleButton.classList.replace("fa-eye", "fa-eye-slash");
+            } else {
+                passwordInput.type = "password";
+                toggleButton.classList.replace("fa-eye-slash", "fa-eye");
+            }
+        }
+        document.getElementById("current-year") &&
+            (document.getElementById("current-year").textContent = new Date().getFullYear());
+    </script>
+
+    <!-- Firebase Authentication (real) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: 'AIzaSyACm0j7I8RX4ExIQRoejfk1HZMOQRGigBw',
+            authDomain: 'holiday-lawn-and-garden.firebaseapp.com',
+            projectId: 'holiday-lawn-and-garden',
+            storageBucket: 'holiday-lawn-and-garden.firebasestorage.app',
+            messagingSenderId: '135322230444',
+            appId: '1:135322230444:web:1a487b25a48aae07368909'
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const googleProvider = new GoogleAuthProvider();
+        googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+        function showError(msg) {
+            let el = document.getElementById('login-error');
+            if (!el) {
+                el = document.createElement('p');
+                el.id = 'login-error';
+                el.style.cssText = 'color:#c62828;background:#ffebee;padding:0.75rem 1rem;border-radius:6px;margin-bottom:1rem;font-size:0.9rem;';
+                document.querySelector('.login-card').insertBefore(el, document.getElementById('loginForm'));
+            }
+            el.textContent = msg;
+            el.style.display = msg ? 'block' : 'none';
+        }
+
+        async function redirectAfterLogin(user) {
+            try {
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                const role = userDoc.exists() ? userDoc.data().role : null;
+                if (role === 'admin') {
+                    window.location.href = 'admin-dashboard.html';
+                } else if (role === 'staff') {
+                    window.location.href = 'timeclock.html';
+                } else {
+                    window.location.href = 'customer-dashboard.html';
+                }
+            } catch (firestoreErr) {
+                console.warn('Could not read user role, defaulting to customer dashboard:', firestoreErr.message);
+                window.location.href = 'customer-dashboard.html';
+            }
+        }
+
+        // ── Email / Password login ──────────────────────────────────
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                showError('');
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                const btn = loginForm.querySelector('.login-button');
+                const btnText = btn.querySelector('.button-text');
+                const spinner = btn.querySelector('.fa-spinner');
+
+                btn.disabled = true;
+                btnText.style.display = 'none';
+                spinner.style.display = 'inline-block';
+
+                try {
+                    const result = await signInWithEmailAndPassword(auth, email, password);
+                    await redirectAfterLogin(result.user);
+                } catch (err) {
+                    let msg = 'Login failed. Please try again.';
+                    if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+                        msg = 'Incorrect email or password.';
+                    } else if (err.code === 'auth/too-many-requests') {
+                        msg = 'Too many failed attempts. Please wait a few minutes and try again.';
+                    } else if (err.code === 'auth/invalid-email') {
+                        msg = 'Please enter a valid email address.';
+                    } else if (err.code === 'auth/network-request-failed') {
+                        msg = 'Network error. Please check your internet connection.';
+                    } else if (err.code === 'permission-denied' || err.message?.includes('permission')) {
+                        // Auth succeeded but Firestore read failed — still redirect to customer dashboard
+                        window.location.href = 'customer-dashboard.html';
+                        return;
+                    }
+                    showError(msg);
+                    btn.disabled = false;
+                    btnText.style.display = 'inline';
+                    spinner.style.display = 'none';
+                }
+            });
+        }
+
+        // ── Google Sign-In ──────────────────────────────────────────
+        const googleBtn = document.getElementById('googleLoginBtn');
+        if (googleBtn) {
+            googleBtn.addEventListener('click', async () => {
+                showError('');
+                googleBtn.disabled = true;
+                googleBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in…';
+
+                try {
+                    const result = await signInWithPopup(auth, googleProvider);
+                    const user = result.user;
+
+                    // Ensure a user document exists in Firestore
+                    await setDoc(doc(db, 'users', user.uid), {
+                        email: user.email,
+                        displayName: user.displayName || '',
+                        photoURL: user.photoURL || '',
+                        lastLogin: new Date().toISOString()
+                    }, { merge: true });
+
+                    await redirectAfterLogin(user);
+                } catch (err) {
+                    let msg = 'Google sign-in failed. Please try again.';
+                    if (err.code === 'auth/popup-blocked') msg = 'Popup was blocked. Please allow popups for this site.';
+                    else if (err.code === 'auth/popup-closed-by-user') msg = 'Sign-in was cancelled.';
+                    else if (err.code === 'auth/cancelled-popup-request') msg = '';
+                    showError(msg);
+                    googleBtn.disabled = false;
+                    googleBtn.innerHTML = '<i class="fab fa-google" style="color:#4285f4;font-size:18px;"></i> Continue with Google';
+                }
+            });
+        }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e9 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header Styles */
+        .main-header {
+            background: #2e7d32;
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 50px;
+            width: auto;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .login-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-login {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-customer {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-admin {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-login:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Main Content */
+        .main-content {
+            min-height: calc(100vh - 140px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(46, 125, 50, 0.15);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header .logo {
+            width: 120px;
+            height: auto;
+            margin-bottom: 1.5rem;
+        }
+
+        .login-header h1 {
+            color: #2e7d32;
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            color: #333;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            padding: 0.875rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            background: white;
+            width: 100%;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #2e7d32;
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+        }
+
+        .password-input {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 0.25rem;
+        }
+
+        .login-button {
+            background: #2e7d32;
+            color: white;
+            padding: 0.875rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .login-button:hover {
+            background: #1b5e20;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+        }
+
+        .login-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .forgot-password a {
+            color: #2e7d32;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .register-link p {
+            color: #666;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .register-link a {
+            color: #2e7d32;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Social Login Styles */
+        .social-login {
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .social-login .divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .social-login .divider::before,
+        .social-login .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e0e0e0;
+        }
+
+        .social-login .divider span {
+            padding: 0 1rem;
+        }
+
+        .google-login-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 0.875rem;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            color: #333;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .google-login-btn:hover {
+            background: #f8f9fa;
+            border-color: #d0d0d0;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .google-login-btn img {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Footer Styles */
+        .footer {
+            background: #2e7d32;
+            color: white;
+            padding: 2rem 0;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section ul li a,
+        .footer-section ul li i {
+            color: white;
+            text-decoration: none;
+            opacity: 0.9;
+            transition: opacity 0.3s ease;
+        }
+
+        .footer-section ul li a:hover {
+            opacity: 1;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 1.5rem;
+            text-align: center;
+        }
+
+        .footer-bottom p {
+            color: white;
+            opacity: 0.7;
+            margin: 0;
+            font-size: 0.875rem;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 0 1rem;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .login-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .login-card {
+                padding: 2rem;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                text-align: center;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="assets/css/mobile.css">
+<link rel="stylesheet" href="assets/css/header.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-content">
+            <div class="logo">
+                <img src="assets/images/hollidays-logo.optimized-1280.png" alt="Holliday's Lawn & Garden Logo" />
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="education.html">Education</a></li>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                    <li><a href="testimonials.html">Reviews</a></li>
+                    <li><a href="pay-your-bill.html">Pay Your Bill</a></li>
+                </ul>
+            </nav>
+            <div class="login-buttons"><div class="login-dropdown"><button class="btn-login-main" onclick="(function(b){var m=b.nextElementSibling;var o=m.classList.toggle('open');if(o){var fn=function(e){if(!b.parentElement.contains(e.target)){m.classList.remove('open');document.removeEventListener('click',fn)}};setTimeout(function(){document.addEventListener('click',fn)},0)}})(this)"><i class="fas fa-sign-in-alt"></i> Login <i class="fas fa-chevron-down login-chevron"></i></button><div class="login-drop-menu"><a href="login.html" class="login-drop-item customer-item"><i class="fas fa-user"></i><div><strong>Customer</strong><span>Pay bills &amp; book services</span></div></a><a href="login.html" class="login-drop-item staff-item"><i class="fas fa-hard-hat"></i><div><strong>Staff</strong><span>Time clock &amp; portal</span></div></a><a href="admin-login.html" class="login-drop-item admin-item"><i class="fas fa-lock"></i><div><strong>Admin</strong><span>Business management</span></div></a></div></div></div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="login-card">
+            <div class="login-header">
+                <img src="assets/images/hollidays-logo.optimized-1280.png" alt="Holliday's Lawn & Garden Logo" class="logo">
+                <h1>Login</h1>
+                <p>Welcome back! Please sign in to your account.</p>
+            </div>
+            
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email" autocomplete="email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-input">
+                        <input type="password" id="password" name="password" required placeholder="Enter your password" autocomplete="current-password">
+                        <button type="button" class="toggle-password" onclick="togglePassword()">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <button type="submit" class="login-button">
+                    <span class="button-text">Sign In</span>
+                    <i class="fas fa-spinner fa-spin" style="display: none;"></i>
+                </button>
+            </form>
+            
+            <div class="social-login">
+                <div class="divider">
+                    <span>or</span>
+                </div>
+                <button class="google-login-btn" id="googleLoginBtn">
+                    <i class="fab fa-google" style="color: #4285f4; font-size: 18px;"></i>
+                    Continue with Google
+                </button>
+            </div>
+            
+            <div class="forgot-password">
+                <a href="forgot-password.html">Forgot Password?</a>
+            </div>
+            
+            <div class="register-link">
+                <p>Don't have an account? <a href="register.html">Sign up here</a></p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <div class="footer-contact">
+                        <span class="footer-owner">Karl Holliday</span>
+                        <a href="tel:+15047171887"><i class="fas fa-phone"></i> (504) 717‑1887</a>
+                        <a href="mailto:7holliday@gmail.com"><i class="fas fa-envelope"></i> 7holliday@gmail.com</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="services.html">Services</a></li>
+                        <li><a href="education.html">Education</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Customer Portal</h3>
+                    <ul>
+                        <li><a href="login.html">Login</a></li>
+                        <li><a href="register.html">Register</a></li>
+                        <li><a href="pay-your-bill.html">Pay Your Bill</a></li>
+                        <li><a href="customer-dashboard.html">Dashboard</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Legal</h3>
+                    <ul>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Follow Us</h3>
+                    <div class="social-links">
+                        <a href="#" class="social-link" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-link" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© <span id="current-year"></span> Holliday's Lawn & Garden. All rights reserved.</p>
+        </div>
+    </footer>
+
+  <!-- Mobile Tab Bar -->
+  <nav class="mobile-tab-bar" aria-label="Mobile navigation">
+    <a href="index.html"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="services.html"><i class="fas fa-tools"></i><span>Services</span></a>
+    <a href="pay-your-bill.html"><i class="fas fa-credit-card"></i><span>Pay Bill</span></a>
+    <a href="contact.html"><i class="fas fa-phone"></i><span>Contact</span></a>
+    <a href="login.html" class="active"><i class="fas fa-user"></i><span>Login</span></a>
+  </nav>
+</body>
+</html> 

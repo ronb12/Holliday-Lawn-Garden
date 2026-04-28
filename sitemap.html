@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sitemap - Holliday's Lawn &amp; Garden</title>
+    <meta name="description" content="Navigate the Holliday's Lawn &amp; Garden website with our comprehensive sitemap." />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <link href="assets/css/components/footer.css" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/css/mobile.css" />
+    <link rel="stylesheet" href="assets/css/header.css" />
+    <style>
+        body { margin: 0; font-family: 'Montserrat', sans-serif; background: #f8f9fa; padding-top: 80px; }
+        .sitemap-hero {
+            background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+            color: white; text-align: center; padding: 3rem 1rem 2rem;
+        }
+        .sitemap-hero h1 { font-size: 2.2rem; margin: 0 0 0.5rem; font-weight: 700; }
+        .sitemap-hero p { font-size: 1rem; opacity: 0.9; margin: 0; }
+        .sitemap-container { max-width: 1000px; margin: 3rem auto 4rem; padding: 0 1.5rem; }
+        .sitemap-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        .sitemap-section {
+            background: white; border-radius: 12px; padding: 1.5rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        }
+        .sitemap-section h2 {
+            font-size: 1rem; font-weight: 700; color: #2e7d32;
+            margin: 0 0 1rem; display: flex; align-items: center; gap: 0.5rem;
+            border-bottom: 2px solid #e8f5e9; padding-bottom: 0.75rem;
+        }
+        .sitemap-section ul { list-style: none; padding: 0; margin: 0; }
+        .sitemap-section ul li { margin-bottom: 0.5rem; }
+        .sitemap-section ul li a {
+            color: #444; text-decoration: none; font-size: 0.9rem;
+            display: flex; align-items: center; gap: 0.5rem;
+            padding: 0.3rem 0; transition: color 0.2s;
+        }
+        .sitemap-section ul li a:hover { color: #2e7d32; }
+        .sitemap-section ul li a i { color: #4caf50; font-size: 0.8rem; width: 14px; }
+        @media (max-width: 768px) {
+            .sitemap-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="logo">
+            <a href="index.html">
+                <picture>
+                    <source srcset="assets/images/hollidays-logo.optimized-1280.webp" type="image/webp">
+                    <img src="assets/images/hollidays-logo.optimized-1280.png" alt="Holliday's Lawn &amp; Garden Logo" loading="lazy">
+                </picture>
+            </a>
+        </div>
+        <nav id="nav-menu">
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="education.html">Education</a></li>
+                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="testimonials.html">Reviews</a></li>
+                <li><a href="pay-your-bill.html">Pay Your Bill</a></li>
+            </ul>
+            <div class="login-buttons"><div class="login-dropdown"><button class="btn-login-main" onclick="(function(b){var m=b.nextElementSibling;var o=m.classList.toggle('open');if(o){var fn=function(e){if(!b.parentElement.contains(e.target)){m.classList.remove('open');document.removeEventListener('click',fn)}};setTimeout(function(){document.addEventListener('click',fn)},0)}})(this)"><i class="fas fa-sign-in-alt"></i> Login <i class="fas fa-chevron-down login-chevron"></i></button><div class="login-drop-menu"><a href="login.html" class="login-drop-item customer-item"><i class="fas fa-user"></i><div><strong>Customer</strong><span>Pay bills &amp; book services</span></div></a><a href="login.html" class="login-drop-item staff-item"><i class="fas fa-hard-hat"></i><div><strong>Staff</strong><span>Time clock &amp; portal</span></div></a><a href="admin-login.html" class="login-drop-item admin-item"><i class="fas fa-lock"></i><div><strong>Admin</strong><span>Business management</span></div></a></div></div></div>
+        </nav>
+    </header>
+    <div class="mobile-tab-bar">
+        <a href="index.html"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="services.html"><i class="fas fa-tools"></i><span>Services</span></a>
+        <a href="pay-your-bill.html"><i class="fas fa-credit-card"></i><span>Pay Bill</span></a>
+        <a href="contact.html"><i class="fas fa-phone"></i><span>Contact</span></a>
+        <a href="login.html"><i class="fas fa-user"></i><span>Login</span></a>
+    </div>
+
+    <main>
+        <div class="sitemap-hero">
+            <h1><i class="fas fa-sitemap"></i> Sitemap</h1>
+            <p>A complete overview of all pages on our website</p>
+        </div>
+
+        <div class="sitemap-container">
+            <div class="sitemap-grid">
+                <div class="sitemap-section">
+                    <h2><i class="fas fa-home"></i> Main Pages</h2>
+                    <ul>
+                        <li><a href="index.html"><i class="fas fa-chevron-right"></i> Home</a></li>
+                        <li><a href="about.html"><i class="fas fa-chevron-right"></i> About Us</a></li>
+                        <li><a href="services.html"><i class="fas fa-chevron-right"></i> Services</a></li>
+                        <li><a href="education.html"><i class="fas fa-chevron-right"></i> Education</a></li>
+                        <li><a href="gallery.html"><i class="fas fa-chevron-right"></i> Gallery</a></li>
+                        <li><a href="faq.html"><i class="fas fa-chevron-right"></i> FAQ</a></li>
+                        <li><a href="testimonials.html"><i class="fas fa-chevron-right"></i> Reviews</a></li>
+                        <li><a href="contact.html"><i class="fas fa-chevron-right"></i> Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="sitemap-section">
+                    <h2><i class="fas fa-user"></i> Customer Portal</h2>
+                    <ul>
+                        <li><a href="login.html"><i class="fas fa-chevron-right"></i> Customer Login</a></li>
+                        <li><a href="register.html"><i class="fas fa-chevron-right"></i> Create Account</a></li>
+                        <li><a href="forgot-password.html"><i class="fas fa-chevron-right"></i> Forgot Password</a></li>
+                        <li><a href="customer-dashboard.html"><i class="fas fa-chevron-right"></i> Customer Dashboard</a></li>
+                        <li><a href="profile.html"><i class="fas fa-chevron-right"></i> My Profile</a></li>
+                    </ul>
+                </div>
+                <div class="sitemap-section">
+                    <h2><i class="fas fa-calendar-check"></i> Services &amp; Requests</h2>
+                    <ul>
+                        <li><a href="book-appointment.html"><i class="fas fa-chevron-right"></i> Book Appointment</a></li>
+                        <li><a href="request-quote.html"><i class="fas fa-chevron-right"></i> Request a Free Quote</a></li>
+                        <li><a href="pay-your-bill.html"><i class="fas fa-chevron-right"></i> Pay Your Bill</a></li>
+                    </ul>
+                </div>
+                <div class="sitemap-section">
+                    <h2><i class="fas fa-shield-alt"></i> Legal</h2>
+                    <ul>
+                        <li><a href="privacy.html"><i class="fas fa-chevron-right"></i> Privacy Policy</a></li>
+                        <li><a href="terms.html"><i class="fas fa-chevron-right"></i> Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li><i class="fas fa-phone"></i> Karl Holliday (504) 717-1887</li>
+                        <li><i class="fas fa-envelope"></i> 7holliday@gmail.com</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="services.html">Services</a></li>
+                        <li><a href="education.html">Education</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="sitemap-section">
+                    <h3>Legal</h3>
+                    <ul>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="copyright">
+                    <p>© <span id="current-year"></span> Holliday's Lawn &amp; Garden. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

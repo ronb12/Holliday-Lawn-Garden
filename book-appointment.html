@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Book an Appointment - Holliday's Lawn &amp; Garden</title>
+    <meta name="description" content="Book a lawn care or landscaping appointment with Holliday's Lawn &amp; Garden online. Fast, easy scheduling."/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <link href="assets/css/hero.css?v=1.0.5" rel="stylesheet"/>
+    <link href="assets/css/mobile-enhancements.css" rel="stylesheet"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon/favicon-32x32.png"/>
+    <link rel="manifest" href="manifest.json"/>
+    <link rel="stylesheet" href="assets/css/mobile.css"/>
+    <link rel="stylesheet" href="assets/css/header.css"/>
+    <style>
+        body { padding-top: 80px; margin: 0; font-family: 'Montserrat', sans-serif; background: #f8f9fa; }
+        .book-hero {
+            background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+            color: white; text-align: center; padding: 3rem 1rem 2rem;
+        }
+        .book-hero h1 { font-size: 2.2rem; margin: 0 0 0.5rem; font-weight: 700; }
+        .book-hero p { font-size: 1.1rem; opacity: 0.9; margin: 0; }
+        .book-container { max-width: 780px; margin: 2.5rem auto 4rem; padding: 0 1rem; }
+        .book-card {
+            background: white; border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden;
+        }
+        .book-card-header {
+            background: #e8f5e9; padding: 1.25rem 2rem;
+            border-bottom: 1px solid #c8e6c9;
+            display: flex; align-items: center; gap: 0.75rem;
+        }
+        .book-card-header i { color: #2e7d32; font-size: 1.3rem; }
+        .book-card-header h2 { margin: 0; font-size: 1.1rem; color: #2e7d32; font-weight: 600; }
+        .book-form { padding: 2rem; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #444; margin-bottom: 0.4rem; }
+        .form-group label span { color: #c62828; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 0.7rem 0.9rem; border: 1.5px solid #ddd;
+            border-radius: 7px; font-size: 0.95rem; font-family: inherit;
+            transition: border-color 0.2s; box-sizing: border-box;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none; border-color: #4caf50; box-shadow: 0 0 0 3px rgba(76,175,80,0.15);
+        }
+        .form-group textarea { resize: vertical; min-height: 100px; }
+        .recurring-box {
+            background: #f1f8e9; border: 1.5px solid #c5e1a5;
+            border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.25rem;
+        }
+        .recurring-box label { display: flex; align-items: center; gap: 0.6rem; font-weight: 600; color: #2e7d32; cursor: pointer; margin-bottom: 0.5rem; }
+        .recurring-box input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+        .recurring-options { display: none; margin-top: 0.75rem; }
+        .recurring-options.visible { display: block; }
+        .alert { padding: 0.9rem 1.1rem; border-radius: 7px; margin-bottom: 1.25rem; font-weight: 500; display: none; }
+        .alert-success { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+        .alert-error { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+        .btn-book {
+            width: 100%; padding: 1rem; background: #2e7d32; color: white;
+            border: none; border-radius: 8px; font-size: 1rem; font-weight: 700;
+            cursor: pointer; font-family: inherit; transition: background 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+        }
+        .btn-book:hover { background: #1b5e20; }
+        .btn-book:disabled { background: #9e9e9e; cursor: not-allowed; }
+        .step-indicator { display: flex; justify-content: center; gap: 0.5rem; padding: 1.5rem 0 0; }
+        .step { width: 10px; height: 10px; border-radius: 50%; background: #c5e1a5; }
+        .step.active { background: #2e7d32; }
+        .info-bar {
+            background: #fff8e1; border: 1px solid #ffcc02; border-radius: 8px;
+            padding: 0.85rem 1.1rem; margin-bottom: 1.5rem;
+            display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.9rem; color: #5d4037;
+        }
+        .info-bar i { color: #f9a825; margin-top: 1px; flex-shrink: 0; }
+        @media(max-width:600px) { .form-row { grid-template-columns: 1fr; } .book-form { padding: 1.25rem; } }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="logo">
+            <a href="index.html">
+                <picture>
+                    <source srcset="assets/images/hollidays-logo.optimized-1280.webp" type="image/webp">
+                    <img src="assets/images/hollidays-logo.optimized-1280.png" alt="Holliday's Lawn &amp; Garden Logo" loading="lazy">
+                </picture>
+            </a>
+        </div>
+        <nav id="nav-menu">
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="education.html">Education</a></li>
+                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="testimonials.html">Reviews</a></li>
+                <li><a href="pay-your-bill.html">Pay Your Bill</a></li>
+            </ul>
+            <div class="login-buttons"><div class="login-dropdown"><button class="btn-login-main" onclick="(function(b){var m=b.nextElementSibling;var o=m.classList.toggle('open');if(o){var fn=function(e){if(!b.parentElement.contains(e.target)){m.classList.remove('open');document.removeEventListener('click',fn)}};setTimeout(function(){document.addEventListener('click',fn)},0)}})(this)"><i class="fas fa-sign-in-alt"></i> Login <i class="fas fa-chevron-down login-chevron"></i></button><div class="login-drop-menu"><a href="login.html" class="login-drop-item customer-item"><i class="fas fa-user"></i><div><strong>Customer</strong><span>Pay bills &amp; book services</span></div></a><a href="login.html" class="login-drop-item staff-item"><i class="fas fa-hard-hat"></i><div><strong>Staff</strong><span>Time clock &amp; portal</span></div></a><a href="admin-login.html" class="login-drop-item admin-item"><i class="fas fa-lock"></i><div><strong>Admin</strong><span>Business management</span></div></a></div></div></div>
+        </nav>
+    </header>
+    <div class="mobile-tab-bar">
+        <a href="index.html"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="services.html"><i class="fas fa-tools"></i><span>Services</span></a>
+        <a href="pay-your-bill.html"><i class="fas fa-credit-card"></i><span>Pay Bill</span></a>
+        <a href="contact.html"><i class="fas fa-phone"></i><span>Contact</span></a>
+        <a href="login.html"><i class="fas fa-user"></i><span>Login</span></a>
+    </div>
+
+    <div class="book-hero">
+        <h1><i class="fas fa-calendar-plus"></i> Book an Appointment</h1>
+        <p>Schedule your lawn care or landscaping service online — we'll confirm within 24 hours.</p>
+    </div>
+
+    <div class="book-container">
+        <div class="book-card">
+            <div class="book-card-header">
+                <i class="fas fa-leaf"></i>
+                <h2>Service Request Form</h2>
+            </div>
+            <div class="book-form">
+                <div class="info-bar">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Your request will be reviewed by our team and confirmed via email or phone within 1 business day.</span>
+                </div>
+
+                <div id="book-alert" class="alert"></div>
+
+                <form id="booking-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>First Name <span>*</span></label>
+                            <input type="text" id="b-first" required placeholder="John"/>
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name <span>*</span></label>
+                            <input type="text" id="b-last" required placeholder="Doe"/>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Email <span>*</span></label>
+                            <input type="email" id="b-email" required placeholder="john@email.com"/>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone <span>*</span></label>
+                            <input type="tel" id="b-phone" required placeholder="(504) 000-0000"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Service Address <span>*</span></label>
+                        <input type="text" id="b-address" required placeholder="123 Main St, New Orleans, LA 70001"/>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Service Type <span>*</span></label>
+                            <select id="b-service" required>
+                                <option value="">Select a service...</option>
+                                <option value="lawn-maintenance">Lawn Maintenance</option>
+                                <option value="landscaping">Landscaping</option>
+                                <option value="garden-care">Garden Care</option>
+                                <option value="pressure-washing">Pressure Washing</option>
+                                <option value="commercial">Commercial Services</option>
+                                <option value="other">Other / Not Sure</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Preferred Date <span>*</span></label>
+                            <input type="date" id="b-date" required/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Preferred Time</label>
+                        <select id="b-time">
+                            <option value="">Any time</option>
+                            <option value="morning">Morning (8am – 12pm)</option>
+                            <option value="afternoon">Afternoon (12pm – 4pm)</option>
+                            <option value="late-afternoon">Late Afternoon (4pm – 6pm)</option>
+                        </select>
+                    </div>
+
+                    <!-- Recurring Service -->
+                    <div class="recurring-box">
+                        <label>
+                            <input type="checkbox" id="b-recurring" onchange="toggleRecurring(this)"/>
+                            Set up recurring service
+                        </label>
+                        <div class="recurring-options" id="recurring-opts">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>Frequency</label>
+                                <select id="b-frequency">
+                                    <option value="weekly">Weekly</option>
+                                    <option value="bi-weekly" selected>Bi-Weekly</option>
+                                    <option value="monthly">Monthly</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Additional Notes</label>
+                        <textarea id="b-notes" placeholder="Property size, gate codes, special requests, or anything we should know..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-book" id="book-btn">
+                        <i class="fas fa-paper-plane"></i>
+                        <span id="book-btn-label">Submit Booking Request</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- EmailJS for admin notifications -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+        // Initialize EmailJS - replace with your public key after signing up at emailjs.com
+        (function(){ if(typeof emailjs !== 'undefined') emailjs.init({ publicKey: "YOUR_EMAILJS_PUBLIC_KEY" }); })();
+    </script>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, addDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyACm0j7I8RX4ExIQRoejfk1HZMOQRGigBw",
+            authDomain: "holiday-lawn-and-garden.firebaseapp.com",
+            projectId: "holiday-lawn-and-garden",
+            storageBucket: "holiday-lawn-and-garden.firebasestorage.app",
+            messagingSenderId: "135322230444",
+            appId: "1:135322230444:web:1a487b25a48aae07368909"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Set min date to today and block Fridays
+        const dateInput = document.getElementById('b-date');
+        dateInput.min = new Date().toISOString().split('T')[0];
+        dateInput.addEventListener('input', function() {
+            const d = new Date(this.value + 'T00:00:00');
+            if (d.getDay() === 5) { // 5 = Friday
+                this.setCustomValidity('We are closed on Fridays. Please select another day.');
+                this.reportValidity();
+                this.value = '';
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+
+        window.toggleRecurring = function(cb) {
+            document.getElementById('recurring-opts').classList.toggle('visible', cb.checked);
+        };
+
+        document.getElementById('booking-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('book-btn');
+            const label = document.getElementById('book-btn-label');
+            const alert = document.getElementById('book-alert');
+            const recurring = document.getElementById('b-recurring').checked;
+
+            btn.disabled = true;
+            label.textContent = 'Submitting...';
+            alert.style.display = 'none';
+
+            try {
+                await addDoc(collection(db, 'appointments'), {
+                    firstName:   document.getElementById('b-first').value.trim(),
+                    lastName:    document.getElementById('b-last').value.trim(),
+                    email:       document.getElementById('b-email').value.trim(),
+                    phone:       document.getElementById('b-phone').value.trim(),
+                    address:     document.getElementById('b-address').value.trim(),
+                    serviceType: document.getElementById('b-service').value,
+                    preferredDate: document.getElementById('b-date').value,
+                    preferredTime: document.getElementById('b-time').value,
+                    notes:       document.getElementById('b-notes').value.trim(),
+                    recurring,
+                    frequency:   recurring ? document.getElementById('b-frequency').value : null,
+                    status:      'pending',
+                    source:      'online-booking',
+                    createdAt:   new Date()
+                });
+
+                // Notify admin via email (requires EmailJS setup)
+                try {
+                    if (typeof emailjs !== 'undefined') {
+                        emailjs.send('YOUR_SERVICE_ID', 'booking_notification', {
+                            customer_name: document.getElementById('b-first').value + ' ' + document.getElementById('b-last').value,
+                            customer_email: document.getElementById('b-email').value,
+                            customer_phone: document.getElementById('b-phone').value,
+                            service_type: document.getElementById('b-service').value,
+                            preferred_date: document.getElementById('b-date').value,
+                            notes: document.getElementById('b-notes').value,
+                            to_email: '7holliday@gmail.com'
+                        });
+                    }
+                } catch(e) { /* email notification is best-effort */ }
+
+                alert.className = 'alert alert-success';
+                alert.textContent = 'Your appointment request has been submitted! We\'ll confirm within 1 business day.';
+                alert.style.display = 'block';
+                document.getElementById('booking-form').reset();
+                document.getElementById('recurring-opts').classList.remove('visible');
+                window.scrollTo({ top: alert.offsetTop - 20, behavior: 'smooth' });
+            } catch (err) {
+                alert.className = 'alert alert-error';
+                alert.textContent = 'Something went wrong. Please call us at (504) 717-1887 or try again.';
+                alert.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                label.textContent = 'Submit Booking Request';
+            }
+        });
+    </script>
+    <script src="assets/js/main.js"></script>
+
+ <footer class="footer">
+  <div class="footer-content">
+   <div class="footer-grid">
+    <div class="footer-section">
+     <h3>Contact Us</h3>
+     <ul>
+      <li><i class="fas fa-phone"></i> Karl Holliday (504) 717-1887</li>
+      <li><i class="fas fa-envelope"></i> 7holliday@gmail.com</li>
+     </ul>
+    </div>
+    <div class="footer-section">
+     <h3>Quick Links</h3>
+     <ul>
+      <li><a href="about.html">About Us</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="education.html">Education</a></li>
+      <li><a href="contact.html">Contact</a></li>
+     </ul>
+    </div>
+    <div class="footer-section">
+     <h3>Customer Portal</h3>
+     <ul>
+      <li><a href="login.html">Login</a></li>
+      <li><a href="register.html">Register</a></li>
+      <li><a href="pay-your-bill.html">Pay Your Bill</a></li>
+      <li><a href="book-appointment.html">Book Appointment</a></li>
+      <li><a href="request-quote.html">Request a Quote</a></li>
+      <li><a href="customer-dashboard.html">Dashboard</a></li>
+     </ul>
+    </div>
+    <div class="footer-section">
+     <h3>Legal</h3>
+     <ul>
+      <li><a href="privacy.html">Privacy Policy</a></li>
+      <li><a href="terms.html">Terms of Service</a></li>
+     </ul>
+    </div>
+    <div class="footer-section">
+     <h3>Follow Us</h3>
+     <div class="social-links">
+      <a href="#" class="social-link" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+      <a href="#" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+      <a href="#" class="social-link" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+      <a href="#" class="social-link" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+     </div>
+    </div>
+   </div>
+   <div class="footer-bottom">
+    <div class="copyright">
+     <p>© <span id="current-year"></span> Holliday's Lawn & Garden. All rights reserved.</p>
+    </div>
+   </div>
+  </div>
+ </footer>
+</body>
+</html>

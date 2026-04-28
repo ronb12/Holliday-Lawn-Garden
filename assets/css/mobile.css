@@ -1,0 +1,582 @@
+/* ============================================================
+   HOLLIDAY'S LAWN & GARDEN — COMPREHENSIVE MOBILE IMPROVEMENTS
+   Loaded last on all pages. Fixes overflow, scaling, touch
+   targets, grids, and navigation across every breakpoint.
+   ============================================================ */
+
+/* ---- 1. Global overflow & box model ---- */
+html {
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+img, video, iframe, embed, object {
+    max-width: 100%;
+    height: auto;
+}
+
+/* ---- 2. Hero overflow fix (backup for hero.css) ---- */
+.hero {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* ---- 3. Consistent fixed header clearance ---- */
+body {
+    min-height: 100vh;
+}
+
+/* ---- 4. Footer grid — prevent narrow-screen overflow ---- */
+.footer-grid,
+.footer .footer-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.footer-section {
+    min-width: 0;
+    flex: 1 1 200px;
+}
+
+/* ---- 5. Tables — horizontal scroll on overflow ---- */
+.table-container,
+.table-responsive,
+.payments-table,
+.customers-table,
+.appointments-table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+}
+
+table {
+    min-width: 500px;
+}
+
+/* ============================================================
+   MOBILE BREAKPOINTS
+   ============================================================ */
+
+/* ---- Tablet & mobile (<= 768px) ---- */
+@media (max-width: 768px) {
+
+    /* --- Navigation --- */
+    .main-header,
+    .admin-header {
+        padding: 0 1rem !important;
+    }
+
+    /* Hide desktop nav links; show hamburger */
+    .main-header .nav-links,
+    header .nav-links {
+        display: none !important;
+    }
+
+    .main-header .nav-links.active,
+    header .nav-links.active {
+        display: flex !important;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #fff;
+        padding: 1rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        z-index: 9998;
+        gap: 0;
+    }
+
+    .main-header .nav-links.active li,
+    header .nav-links.active li {
+        width: 100%;
+    }
+
+    .main-header .nav-links.active a,
+    header .nav-links.active a {
+        display: block;
+        padding: 0.875rem 1rem;
+        border-bottom: 1px solid #f0f0f0;
+        color: #333 !important;
+        font-size: 1rem !important;
+    }
+
+    /* Hamburger button — show on mobile */
+    .hamburger,
+    .hamburger-btn,
+    .menu-toggle {
+        display: flex !important;
+        flex-direction: column;
+        justify-content: center;
+        gap: 5px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0.5rem;
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    /* --- Touch targets: all interactive elements >= 44px --- */
+    a,
+    button,
+    [role="button"],
+    input[type="submit"],
+    input[type="button"],
+    .btn,
+    .card-btn,
+    .action-btn,
+    .nav-menu a,
+    .mobile-tab-bar a {
+        min-height: 44px;
+    }
+
+    .nav-links a {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+
+    /* --- Cards & grids: single column --- */
+    .dashboard-grid,
+    .services-grid,
+    .card-grid,
+    .features-grid,
+    .values-grid,
+    .team-grid,
+    .gallery-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem;
+    }
+
+    .dashboard-card,
+    .service-card,
+    .feature-card {
+        padding: 1.25rem;
+    }
+
+    /* --- Admin stats bar --- */
+    #admin-stats-bar {
+        flex-direction: column;
+        gap: 0.75rem !important;
+    }
+
+    .stat-card {
+        min-width: unset;
+        width: 100%;
+    }
+
+    /* --- Hero text --- */
+    .hero-content h1 {
+        font-size: 2rem !important;
+    }
+
+    .hero-content p {
+        font-size: 1rem !important;
+    }
+
+    /* --- Body text --- */
+    h1 { font-size: 1.875rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.2rem; }
+
+    /* --- Login / register form containers --- */
+    .login-container,
+    .login-section,
+    .register-section {
+        padding: 1rem;
+    }
+
+    .login-form-container,
+    .register-form-container,
+    .auth-card {
+        padding: 1.5rem 1.25rem;
+        border-radius: 10px;
+        margin: 0 auto;
+    }
+
+    /* --- Contact grid: stack info + form --- */
+    .contact-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem;
+    }
+
+    .contact-info-section,
+    .contact-form-section {
+        width: 100%;
+    }
+
+    /* --- Section padding --- */
+    section,
+    .section {
+        padding: 2.5rem 1rem;
+    }
+
+    /* --- Customer dashboard welcome --- */
+    .welcome-section {
+        padding: 2rem 1rem;
+    }
+
+    .welcome-section h1 {
+        font-size: 1.75rem;
+    }
+
+    /* --- Service items: stack vertically --- */
+    .service-item,
+    .schedule-item,
+    .contact-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    /* --- Footer grid: single column --- */
+    .footer-grid {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .footer-section {
+        flex: 1 1 100%;
+        min-width: unset;
+    }
+
+    /* --- Billing actions: stack --- */
+    .billing-actions,
+    .payment-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .billing-actions a,
+    .billing-actions button,
+    .payment-actions a,
+    .payment-actions button {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+
+    /* --- Admin form actions --- */
+    .form-actions {
+        flex-direction: column-reverse;
+        gap: 0.75rem;
+    }
+
+    .form-actions .btn,
+    .form-actions a {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* --- iOS zoom prevention on inputs --- */
+    input,
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+
+    /* --- Pay your bill secure icons --- */
+    .secure-icons {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        justify-content: center;
+    }
+
+    /* --- Mobile tab bar bottom padding --- */
+    .mobile-tab-bar ~ * {
+        padding-bottom: 0;
+    }
+
+    body:has(.mobile-tab-bar) {
+        padding-bottom: 70px;
+    }
+
+    /* --- Action buttons in customer dashboard --- */
+    .action-buttons {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.75rem;
+    }
+}
+
+/* ---- Small phones (<= 480px) ---- */
+@media (max-width: 480px) {
+
+    /* --- Hero: tighter text for 375px phones --- */
+    .hero-content h1 {
+        font-size: 1.65rem !important;
+        letter-spacing: 0;
+    }
+
+    .hero-content p {
+        font-size: 0.9rem !important;
+    }
+
+    .hero-content {
+        padding: 1rem !important;
+    }
+
+    /* --- Headings --- */
+    h1 { font-size: 1.6rem; }
+    h2 { font-size: 1.3rem; }
+
+    /* --- Profile header --- */
+    .profile-header h1 {
+        font-size: 1.5rem !important;
+    }
+
+    /* --- Dashboard title --- */
+    .dashboard-title {
+        font-size: 1.5rem;
+    }
+
+    /* --- Welcome section --- */
+    .welcome-section h1 {
+        font-size: 1.4rem;
+    }
+
+    /* --- Action buttons: single column on very small screens --- */
+    .action-buttons {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* --- Form container padding --- */
+    .form-container {
+        padding: 1rem !important;
+    }
+
+    /* --- Profile container --- */
+    .profile-container {
+        padding: 0 0.75rem !important;
+        margin: 1rem auto !important;
+    }
+
+    .profile-content {
+        padding: 1.25rem !important;
+    }
+
+    /* --- Admin stats bar --- */
+    .stat-card {
+        padding: 1rem;
+    }
+
+    .stat-value {
+        font-size: 1.4rem;
+    }
+
+    /* --- Back button in profile header --- */
+    .back-button {
+        position: static !important;
+        display: inline-flex;
+        margin-bottom: 1rem;
+    }
+
+    .profile-header {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+        padding: 1.25rem !important;
+    }
+
+    .profile-header h1 {
+        font-size: 1.4rem !important;
+    }
+
+    /* --- Address grid: single column --- */
+    .address-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .address-grid .form-group:first-child {
+        grid-column: 1 !important;
+    }
+
+    /* --- Schedule form --- */
+    .schedule-form {
+        padding: 1.25rem !important;
+    }
+
+    .schedule-form-container {
+        padding: 1rem;
+    }
+
+    /* --- CTA buttons --- */
+    .cta-buttons {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .cta-button {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        font-size: 0.95rem;
+    }
+
+    /* --- Footer section headings --- */
+    .footer-section h3 {
+        font-size: 1rem;
+    }
+
+    /* --- Admin dashboard cards --- */
+    .card-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .card-btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/* ---- Tiny phones (<= 360px) ---- */
+@media (max-width: 360px) {
+    .hero-content h1 {
+        font-size: 1.4rem !important;
+    }
+
+    .logo img {
+        height: 38px !important;
+    }
+
+    .btn,
+    .card-btn,
+    .action-btn {
+        font-size: 0.85rem;
+        padding: 0.75rem 0.875rem;
+    }
+
+    .profile-header h1 {
+        font-size: 1.25rem !important;
+    }
+}
+
+/* ---- Landscape mobile optimization ---- */
+@media (max-width: 768px) and (orientation: landscape) {
+    .hero {
+        min-height: 100vw;
+    }
+
+    .hero-content {
+        padding: 1rem !important;
+    }
+
+    .hero-content h1 {
+        font-size: 1.5rem !important;
+        margin-bottom: 0.5rem;
+    }
+
+    .hero-content p {
+        font-size: 0.875rem !important;
+        margin-bottom: 1rem;
+    }
+
+    .welcome-section {
+        padding: 1.5rem 1rem;
+    }
+}
+
+/* ---- Tablet (769px – 1024px) ---- */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .dashboard-grid,
+    .card-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .hero-content h1 {
+        font-size: 2.5rem !important;
+    }
+
+    .form-container {
+        padding: 2rem 1.5rem;
+    }
+
+    .contact-grid {
+        gap: 2rem;
+    }
+}
+
+/* ---- Mobile tab bar — consistent across all pages ---- */
+.mobile-tab-bar {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #388e3c !important;
+    z-index: 10000;
+    height: 60px;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.15);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    justify-content: space-around;
+    align-items: stretch;
+}
+
+.mobile-tab-bar a {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff !important;
+    text-decoration: none !important;
+    font-size: 0.7rem;
+    gap: 2px;
+    padding: 0.25rem 0;
+    transition: background 0.2s;
+    min-height: 60px;
+}
+
+.mobile-tab-bar a i {
+    font-size: 1.2rem;
+}
+
+.mobile-tab-bar a:hover,
+.mobile-tab-bar a.active {
+    background: #2e7d32 !important;
+    color: #c8e6c9 !important;
+}
+
+@media (max-width: 768px) {
+    .mobile-tab-bar {
+        display: flex !important;
+    }
+
+    body {
+        padding-bottom: 60px;
+    }
+}
+
+@media (min-width: 769px) {
+    .mobile-tab-bar {
+        display: none !important;
+    }
+}
+
+/* ---- Prevent hover effects on touch devices ---- */
+@media (hover: none) {
+    .dashboard-card:hover,
+    .service-card:hover,
+    .btn:hover,
+    .card-btn:hover {
+        transform: none;
+        box-shadow: initial;
+    }
+
+    .hero:hover img {
+        transform: none;
+    }
+}

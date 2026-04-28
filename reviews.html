@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Reviews - Holliday's Lawn &amp; Garden Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <link href="assets/css/main.css" rel="stylesheet"/>
+    <link href="assets/css/admin-dashboard.css" rel="stylesheet"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon/favicon-32x32.png"/>
+</head>
+<body>
+    <header class="admin-header">
+        <div class="logo">
+            <img src="assets/images/hollidays-logo.optimized-1280.png" alt="Holliday's Lawn &amp; Garden"/>
+            <span style="font-weight:700;color:#2c5530;">Admin Dashboard</span>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-secondary" onclick="window.location.href='admin-dashboard.html'">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </button>
+            <button class="btn btn-danger" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </header>
+
+    <main class="dashboard-main">
+        <nav aria-label="Breadcrumb" style="padding:0.6rem 0 0.2rem;font-size:0.85rem;color:#777;">
+            <a href="admin-dashboard.html" style="color:#2e7d32;text-decoration:none;font-weight:500;"><i class="fas fa-home"></i> Dashboard</a>
+            <span style="margin:0 0.4rem;">/</span>
+            <span style="color:#555;font-weight:600;">Reviews</span>
+        </nav>
+
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Customer Reviews</h1>
+                <p class="page-subtitle">Approve reviews before they appear on the testimonials page</p>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-number" id="total-reviews">0</div><div class="stat-label">Total Reviews</div></div>
+            <div class="stat-card"><div class="stat-number" id="pending-reviews">0</div><div class="stat-label">Pending Approval</div></div>
+            <div class="stat-card"><div class="stat-number" id="approved-reviews">0</div><div class="stat-label">Published</div></div>
+            <div class="stat-card"><div class="stat-number" id="avg-rating">—</div><div class="stat-label">Avg Rating</div></div>
+        </div>
+
+        <div class="filters-section">
+            <div class="filters-row">
+                <div class="filter-group">
+                    <label for="review-filter">Show</label>
+                    <select id="review-filter">
+                        <option value="pending">Pending Approval</option>
+                        <option value="approved">Approved</option>
+                        <option value="">All Reviews</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="messages-table">
+            <div class="table-header">
+                <h3 class="table-title">Reviews</h3>
+            </div>
+            <div class="table-container">
+                <div id="loading" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading reviews...</div>
+                <table id="reviews-table" style="display:none;">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Rating</th>
+                            <th>Service</th>
+                            <th>Review</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reviews-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, query, where, orderBy, onSnapshot, updateDoc, deleteDoc, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyACm0j7I8RX4ExIQRoejfk1HZMOQRGigBw",
+            authDomain: "holiday-lawn-and-garden.firebaseapp.com",
+            projectId: "holiday-lawn-and-garden",
+            storageBucket: "holiday-lawn-and-garden.firebasestorage.app",
+            messagingSenderId: "135322230444",
+            appId: "1:135322230444:web:1a487b25a48aae07368909"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        let allReviews = [];
+
+        onAuthStateChanged(auth, async user => {
+            if (!user) { window.location.href = 'login.html'; return; }
+            const ud = await getDoc(doc(db, 'users', user.uid));
+            if (!ud.exists() || ud.data().role !== 'admin') { window.location.href = 'login.html'; return; }
+            loadReviews();
+        });
+
+        function loadReviews() {
+            onSnapshot(query(collection(db, 'reviews'), orderBy('createdAt', 'desc')), snap => {
+                allReviews = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                updateStats();
+                applyFilter();
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('reviews-table').style.display = 'table';
+            });
+        }
+
+        function updateStats() {
+            const approved = allReviews.filter(r => r.approved);
+            document.getElementById('total-reviews').textContent = allReviews.length;
+            document.getElementById('pending-reviews').textContent = allReviews.filter(r => !r.approved).length;
+            document.getElementById('approved-reviews').textContent = approved.length;
+            const avg = approved.length ? (approved.reduce((s, r) => s + (r.rating || 5), 0) / approved.length).toFixed(1) : '—';
+            document.getElementById('avg-rating').textContent = avg;
+        }
+
+        function applyFilter() {
+            const f = document.getElementById('review-filter').value;
+            let filtered = allReviews;
+            if (f === 'pending') filtered = allReviews.filter(r => !r.approved);
+            if (f === 'approved') filtered = allReviews.filter(r => r.approved);
+            renderTable(filtered);
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('reviews-tbody');
+            tbody.innerHTML = '';
+            if (!data.length) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:#777;">No reviews found.</td></tr>';
+                return;
+            }
+            data.forEach(r => {
+                const date = r.createdAt ? new Date(r.createdAt.toDate ? r.createdAt.toDate() : r.createdAt).toLocaleDateString() : 'N/A';
+                const stars = '★'.repeat(r.rating || 5) + '☆'.repeat(5 - (r.rating || 5));
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="font-size:0.85rem;">${date}</td>
+                    <td><strong>${r.name || 'Anonymous'}</strong><br/><span style="font-size:0.8rem;color:#777;">${r.email || ''}</span></td>
+                    <td style="color:#f9a825;font-size:1.1rem;letter-spacing:1px;">${stars}</td>
+                    <td style="font-size:0.85rem;">${r.service || '—'}</td>
+                    <td style="font-size:0.85rem;max-width:260px;">"${(r.review || '').substring(0, 120)}${(r.review||'').length > 120 ? '...' : ''}"</td>
+                    <td>${r.approved
+                        ? '<span style="background:#2e7d32;color:white;padding:0.2rem 0.6rem;border-radius:12px;font-size:0.75rem;">Published</span>'
+                        : '<span style="background:#e53935;color:white;padding:0.2rem 0.6rem;border-radius:12px;font-size:0.75rem;">Pending</span>'
+                    }</td>
+                    <td>
+                        <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+                            ${!r.approved
+                                ? `<button class="btn btn-primary btn-small" onclick="approveReview('${r.id}')"><i class="fas fa-check"></i> Approve</button>`
+                                : `<button class="btn btn-secondary btn-small" onclick="unapproveReview('${r.id}')"><i class="fas fa-eye-slash"></i> Unpublish</button>`
+                            }
+                            <button class="btn btn-danger btn-small" onclick="deleteReview('${r.id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        window.approveReview = async id => {
+            await updateDoc(doc(db, 'reviews', id), { approved: true });
+        };
+        window.unapproveReview = async id => {
+            await updateDoc(doc(db, 'reviews', id), { approved: false });
+        };
+        window.deleteReview = async id => {
+            if (confirm('Delete this review permanently?')) await deleteDoc(doc(db, 'reviews', id));
+        };
+
+        document.getElementById('review-filter').addEventListener('change', applyFilter);
+
+        window.logout = function() {
+            signOut(auth).then(() => window.location.href = 'login.html');
+        };
+    </script>
+    <script src="assets/js/hide-loading.js"></script>
+</body>
+</html>
