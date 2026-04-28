@@ -237,7 +237,7 @@ function renderSummaryTab() {
     // Group by staff
     const byStaff = {};
     entries.forEach(e => {
-        if (!byStaff[e.staffId]) byStaff[e.staffId] = { name: e.staffName || e.staffId, staffName: e.staffName, minutes: 0, shifts: 0 };
+        if (!byStaff[e.staffId]) byStaff[e.staffId] = { name: e.staffName || e.staffId, staffName: e.staffName, staffEmail: e.staffEmail || '', minutes: 0, shifts: 0 };
         byStaff[e.staffId].minutes += e.totalMinutes;
         byStaff[e.staffId].shifts++;
     });
@@ -249,7 +249,7 @@ function renderSummaryTab() {
 
     body.innerHTML = Object.entries(byStaff).map(([staffId, data]) => {
         const hours = data.minutes / 60;
-        const rate  = getEntryPayRate({ staffId, staffName: data.staffName });
+        const rate  = getEntryPayRate({ staffId, staffName: data.staffName, staffEmail: data.staffEmail });
         const pay   = rate != null ? (hours * rate).toFixed(2) : null;
         return `<tr>
             <td><i class="fas fa-user" style="color:#4caf50;margin-right:0.4rem;"></i>${data.name}</td>
@@ -275,12 +275,12 @@ function updateStatCards() {
     // Est pay this week
     const byStaffWeek = {};
     allEntries.filter(e => e.date >= weekStart && e.totalMinutes != null).forEach(e => {
-        if (!byStaffWeek[e.staffId]) byStaffWeek[e.staffId] = { mins: 0, staffName: e.staffName };
+        if (!byStaffWeek[e.staffId]) byStaffWeek[e.staffId] = { mins: 0, staffName: e.staffName, staffEmail: e.staffEmail || '' };
         byStaffWeek[e.staffId].mins += e.totalMinutes;
     });
     let payWeek = 0;
     Object.entries(byStaffWeek).forEach(([sid, data]) => {
-        const rate = getEntryPayRate({ staffId: sid, staffName: data.staffName });
+        const rate = getEntryPayRate({ staffId: sid, staffName: data.staffName, staffEmail: data.staffEmail });
         if (rate != null) payWeek += (data.mins / 60) * rate;
     });
 
@@ -412,14 +412,14 @@ window.printPDF = function () {
     // Build pay summary grouped by staff
     const byStaff = {};
     entries.filter(e => e.totalMinutes != null).forEach(e => {
-        if (!byStaff[e.staffId]) byStaff[e.staffId] = { name: e.staffName || e.staffId, staffName: e.staffName, minutes: 0, shifts: 0 };
+        if (!byStaff[e.staffId]) byStaff[e.staffId] = { name: e.staffName || e.staffId, staffName: e.staffName, staffEmail: e.staffEmail || '', minutes: 0, shifts: 0 };
         byStaff[e.staffId].minutes += e.totalMinutes;
         byStaff[e.staffId].shifts++;
     });
 
     const summaryRows = Object.entries(byStaff).map(([sid, data]) => {
         const hours   = (data.minutes / 60).toFixed(2);
-        const rateVal = getEntryPayRate({ staffId: sid, staffName: data.staffName });
+        const rateVal = getEntryPayRate({ staffId: sid, staffName: data.staffName, staffEmail: data.staffEmail });
         const rate    = rateVal != null ? parseFloat(rateVal).toFixed(2) : null;
         const pay     = rate != null ? (parseFloat(hours) * parseFloat(rate)).toFixed(2) : null;
         return `<tr>
@@ -493,7 +493,7 @@ window.printPDF = function () {
   ${Object.keys(byStaff).length ? (() => {
       const totalHrs = Object.values(byStaff).reduce((s,d) => s + d.minutes, 0) / 60;
       const totalPay = Object.entries(byStaff).reduce((s,[sid,d]) => {
-          const r = getEntryPayRate({ staffId: sid, staffName: d.staffName });
+          const r = getEntryPayRate({ staffId: sid, staffName: d.staffName, staffEmail: d.staffEmail });
           return s + (r != null ? (d.minutes / 60) * r : 0);
       }, 0);
       return `<tfoot><tr class="totals-row"><td>TOTAL</td><td>${totalHrs.toFixed(2)} hrs</td><td></td><td class="money">$${totalPay.toFixed(2)}</td><td>${Object.values(byStaff).reduce((s,d)=>s+d.shifts,0)}</td></tr></tfoot>`;
