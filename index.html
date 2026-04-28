@@ -889,6 +889,15 @@
 <style>
 /* Hero section visibility - Professional Design Standard */
 .hero h1 { display: block !important; visibility: visible !important; opacity: 1 !important; }
+
+/* Loading spinner fade transition */
+.loading {
+  transition: opacity 0.3s ease;
+}
+.loading.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
 </style>
     <link rel="stylesheet" href="assets/css/mobile.css">
 </head>
@@ -1179,14 +1188,23 @@
  if (yearEl) yearEl.textContent = new Date().getFullYear();
  </script>
  <script>
- // Fallback: Always hide loading spinner after 3 seconds
- setTimeout(function() {
-   var loading = document.getElementById('loading');
-   if (loading) {
-     loading.classList.add('hidden');
-     setTimeout(function() { loading.style.display = 'none'; }, 300);
+ // Hide loading spinner as soon as DOM is ready
+ (function() {
+   function hideSpinner() {
+     var loading = document.getElementById('loading');
+     if (loading) {
+       loading.classList.add('hidden');
+       setTimeout(function() { loading.style.display = 'none'; }, 300);
+     }
    }
- }, 3000);
+   if (document.readyState === 'loading') {
+     document.addEventListener('DOMContentLoaded', hideSpinner);
+   } else {
+     hideSpinner();
+   }
+   // Absolute fallback at 1 second
+   setTimeout(hideSpinner, 1000);
+ })();
  
  // Service Worker Registration for PWA
  if ('serviceWorker' in navigator) {

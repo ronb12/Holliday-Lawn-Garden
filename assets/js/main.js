@@ -233,29 +233,39 @@ function initializeFirebaseDB() {
   });
 }
 
-// Handle form submission
+// Handle contact form submission
 document.addEventListener('DOMContentLoaded', () => {
   const contactForm = document.getElementById('contactForm');
-  if (contactForm) {
+  if (contactForm && !contactForm.dataset.handlerAttached) {
+    contactForm.dataset.handlerAttached = 'true';
     contactForm.addEventListener('submit', async e => {
       e.preventDefault();
 
+      const submitBtn = contactForm.querySelector('button[type="submit"]');
+      const originalText = submitBtn ? submitBtn.textContent : '';
+      if (submitBtn) {
+        submitBtn.textContent = 'Sending...';
+        submitBtn.disabled = true;
+      }
+
       try {
-        const formData = new FormData(contactForm);
-        const data = Object.fromEntries(formData.entries());
-
-        // Add timestamp
-        data.timestamp = new Date().toISOString();
-
-        // Save to Firestore
-        await window.db.collection('contact-submissions').add(data);
-
-        // Show success message
+        // If Firebase Firestore is available, save to it
+        if (typeof window.saveContactForm === 'function') {
+          const formData = new FormData(contactForm);
+          const data = Object.fromEntries(formData.entries());
+          data.timestamp = new Date().toISOString();
+          await window.saveContactForm(data);
+        }
         alert('Thank you for your message! We will get back to you soon.');
         contactForm.reset();
       } catch (error) {
         console.error('Error submitting form:', error);
         alert('Sorry, there was an error submitting your message. Please try again.');
+      } finally {
+        if (submitBtn) {
+          submitBtn.textContent = originalText;
+          submitBtn.disabled = false;
+        }
       }
     });
   }

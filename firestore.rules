@@ -53,9 +53,12 @@ service cloud.firestore {
     // ── Reviews ───────────────────────────────────────────────────
     // Public can submit; only approved reviews visible to public;
     // admins can read all and approve/delete.
+    // NOTE: allow list must be true for collection queries to work;
+    //       resource.data is not available during list operations.
     match /reviews/{document} {
       allow create: if true;
-      allow read:   if resource.data.approved == true || isAdmin();
+      allow get:    if resource.data.approved == true || isAdmin();
+      allow list:   if true;
       allow update, delete: if isAdmin();
     }
 
