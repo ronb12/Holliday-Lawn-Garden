@@ -114,6 +114,38 @@
             background: #b71c1c;
         }
 
+        /* View As switcher */
+        .view-as-wrap { position: relative; display: inline-block; }
+        .view-as-btn {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            font-weight: 600; font-size: 0.85rem; white-space: nowrap;
+        }
+        .view-as-btn:hover { background: rgba(255,255,255,0.25); }
+        .view-as-menu {
+            display: none; position: absolute; top: calc(100% + 8px); right: 0;
+            background: white; border-radius: 10px; min-width: 200px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2); border: 1px solid #e0e0e0;
+            overflow: hidden; z-index: 9999;
+        }
+        .view-as-menu.open { display: block; }
+        .view-as-item {
+            display: flex; align-items: center; gap: 0.75rem;
+            padding: 0.85rem 1rem; text-decoration: none; color: #222;
+            border-bottom: 1px solid #f0f0f0; transition: background 0.15s;
+        }
+        .view-as-item:last-child { border-bottom: none; }
+        .view-as-item:hover { background: #f0fdf4; }
+        .view-as-item.active-view { background: #f0fdf4; }
+        .view-as-item i { font-size: 1rem; width: 22px; text-align: center; flex-shrink: 0; color: #2e7d32; }
+        .view-as-item:nth-child(2) i { color: #e65100; }
+        .view-as-item:nth-child(3) i { color: #1565c0; }
+        .view-as-item div { display: flex; flex-direction: column; }
+        .view-as-item div strong { font-size: 0.88rem; font-weight: 700; line-height: 1.3; }
+        .view-as-item div span { font-size: 0.74rem; color: #888; margin-top: 0.1rem; }
+
         /* Main Content */
         .dashboard-main {
             max-width: 1400px;
@@ -472,9 +504,26 @@
                 <img src="assets/images/hollidays-logo.optimized-1280.png" alt="Holliday's Lawn & Garden Logo">
             </div>
             <div class="admin-actions">
-                <a href="staff-portal.html" class="btn" style="background:#e65100;color:white;text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem;font-size:0.85rem;padding:0.5rem 1rem;border-radius:6px;font-weight:600;">
-                    <i class="fas fa-hard-hat"></i> Staff Portal
-                </a>
+                <!-- View As switcher -->
+                <div class="view-as-wrap" id="viewAsWrap">
+                    <button class="btn view-as-btn" id="viewAsBtn" onclick="(function(b){var m=b.nextElementSibling;var o=m.classList.toggle('open');if(o){var fn=function(e){if(!b.parentElement.contains(e.target)){m.classList.remove('open');document.removeEventListener('click',fn)}};setTimeout(function(){document.addEventListener('click',fn)},0)}})(this)">
+                        <i class="fas fa-eye"></i> View As <i class="fas fa-chevron-down" style="font-size:0.65rem;margin-left:2px;"></i>
+                    </button>
+                    <div class="view-as-menu">
+                        <a href="admin-dashboard.html" class="view-as-item active-view">
+                            <i class="fas fa-lock"></i>
+                            <div><strong>Admin</strong><span>Current view</span></div>
+                        </a>
+                        <a href="staff-portal.html" class="view-as-item">
+                            <i class="fas fa-hard-hat"></i>
+                            <div><strong>Staff</strong><span>Staff portal</span></div>
+                        </a>
+                        <a href="customer-dashboard.html" class="view-as-item">
+                            <i class="fas fa-user"></i>
+                            <div><strong>Customer</strong><span>Customer dashboard</span></div>
+                        </a>
+                    </div>
+                </div>
                 <button class="btn btn-refresh" onclick="location.reload()">
                     <i class="fas fa-sync-alt"></i> Refresh
                 </button>
