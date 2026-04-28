@@ -126,6 +126,91 @@
     margin-left: auto !important;
 }
 
+/* ── Login Dropdown ─────────────────────────────────────────── */
+.login-dropdown {
+    position: relative !important;
+    display: inline-block !important;
+}
+.btn-login-main {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.45rem !important;
+    padding: 0.55rem 1.1rem !important;
+    background: #2e7d32 !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 6px !important;
+    font-family: inherit !important;
+    font-weight: 700 !important;
+    font-size: 0.875rem !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.12) !important;
+    transition: background 0.2s, box-shadow 0.2s !important;
+    line-height: 1.4 !important;
+}
+.btn-login-main:hover {
+    background: #1b5e20 !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.18) !important;
+}
+.login-chevron {
+    font-size: 0.65rem !important;
+    margin-left: 2px !important;
+    transition: transform 0.2s !important;
+}
+.login-drop-menu {
+    display: none;
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    right: 0 !important;
+    background: #fff !important;
+    border-radius: 10px !important;
+    min-width: 215px !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18) !important;
+    border: 1px solid #e0e0e0 !important;
+    overflow: hidden !important;
+    z-index: 9999 !important;
+}
+.login-drop-menu.open {
+    display: block !important;
+}
+.login-drop-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.85rem !important;
+    padding: 0.9rem 1.1rem !important;
+    text-decoration: none !important;
+    color: #222 !important;
+    border-bottom: 1px solid #f0f0f0 !important;
+    transition: background 0.15s !important;
+}
+.login-drop-item:last-child { border-bottom: none !important; }
+.login-drop-item:hover { background: #f0fdf4 !important; }
+.login-drop-item i {
+    font-size: 1.05rem !important;
+    width: 26px !important;
+    text-align: center !important;
+    flex-shrink: 0 !important;
+}
+.login-drop-item.customer-item i { color: #2e7d32 !important; }
+.login-drop-item.staff-item    i { color: #e65100 !important; }
+.login-drop-item.admin-item    i { color: #1565c0 !important; }
+.login-drop-item div {
+    display: flex !important;
+    flex-direction: column !important;
+}
+.login-drop-item div strong {
+    font-size: 0.88rem !important;
+    font-weight: 700 !important;
+    line-height: 1.3 !important;
+    color: #111 !important;
+}
+.login-drop-item div span {
+    font-size: 0.74rem !important;
+    color: #888 !important;
+    margin-top: 0.1rem !important;
+}
+
 .main-header .btn-login {
     display: inline-flex !important;
     align-items: center !important;

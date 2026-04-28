@@ -853,16 +853,7 @@ showError('An error occurred while loading the page. Please refresh.');
         <li><a href="testimonials.html">Reviews</a></li>
         <li><a href="pay-your-bill.html">Pay Your Bill</a></li>
       </ul>
-      <div class="login-buttons">
-        <a href="login.html" class="btn-login btn-customer">
-          <i class="fas fa-user"></i>
-          Customer Login
-        </a>
-        <a href="login.html" class="btn-login btn-admin">
-          <i class="fas fa-lock"></i>
-          Admin Login
-        </a>
-      </div>
+      <div class="login-buttons"><div class="login-dropdown"><button class="btn-login-main" onclick="(function(b){var m=b.nextElementSibling;var o=m.classList.toggle('open');if(o){var fn=function(e){if(!b.parentElement.contains(e.target)){m.classList.remove('open');document.removeEventListener('click',fn)}};setTimeout(function(){document.addEventListener('click',fn)},0)}})(this)"><i class="fas fa-sign-in-alt"></i> Login <i class="fas fa-chevron-down login-chevron"></i></button><div class="login-drop-menu"><a href="login.html" class="login-drop-item customer-item"><i class="fas fa-user"></i><div><strong>Customer</strong><span>Pay bills &amp; book services</span></div></a><a href="login.html" class="login-drop-item staff-item"><i class="fas fa-hard-hat"></i><div><strong>Staff</strong><span>Time clock &amp; portal</span></div></a><a href="admin-login.html" class="login-drop-item admin-item"><i class="fas fa-lock"></i><div><strong>Admin</strong><span>Business management</span></div></a></div></div></div>
     </nav>
   </header>
 
