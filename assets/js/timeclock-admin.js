@@ -216,10 +216,10 @@ function renderEntriesTable(entries) {
             <td>${inTime  ? inTime.toLocaleTimeString()  : '--'}</td>
             <td>${outTime ? outTime.toLocaleTimeString() : '--'}</td>
             <td>${e.totalMinutes != null ? formatMinutes(e.totalMinutes) : (isActive ? '<em style="color:#888;">In progress</em>' : '--')}</td>
-            <td>${earningsCell}</td>
             <td><span class="badge ${isActive ? 'badge-in' : 'badge-out'}">
-                ${isActive ? '<i class="fas fa-circle"></i> Clocked In' : '<i class="fas fa-check"></i> Complete'}
+                ${isActive ? '<i class="fas fa-circle"></i> Clocked In' : '<i class="fas fa-check"></i> Clocked Out'}
             </span></td>
+            <td>${earningsCell}</td>
             <td style="white-space:nowrap;">
                 <button class="btn btn-outline btn-sm" onclick="openEditModal('${e.id}')">
                     <i class="fas fa-edit"></i> Edit
