@@ -187,11 +187,38 @@ async function loadEntries() {
         let entries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         if (since) entries = entries.filter(e => !e.date || e.date >= since);
         allEntries = entries;
+        await healMissingPayRates();
         rerender();
     } catch (err) {
         console.error('loadEntries error:', err);
         showMsg('Failed to load entries: ' + err.message, 'error');
     }
+}
+
+// Auto-heal: for entries whose staffId isn't in payRates, try to find a match
+// by display name or email and persist the rate at that uid so it works instantly.
+async function healMissingPayRates() {
+    const writes = [];
+    allEntries.forEach(e => {
+        if (payRates[e.staffId] != null) return; // already has a rate key, skip
+        const entryEmail = (e.staffEmail || '').toLowerCase();
+        const entryName  = (e.staffName  || '').toLowerCase();
+        const match = allStaff.find(s => {
+            const memberEmail = (s.email || '').toLowerCase();
+            const fullName    = `${s.firstName || ''} ${s.lastName || ''}`.trim().toLowerCase();
+            const shortName   = s.firstName && s.lastName ? `${s.firstName} ${s.lastName[0]}`.toLowerCase() : '';
+            if (memberEmail && (entryEmail === memberEmail || entryName === memberEmail)) return true;
+            if (fullName  && entryName === fullName)  return true;
+            if (shortName && entryName === shortName) return true;
+            return false;
+        });
+        if (!match) return;
+        const rate = payRates[match.id] ?? payRatesByEmail[(match.email || '').toLowerCase()];
+        if (rate == null) return;
+        payRates[e.staffId] = rate; // update memory immediately
+        writes.push(setDoc(doc(db, 'staffPayRates', e.staffId), { hourlyRate: rate }, { merge: true }));
+    });
+    if (writes.length) await Promise.all(writes);
 }
 
 function periodStart(period) {
