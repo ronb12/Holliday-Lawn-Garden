@@ -171,19 +171,32 @@ function filterLocally(entries) {
 function renderEntriesTable(entries) {
     const body = document.getElementById('entriesTableBody');
     if (!entries.length) {
-        body.innerHTML = '<tr><td colspan="7" class="no-data"><i class="fas fa-clock"></i> No entries found.</td></tr>';
+        body.innerHTML = '<tr><td colspan="8" class="no-data"><i class="fas fa-clock"></i> No entries found.</td></tr>';
         return;
     }
     body.innerHTML = entries.map(e => {
         const inTime  = e.clockIn  ? tsToDate(e.clockIn)  : null;
         const outTime = e.clockOut ? tsToDate(e.clockOut) : null;
         const isActive = !outTime;
+        const rate = payRates[e.staffId];
+        let earningsCell;
+        if (isActive) {
+            earningsCell = '<em style="color:#888;">In progress</em>';
+        } else if (e.totalMinutes == null) {
+            earningsCell = '--';
+        } else if (rate == null) {
+            earningsCell = '<span style="color:#ef5350;font-size:0.82rem;">Rate not set</span>';
+        } else {
+            const pay = (e.totalMinutes / 60) * rate;
+            earningsCell = `<strong style="color:#2e7d32;">$${pay.toFixed(2)}</strong>`;
+        }
         return `<tr>
             <td><i class="fas fa-user" style="color:#4caf50;margin-right:0.4rem;"></i>${e.staffName || e.staffId}</td>
             <td>${e.date}</td>
             <td>${inTime  ? inTime.toLocaleTimeString()  : '--'}</td>
             <td>${outTime ? outTime.toLocaleTimeString() : '--'}</td>
             <td>${e.totalMinutes != null ? formatMinutes(e.totalMinutes) : (isActive ? '<em style="color:#888;">In progress</em>' : '--')}</td>
+            <td>${earningsCell}</td>
             <td><span class="badge ${isActive ? 'badge-in' : 'badge-out'}">
                 ${isActive ? '<i class="fas fa-circle"></i> Clocked In' : '<i class="fas fa-check"></i> Complete'}
             </span></td>
