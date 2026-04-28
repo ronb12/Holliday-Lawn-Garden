@@ -489,7 +489,7 @@ window.printPDF = function () {
   ${Object.keys(byStaff).length ? (() => {
       const totalHrs = Object.values(byStaff).reduce((s,d) => s + d.minutes, 0) / 60;
       const totalPay = Object.entries(byStaff).reduce((s,[sid,d]) => {
-          const r = payRates[sid];
+          const r = getEntryPayRate({ staffId: sid, staffName: d.staffName });
           return s + (r != null ? (d.minutes / 60) * r : 0);
       }, 0);
       return `<tfoot><tr class="totals-row"><td>TOTAL</td><td>${totalHrs.toFixed(2)} hrs</td><td></td><td class="money">$${totalPay.toFixed(2)}</td><td>${Object.values(byStaff).reduce((s,d)=>s+d.shifts,0)}</td></tr></tfoot>`;
