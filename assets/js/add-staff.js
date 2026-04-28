@@ -82,6 +82,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  // Save pay rate by both staff doc ID and auth UID (looked up by email).
+  // Timeclock entries store staffId = auth UID, so we must index by uid too.
+  async function savePayRateByAll(docId, email, rate) {
+    const rateData = { hourlyRate: rate, updatedAt: serverTimestamp() };
+    await setDoc(doc(db, 'staffPayRates', docId), rateData, { merge: true });
+    if (email) {
+      try {
+        const q = query(collection(db, 'users'), where('email', '==', email));
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+          const uid = snap.docs[0].id;
+          if (uid !== docId) {
+            await setDoc(doc(db, 'staffPayRates', uid), rateData, { merge: true });
+          }
+        }
+      } catch (err) {
+        console.warn('Could not save pay rate by UID:', err);
+      }
+    }
+  }
+
   // Form handling
   const form = document.getElementById('staff-form');
   if (form) {
@@ -95,13 +116,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (editId) {
           await updateDoc(doc(db, 'staff', editId), { ...staffData, updatedAt: serverTimestamp() });
           if (!isNaN(rate) && rate >= 0) {
-            await setDoc(doc(db, 'staffPayRates', editId), { hourlyRate: rate, updatedAt: serverTimestamp() }, { merge: true });
+            await savePayRateByAll(editId, staffData.email, rate);
           }
           alert('Staff member updated successfully!');
         } else {
           const docRef = await addDoc(collection(db, 'staff'), { ...staffData, createdAt: serverTimestamp() });
           if (!isNaN(rate) && rate >= 0) {
-            await setDoc(doc(db, 'staffPayRates', docRef.id), { hourlyRate: rate, updatedAt: serverTimestamp() });
+            await savePayRateByAll(docRef.id, staffData.email, rate);
           }
           alert('Staff member added successfully!');
           form.reset();
