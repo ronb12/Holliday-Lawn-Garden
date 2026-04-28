@@ -145,6 +145,22 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // ── Expenses (business costs) ─────────────────────────────────
+    match /expenses/{document} {
+      allow read, write: if isAdmin();
+    }
+
+    // ── Staff time clock & pay rates ─────────────────────────────
+    match /timeclock/{document} {
+      allow read: if isAdmin() || isAuthenticated();
+      allow write: if isAuthenticated();  // staff can clock in/out
+      allow delete: if isAdmin();
+    }
+
+    match /staffPayRates/{document} {
+      allow read, write: if isAdmin();
+    }
+
     // ── Services ──────────────────────────────────────────────────
     match /services/{document} {
       allow read: if isAdmin() || isOwner();
