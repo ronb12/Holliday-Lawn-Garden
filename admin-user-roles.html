@@ -206,14 +206,21 @@ function initials(name, email) {
     return (email || '?')[0].toUpperCase();
 }
 
-function badgeHtml(role) {
+function badgeHtml(role, rolesArr) {
     const map = {
         customer: ['customer','<i class="fas fa-user"></i> Customer'],
         staff:    ['staff',   '<i class="fas fa-hard-hat"></i> Staff'],
         admin:    ['admin',   '<i class="fas fa-lock"></i> Admin'],
     };
-    const [cls, label] = map[role] || ['unknown', '<i class="fas fa-question"></i> ' + escHtml(role || 'Unknown')];
-    return `<span class="role-badge ${cls}">${label}</span>`;
+    const display = (Array.isArray(rolesArr) && rolesArr.length > 0) ? rolesArr : (role ? [role] : ['unknown']);
+    return display.map(r => {
+        const [cls, label] = map[r] || ['unknown', '<i class="fas fa-question"></i> ' + escHtml(r || 'Unknown')];
+        return `<span class="role-badge ${cls}">${label}</span>`;
+    }).join(' ');
+}
+
+function userRolesArr(u) {
+    return Array.isArray(u.roles) ? u.roles : (u.role ? [u.role] : ['customer']);
 }
 
 function renderTable(users) {
@@ -222,41 +229,43 @@ function renderTable(users) {
         wrap.innerHTML = `<table><tbody><tr class="empty-row"><td colspan="4"><i class="fas fa-search" style="display:block;font-size:1.5rem;margin-bottom:0.5rem;color:#ddd;"></i>No users found</td></tr></tbody></table>`;
         return;
     }
-    const rows = users.map(u => `
-        <tr data-uid="${escHtml(u.uid)}">
+    const rows = users.map(u => {
+        const ur = userRolesArr(u);
+        const uid = escHtml(u.uid);
+        const email = escHtml(u.email || '');
+        return `
+        <tr data-uid="${uid}">
             <td>
                 <div class="user-info">
                     <div class="user-avatar">${escHtml(initials(u.displayName || u.fullName, u.email))}</div>
                     <div>
                         <div class="user-name">${escHtml(u.displayName || u.fullName || '(no name)')}</div>
                         <div class="user-email">${escHtml(u.email || '—')}</div>
-                        <div class="user-uid">${escHtml(u.uid)}</div>
+                        <div class="user-uid">${uid}</div>
                     </div>
                 </div>
             </td>
-            <td>${badgeHtml(u.role)}</td>
+            <td>${badgeHtml(u.role, ur)}</td>
             <td style="font-size:0.8rem;color:#888;">${u.lastLogin ? new Date(u.lastLogin).toLocaleDateString() : '—'}</td>
             <td>
-                <div class="role-select-wrap">
-                    <select class="role-select" id="sel-${escHtml(u.uid)}">
-                        <option value="customer" ${u.role === 'customer' ? 'selected' : ''}>Customer</option>
-                        <option value="staff"    ${u.role === 'staff'    ? 'selected' : ''}>Staff</option>
-                        <option value="admin"    ${u.role === 'admin'    ? 'selected' : ''}>Admin</option>
-                    </select>
-                    <button class="btn-save" onclick="saveRole('${escHtml(u.uid)}', '${escHtml(u.email || '')}', this)">Save</button>
-                    <span class="save-status" id="status-${escHtml(u.uid)}"></span>
+                <div class="roles-wrap">
+                    <label class="role-check-label"><input type="checkbox" class="role-cb" data-uid="${uid}" data-role="customer" ${ur.includes('customer') ? 'checked' : ''}> Customer</label>
+                    <label class="role-check-label"><input type="checkbox" class="role-cb" data-uid="${uid}" data-role="staff" ${ur.includes('staff') ? 'checked' : ''}> Staff</label>
+                    <label class="role-check-label"><input type="checkbox" class="role-cb" data-uid="${uid}" data-role="admin" ${ur.includes('admin') ? 'checked' : ''}> Admin</label>
+                    <button class="btn-save" onclick="saveRole('${uid}', '${email}', this)">Save</button>
+                    <span class="save-status" id="status-${uid}"></span>
                 </div>
             </td>
-        </tr>
-    `).join('');
+        </tr>`;
+    }).join('');
     wrap.innerHTML = `
         <table>
             <thead>
                 <tr>
                     <th>User</th>
-                    <th>Current Role</th>
+                    <th>Current Roles</th>
                     <th>Last Login</th>
-                    <th>Change Role</th>
+                    <th>Assign Roles</th>
                 </tr>
             </thead>
             <tbody>${rows}</tbody>
@@ -264,10 +273,11 @@ function renderTable(users) {
 }
 
 function updateStats(users) {
+    const hasRole = (u, r) => Array.isArray(u.roles) ? u.roles.includes(r) : u.role === r;
     document.getElementById('statTotal').textContent    = users.length;
-    document.getElementById('statCustomer').textContent = users.filter(u => u.role === 'customer').length;
-    document.getElementById('statStaff').textContent    = users.filter(u => u.role === 'staff').length;
-    document.getElementById('statAdmin').textContent    = users.filter(u => u.role === 'admin').length;
+    document.getElementById('statCustomer').textContent = users.filter(u => hasRole(u, 'customer')).length;
+    document.getElementById('statStaff').textContent    = users.filter(u => hasRole(u, 'staff')).length;
+    document.getElementById('statAdmin').textContent    = users.filter(u => hasRole(u, 'admin')).length;
 }
 
 window.filterTable = function() {
@@ -281,16 +291,29 @@ window.filterTable = function() {
 };
 
 window.saveRole = async function(uid, email, btn) {
-    const sel = document.getElementById('sel-' + uid);
     const statusEl = document.getElementById('status-' + uid);
-    const newRole = sel.value;
 
-    // Block an admin from changing their own role (prevents accidental lockout)
-    if (uid === currentAdminUid && newRole !== 'admin') {
-        showToast('You cannot change your own role — this prevents accidental lockout.', true);
-        sel.value = 'admin';
+    // Read which checkboxes are checked for this user
+    const checkboxes = document.querySelectorAll(`.role-cb[data-uid="${uid}"]`);
+    const newRoles = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.dataset.role);
+
+    if (newRoles.length === 0) {
+        showToast('Select at least one role.', true);
         return;
     }
+
+    // Block self-demotion — the logged-in admin must keep the admin role
+    if (uid === currentAdminUid && !newRoles.includes('admin')) {
+        showToast('You cannot remove your own Admin role — this prevents lockout.', true);
+        const adminCb = document.querySelector(`.role-cb[data-uid="${uid}"][data-role="admin"]`);
+        if (adminCb) adminCb.checked = true;
+        return;
+    }
+
+    // Primary role = highest privilege
+    const primaryRole = newRoles.includes('admin') ? 'admin'
+        : newRoles.includes('staff') ? 'staff'
+        : 'customer';
 
     btn.disabled = true;
     btn.textContent = 'Saving…';
@@ -298,17 +321,15 @@ window.saveRole = async function(uid, email, btn) {
     statusEl.className = 'save-status';
 
     try {
-        await updateDoc(doc(db, 'users', uid), { role: newRole });
-        // Update local data
+        await updateDoc(doc(db, 'users', uid), { role: primaryRole, roles: newRoles });
         const u = allUsers.find(x => x.uid === uid);
-        if (u) u.role = newRole;
-        // Refresh the badge in the row
+        if (u) { u.role = primaryRole; u.roles = newRoles; }
         const row = document.querySelector(`tr[data-uid="${uid}"]`);
-        if (row) row.cells[1].innerHTML = badgeHtml(newRole);
+        if (row) row.cells[1].innerHTML = badgeHtml(primaryRole, newRoles);
         statusEl.textContent = '✓ Saved';
         statusEl.className = 'save-status ok';
         updateStats(allUsers);
-        showToast(`Role updated to "${newRole}" for ${email || uid}`);
+        showToast(`Roles updated for ${email || uid}: ${newRoles.join(', ')}`);
     } catch (err) {
         console.error(err);
         statusEl.textContent = '✗ Error';
