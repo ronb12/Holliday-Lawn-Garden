@@ -600,6 +600,19 @@
                 </div>
             </div>
 
+            <div class="dashboard-card" style="position:relative;">
+                <span id="badge-agreements" style="display:none;position:absolute;top:12px;right:12px;background:#e65100;color:#fff;border-radius:50%;width:22px;height:22px;font-size:0.75rem;font-weight:700;align-items:center;justify-content:center;"></span>
+                <div class="card-icon">
+                    <i class="fas fa-file-signature"></i>
+                </div>
+                <div class="card-title">Staff Documents</div>
+                <div id="new-agreements-label" style="font-size:0.8rem;color:#e65100;font-weight:600;margin-bottom:0.5rem;display:none;"></div>
+                <div class="card-actions">
+                    <a href="admin-staff-agreements.html" class="card-btn">View Signed Agreements</a>
+                    <a href="staff-code-of-conduct.html" target="_blank" class="card-btn">View Document</a>
+                </div>
+            </div>
+
             <div class="dashboard-card">
                 <div class="card-icon">
                     <i class="fas fa-clock"></i>
@@ -808,6 +821,11 @@
     // Pending reviews
     onSnapshot(query(collection(db, 'reviews'), where('approved', '==', false)), snap => {
         showBadge('badge-reviews', 'pending-reviews-label', snap.size, 'review awaiting approval', 'reviews awaiting approval');
+    });
+
+    // New document signatures (unread)
+    onSnapshot(query(collection(db, 'notifications'), where('type', '==', 'document_signed'), where('read', '==', false)), snap => {
+        showBadge('badge-agreements', 'new-agreements-label', snap.size, 'new document signature', 'new document signatures');
     });
 </script>
 </body>
