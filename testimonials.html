@@ -52,98 +52,15 @@
  }
 }</script>
 <style>
-/* Hero section visibility - Professional Design Standard */
+/* Hero section */
 .hero h1 { display: block !important; visibility: visible !important; opacity: 1 !important; }
 
-/* Header - white background consistent with all other pages */
-.main-header {
-    background: #fff !important;
-    min-height: 70px !important;
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    padding: 0 2rem !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 1000 !important;
-    flex-wrap: nowrap !important;
-}
-.main-header .logo { flex-shrink: 0 !important; }
-.main-header .logo img { height: 46px !important; width: auto !important; }
-.main-header nav { display: flex !important; align-items: center !important; flex: 1 !important; justify-content: flex-end !important; }
-.nav-links { display: flex !important; list-style: none !important; margin: 0 !important; padding: 0 !important; gap: 0.5rem !important; align-items: center !important; }
-.nav-links li a { color: #333 !important; text-decoration: none !important; font-size: 0.875rem !important; font-weight: 500 !important; padding: 0.4rem 0.6rem !important; border-radius: 4px !important; transition: color 0.2s !important; }
-.nav-links li a:hover, .nav-links li a.active { color: #2e7d32 !important; }
-@media (max-width: 768px) {
-    .main-header { padding: 0 1rem !important; }
-    .main-header nav .nav-links { display: none !important; }
-}
+/* Body offset for fixed header */
+body { padding-top: 80px; }
 
-.login-buttons {
-    display: flex !important;
-    gap: 1rem !important;
-    align-items: center !important;
-    margin-left: 1rem !important;
-}
-
-.btn-login {
-    padding: 0.5rem 1rem !important;
-    border-radius: 4px !important;
-    text-decoration: none !important;
-    font-weight: 500 !important;
-    transition: all 0.3s ease !important;
-    font-size: 0.82rem !important;
-    min-width: auto !important;
-    text-align: center !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 0.5rem !important;
-    white-space: nowrap !important;
-}
-
-.btn-customer {
-    background: #2e7d32 !important;
-    color: white !important;
-}
-
-.btn-admin {
-    background: #1565c0 !important;
-    color: white !important;
-}
-
-.btn-login:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
-}
-
-@media (max-width: 768px) {
-    .login-buttons {
-        display: none !important;
-    }
-}
-
-/* Mobile Tab Bar - Hide on Desktop */
+/* Mobile tab bar — shown only on mobile via mobile.css */
 @media (min-width: 769px) {
-  .mobile-tab-bar { display: none !important; }
-}
-@media (max-width: 768px) {
-  .mobile-tab-bar {
-    display: flex;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100vw;
-    height: 64px;
-    background: #fff;
-    border-top: 1px solid #e0e0e0;
-    box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
-    z-index: 2000;
-    justify-content: space-around;
-    align-items: center;
-  }
+    .mobile-tab-bar { display: none !important; }
 }
 </style>
     <link rel="stylesheet" href="assets/css/mobile.css">
