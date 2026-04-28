@@ -304,6 +304,9 @@ function listenForActiveSessions() {
         document.getElementById('statClockedIn').textContent = snap.size;
         // Re-sync filteredEntries so the table and allEntries stay consistent
         rerender();
+    }, (err) => {
+        console.error('listenForActiveSessions error:', err);
+        showMsg('Live session listener error: ' + err.message, 'error');
     });
 }
 
