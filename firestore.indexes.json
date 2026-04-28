@@ -29,6 +29,14 @@
       "collectionGroup": "timeclock",
       "queryScope": "COLLECTION",
       "fields": [
+        { "fieldPath": "staffId", "order": "ASCENDING" },
+        { "fieldPath": "clockOut", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "timeclock",
+      "queryScope": "COLLECTION",
+      "fields": [
         { "fieldPath": "date", "order": "DESCENDING" },
         { "fieldPath": "clockOut", "order": "ASCENDING" }
       ]
