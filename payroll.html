@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Payroll - Admin Dashboard</title>
+    <link href="assets/css/main.min.css" rel="stylesheet"/>
+    <link href="assets/css/admin-dashboard.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon/favicon-32x32.png" />
+    <link rel="manifest" href="manifest.json" />
+    <meta content="#2e7d32" name="theme-color"/>
+    <style>
+        body { padding-top: 80px; margin: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; }
+        .dashboard-main { max-width: 1300px; margin: 2rem auto; padding: 0 1.5rem; }
+        .page-header { background: #fff; padding: 1.5rem 2rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .page-title { font-size: 1.8rem; font-weight: 700; color: #2c5530; margin: 0; }
+        .page-subtitle { color: #666; margin: 0.25rem 0 0; }
+        .btn { padding: 0.65rem 1.25rem; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; font-size: 0.9rem; transition: all 0.2s; }
+        .btn-primary { background: #4caf50; color: white; }
+        .btn-primary:hover { background: #388e3c; }
+        .btn-danger { background: #e53935; color: white; }
+        .btn-outline { background: #fff; color: #2c5530; border: 2px solid #4caf50; }
+        .btn-outline:hover { background: #f0fdf4; }
+        /* Period selector */
+        .period-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; }
+        .filter-group { display: flex; flex-direction: column; gap: 0.35rem; }
+        .filter-group label { font-size: 0.82rem; font-weight: 600; color: #555; }
+        .filter-group select, .filter-group input { padding: 0.6rem 0.85rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; min-width: 150px; }
+        .period-actions { margin-left: auto; display: flex; gap: 0.75rem; align-items: flex-end; }
+        /* Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem; }
+        .stat-card { background: #fff; padding: 1.25rem 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); display: flex; align-items: center; gap: 1rem; }
+        .stat-icon { width: 46px; height: 46px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+        .icon-green { background: #e8f5e8; color: #2e7d32; }
+        .icon-blue { background: #e3f2fd; color: #1565c0; }
+        .icon-orange { background: #fff3e0; color: #e65100; }
+        .icon-purple { background: #f3e5f5; color: #6a1b9a; }
+        .stat-info .stat-number { font-size: 1.7rem; font-weight: 700; color: #2c5530; display: block; line-height: 1; }
+        .stat-info .stat-label { font-size: 0.82rem; color: #777; margin-top: 0.2rem; display: block; }
+        /* Staff payroll table */
+        .table-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); overflow: hidden; margin-bottom: 1.5rem; }
+        .table-header { background: #f8f9fa; padding: 1rem 1.5rem; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
+        .table-header h3 { margin: 0; font-size: 1rem; color: #333; }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th, td { padding: 0.85rem 1.1rem; text-align: left; border-bottom: 1px solid #f0f0f0; }
+        th { background: #f8f9fa; font-weight: 600; color: #555; white-space: nowrap; }
+        tr:hover td { background: #fafff9; }
+        tr:last-child td { border-bottom: none; }
+        .total-row td { font-weight: 700; color: #2c5530; background: #f0fdf4; border-top: 2px solid #4caf50; }
+        /* Overtime indicator */
+        .ot-badge { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.15rem 0.5rem; background: #fff3e0; color: #e65100; border-radius: 12px; font-size: 0.75rem; font-weight: 600; margin-left: 0.4rem; }
+        .no-data { text-align: center; padding: 3rem; color: #9e9e9e; }
+        .loading { text-align: center; padding: 3rem; color: #666; }
+        .rate-edit { background: none; border: 1px solid #ddd; border-radius: 4px; padding: 0.25rem 0.4rem; width: 72px; font-size: 0.88rem; }
+        .rate-edit:focus { border-color: #4caf50; outline: none; }
+        .save-rate-btn { background: #e8f5e9; color: #2e7d32; border: none; border-radius: 4px; padding: 0.25rem 0.5rem; font-size: 0.78rem; font-weight: 600; cursor: pointer; margin-left: 0.3rem; }
+        .save-rate-btn:hover { background: #c8e6c9; }
+        /* Detail entries */
+        .detail-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); overflow: hidden; }
+        .detail-card .table-header h3 { color: #2c5530; }
+        @media (max-width: 768px) { .dashboard-main { padding: 0 1rem; } .stats-grid { grid-template-columns: 1fr 1fr; } .period-card { flex-direction: column; } .period-actions { margin-left: 0; width: 100%; } .page-header { flex-direction: column; align-items: flex-start; } }
+    </style>
+    <link rel="stylesheet" href="assets/css/mobile.css">
+</head>
+<body>
+    <header class="admin-header">
+        <div class="container header-content">
+            <div class="logo">
+                <img src="assets/images/hollidays-logo.optimized-1280.png" alt="Holliday's Lawn &amp; Garden" />
+                <span style="font-weight:700;color:#2c5530;">Admin Dashboard</span>
+            </div>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle"><i class="fas fa-bars"></i></button>
+            <nav class="admin-nav" id="adminNav">
+                <a href="admin-dashboard.html">Dashboard</a>
+                <a href="appointments.html">Appointments</a>
+                <a href="staff.html">Staff</a>
+                <a href="timeclock-admin.html">Time Clock</a>
+                <a href="payroll.html" class="active">Payroll</a>
+                <a href="analytics.html">Analytics</a>
+                <button class="btn btn-danger" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="dashboard-main">
+        <nav aria-label="Breadcrumb" style="padding:0.6rem 0 0.2rem;font-size:0.85rem;color:#777;">
+            <a href="admin-dashboard.html" style="color:#2e7d32;text-decoration:none;font-weight:500;"><i class="fas fa-home"></i> Dashboard</a>
+            <span style="margin:0 0.4rem;">›</span> Payroll
+        </nav>
+
+        <div class="page-header">
+            <div>
+                <h1 class="page-title"><i class="fas fa-money-check-alt" style="color:#4caf50;margin-right:0.5rem;"></i>Payroll Summary</h1>
+                <p class="page-subtitle">Hours worked and gross pay per staff member — based on the time clock</p>
+            </div>
+            <button class="btn btn-outline" onclick="exportPayroll()"><i class="fas fa-download"></i> Export CSV</button>
+        </div>
+
+        <!-- Pay Period Selector -->
+        <div class="period-card">
+            <div class="filter-group">
+                <label>Pay Period</label>
+                <select id="periodSelect" onchange="onPeriodChange()">
+                    <option value="this-week">This Week</option>
+                    <option value="last-week">Last Week</option>
+                    <option value="this-month" selected>This Month</option>
+                    <option value="last-month">Last Month</option>
+                    <option value="custom">Custom Range</option>
+                </select>
+            </div>
+            <div class="filter-group" id="customFrom" style="display:none;">
+                <label>From</label>
+                <input type="date" id="fromDate">
+            </div>
+            <div class="filter-group" id="customTo" style="display:none;">
+                <label>To</label>
+                <input type="date" id="toDate">
+            </div>
+            <div class="period-actions">
+                <button class="btn btn-primary" onclick="loadPayroll()"><i class="fas fa-sync-alt"></i> Calculate</button>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon icon-green"><i class="fas fa-dollar-sign"></i></div>
+                <div class="stat-info"><span class="stat-number" id="stat-gross">$0</span><span class="stat-label">Total Gross Pay</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon icon-blue"><i class="fas fa-clock"></i></div>
+                <div class="stat-info"><span class="stat-number" id="stat-hours">0h</span><span class="stat-label">Total Hours Worked</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon icon-orange"><i class="fas fa-users"></i></div>
+                <div class="stat-info"><span class="stat-number" id="stat-staff">0</span><span class="stat-label">Staff on Payroll</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon icon-purple"><i class="fas fa-calendar-week"></i></div>
+                <div class="stat-info"><span class="stat-number" id="stat-period">—</span><span class="stat-label">Pay Period</span></div>
+            </div>
+        </div>
+
+        <!-- Payroll Table -->
+        <div class="table-card" style="margin-bottom:1.5rem;">
+            <div class="table-header">
+                <h3><i class="fas fa-table" style="margin-right:0.4rem;"></i>Payroll Breakdown</h3>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Staff Member</th>
+                            <th>Role</th>
+                            <th>Regular Hours</th>
+                            <th>Overtime Hrs</th>
+                            <th>Hourly Rate</th>
+                            <th>Regular Pay</th>
+                            <th>OT Pay (1.5x)</th>
+                            <th>Gross Pay</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payrollTableBody">
+                        <tr><td colspan="8" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading payroll data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Time Entries Detail -->
+        <div class="detail-card">
+            <div class="table-header">
+                <h3><i class="fas fa-list-ul" style="margin-right:0.4rem;"></i>Time Entries Detail</h3>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Staff</th>
+                            <th>Date</th>
+                            <th>Clock In</th>
+                            <th>Clock Out</th>
+                            <th>Hours</th>
+                        </tr>
+                    </thead>
+                    <tbody id="entriesTableBody">
+                        <tr><td colspan="5" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading entries...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, getDocs, doc, updateDoc, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyACm0j7I8RX4ExIQRoejfk1HZMOQRGigBw",
+            authDomain: "holiday-lawn-and-garden.firebaseapp.com",
+            projectId: "holiday-lawn-and-garden",
+            storageBucket: "holiday-lawn-and-garden.firebasestorage.app",
+            messagingSenderId: "135322230444",
+            appId: "1:135322230444:web:1a487b25a48aae07368909"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let staffMap = {}; // staffId -> {name, role, hourlyRate}
+        let payRates = {}; // staffId -> rate
+        let currentEntries = [];
+        let currentPayroll = [];
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => { await signOut(auth); window.location.href = 'login.html'; });
+        document.getElementById('mobileMenuToggle')?.addEventListener('click', () => { document.getElementById('adminNav').classList.toggle('open'); });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.href = 'login.html'; return; }
+            await loadStaff();
+            await loadPayroll();
+        });
+
+        async function loadStaff() {
+            const snap = await getDocs(collection(db, 'staff'));
+            snap.docs.forEach(d => {
+                const data = d.data();
+                staffMap[d.id] = {
+                    name: `${data.firstName || ''} ${data.lastName || ''}`.trim() || data.name || 'Unknown',
+                    role: data.role || data.position || '',
+                    hourlyRate: data.hourlyRate || data.hourlyPay || 15
+                };
+            });
+            // Also load pay rates override
+            try {
+                const prSnap = await getDocs(collection(db, 'staffPayRates'));
+                prSnap.docs.forEach(d => { payRates[d.id] = d.data().rate || d.data().hourlyRate || 15; });
+            } catch(e) { /* no pay rates collection yet */ }
+        }
+
+        function getDateRange(period) {
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+            let from, to;
+            if (period === 'this-week') {
+                const day = now.getDay();
+                const start = new Date(now); start.setDate(now.getDate() - day);
+                from = start.toISOString().split('T')[0]; to = today;
+            } else if (period === 'last-week') {
+                const day = now.getDay();
+                const end = new Date(now); end.setDate(now.getDate() - day - 1);
+                const start = new Date(end); start.setDate(end.getDate() - 6);
+                from = start.toISOString().split('T')[0]; to = end.toISOString().split('T')[0];
+            } else if (period === 'this-month') {
+                from = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;
+                to = today;
+            } else if (period === 'last-month') {
+                const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                const lme = new Date(now.getFullYear(), now.getMonth(), 0);
+                from = lm.toISOString().split('T')[0]; to = lme.toISOString().split('T')[0];
+            } else {
+                from = document.getElementById('fromDate').value;
+                to = document.getElementById('toDate').value;
+            }
+            return { from, to };
+        }
+
+        window.onPeriodChange = function() {
+            const custom = document.getElementById('periodSelect').value === 'custom';
+            document.getElementById('customFrom').style.display = custom ? '' : 'none';
+            document.getElementById('customTo').style.display = custom ? '' : 'none';
+        };
+
+        window.loadPayroll = async function() {
+            const period = document.getElementById('periodSelect').value;
+            const { from, to } = getDateRange(period);
+            if (!from || !to) { alert('Please select a date range.'); return; }
+
+            document.getElementById('stat-period').textContent = `${from} – ${to}`;
+            document.getElementById('payrollTableBody').innerHTML = '<tr><td colspan="8" class="loading"><i class="fas fa-spinner fa-spin"></i> Calculating...</td></tr>';
+            document.getElementById('entriesTableBody').innerHTML = '<tr><td colspan="5" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>';
+
+            try {
+                const q = query(collection(db, 'timeclock'), where('date', '>=', from), where('date', '<=', to), orderBy('date', 'desc'));
+                const snap = await getDocs(q);
+                currentEntries = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(e => e.clockOut);
+
+                // Group by staff
+                const byStaff = {};
+                currentEntries.forEach(e => {
+                    const sid = e.staffId || e.userId || 'unknown';
+                    if (!byStaff[sid]) byStaff[sid] = [];
+                    byStaff[sid].push(e);
+                });
+
+                // Build payroll rows
+                currentPayroll = Object.entries(byStaff).map(([sid, entries]) => {
+                    const staff = staffMap[sid] || { name: sid, role: '', hourlyRate: 15 };
+                    const rate = payRates[sid] || staff.hourlyRate || 15;
+                    const totalMins = entries.reduce((s, e) => s + (e.totalMinutes || 0), 0);
+                    const totalHours = totalMins / 60;
+                    const regularHours = Math.min(totalHours, 40); // 40h weekly standard (per period)
+                    const otHours = Math.max(0, totalHours - 40);
+                    const regularPay = regularHours * rate;
+                    const otPay = otHours * rate * 1.5;
+                    const grossPay = regularPay + otPay;
+                    return { sid, name: staff.name, role: staff.role, rate, regularHours, otHours, regularPay, otPay, grossPay, entries };
+                }).sort((a, b) => a.name.localeCompare(b.name));
+
+                renderPayrollTable();
+                renderEntriesTable();
+                updateStats();
+            } catch (err) {
+                document.getElementById('payrollTableBody').innerHTML = `<tr><td colspan="8" class="no-data">Error loading data: ${err.message}</td></tr>`;
+            }
+        };
+
+        function renderPayrollTable() {
+            const tbody = document.getElementById('payrollTableBody');
+            if (!currentPayroll.length) {
+                tbody.innerHTML = '<tr><td colspan="8" class="no-data"><i class="fas fa-clock"></i><br>No completed time entries found for this period</td></tr>';
+                return;
+            }
+            const totals = { regular: 0, ot: 0, regularPay: 0, otPay: 0, gross: 0 };
+            const rows = currentPayroll.map(p => {
+                totals.regular += p.regularHours;
+                totals.ot += p.otHours;
+                totals.regularPay += p.regularPay;
+                totals.otPay += p.otPay;
+                totals.gross += p.grossPay;
+                return `<tr>
+                    <td><strong>${p.name}</strong></td>
+                    <td>${p.role}</td>
+                    <td>${p.regularHours.toFixed(2)}h</td>
+                    <td>${p.otHours > 0 ? `<span class="ot-badge"><i class="fas fa-exclamation"></i>${p.otHours.toFixed(2)}h OT</span>` : '—'}</td>
+                    <td>
+                        $<input class="rate-edit" type="number" value="${p.rate}" min="0" step="0.25" id="rate-${p.sid}">
+                        <button class="save-rate-btn" onclick="saveRate('${p.sid}')"><i class="fas fa-check"></i></button>
+                    </td>
+                    <td>$${p.regularPay.toFixed(2)}</td>
+                    <td>${p.otPay > 0 ? '$' + p.otPay.toFixed(2) : '—'}</td>
+                    <td><strong>$${p.grossPay.toFixed(2)}</strong></td>
+                </tr>`;
+            });
+            rows.push(`<tr class="total-row">
+                <td>TOTAL</td><td></td>
+                <td>${totals.regular.toFixed(2)}h</td>
+                <td>${totals.ot > 0 ? totals.ot.toFixed(2) + 'h' : '—'}</td>
+                <td></td>
+                <td>$${totals.regularPay.toFixed(2)}</td>
+                <td>${totals.otPay > 0 ? '$' + totals.otPay.toFixed(2) : '—'}</td>
+                <td>$${totals.gross.toFixed(2)}</td>
+            </tr>`);
+            tbody.innerHTML = rows.join('');
+        }
+
+        function renderEntriesTable() {
+            const tbody = document.getElementById('entriesTableBody');
+            if (!currentEntries.length) { tbody.innerHTML = '<tr><td colspan="5" class="no-data">No entries</td></tr>'; return; }
+            function tsToStr(ts) {
+                if (!ts) return '—';
+                if (ts.toDate) return ts.toDate().toLocaleString();
+                return new Date(ts).toLocaleString();
+            }
+            tbody.innerHTML = currentEntries.map(e => {
+                const staff = staffMap[e.staffId || e.userId];
+                const name = staff ? staff.name : (e.staffId || 'Unknown');
+                const hrs = e.totalMinutes ? (e.totalMinutes / 60).toFixed(2) + 'h' : '—';
+                return `<tr>
+                    <td>${name}</td>
+                    <td>${e.date || '—'}</td>
+                    <td>${tsToStr(e.clockIn)}</td>
+                    <td>${tsToStr(e.clockOut)}</td>
+                    <td>${hrs}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function updateStats() {
+            const totalGross = currentPayroll.reduce((s, p) => s + p.grossPay, 0);
+            const totalMins = currentEntries.reduce((s, e) => s + (e.totalMinutes || 0), 0);
+            document.getElementById('stat-gross').textContent = '$' + totalGross.toFixed(2);
+            document.getElementById('stat-hours').textContent = (totalMins / 60).toFixed(1) + 'h';
+            document.getElementById('stat-staff').textContent = currentPayroll.length;
+        }
+
+        window.saveRate = async (sid) => {
+            const rate = parseFloat(document.getElementById(`rate-${sid}`).value);
+            if (isNaN(rate) || rate < 0) return;
+            try {
+                await updateDoc(doc(db, 'staffPayRates', sid), { rate, hourlyRate: rate });
+            } catch (e) {
+                // Collection may not exist yet — try staff doc
+                try { await updateDoc(doc(db, 'staff', sid), { hourlyRate: rate }); } catch(_) {}
+            }
+            payRates[sid] = rate;
+            await loadPayroll();
+        };
+
+        window.exportPayroll = () => {
+            const period = document.getElementById('periodSelect').value;
+            const { from, to } = getDateRange(period);
+            const rows = [['Staff','Role','Regular Hours','OT Hours','Rate','Regular Pay','OT Pay','Gross Pay']];
+            currentPayroll.forEach(p => rows.push([p.name, p.role, p.regularHours.toFixed(2), p.otHours.toFixed(2), p.rate, p.regularPay.toFixed(2), p.otPay.toFixed(2), p.grossPay.toFixed(2)]));
+            const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+            a.download = `payroll-${from}-to-${to}.csv`;
+            a.click();
+        };
+    </script>
+    <script src="assets/js/hide-loading.js"></script>
+</body>
+</html>
