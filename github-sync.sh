@@ -30,5 +30,9 @@ if [ "$AHEAD" -eq 0 ]; then
 fi
 
 echo "Pushing $AHEAD commit(s) to GitHub (branch: $BRANCH)..."
-git -c credential.helper="store --file=${CREDFILE}" push origin "HEAD:refs/heads/${BRANCH}"
+if ! git -c credential.helper="store --file=${CREDFILE}" push origin "HEAD:refs/heads/${BRANCH}"; then
+  echo "Push failed. If the remote has diverged (e.g., changes were made directly on GitHub),"
+  echo "run 'git pull --rebase origin ${BRANCH}' in the shell to reconcile, then sync again."
+  exit 1
+fi
 echo "Successfully synced to GitHub!"
