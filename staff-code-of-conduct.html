@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Code of Conduct - Holliday's Lawn & Garden</title>
+    <meta name="robots" content="noindex, nofollow"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon/favicon-32x32.png"/>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', -apple-system, sans-serif; background: #f0f4f0; color: #222; min-height: 100vh; }
+
+        .staff-header {
+            background: #2c5530; color: white; padding: 0 1.5rem;
+            height: 64px; display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .header-brand { display: flex; align-items: center; gap: 0.75rem; }
+        .header-brand img { height: 40px; border-radius: 6px; }
+        .brand-text { font-weight: 700; font-size: 1rem; }
+        .brand-sub { font-size: 0.75rem; opacity: 0.75; display: block; }
+        .btn-logout { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 0.45rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: background 0.2s; }
+        .btn-logout:hover { background: rgba(255,255,255,0.25); }
+
+        .page-wrap { max-width: 780px; margin: 0 auto; padding: 2rem 1.25rem 6rem; }
+
+        .intro-card {
+            background: linear-gradient(135deg, #2e7d32, #4caf50);
+            color: white; border-radius: 16px; padding: 2rem; margin-bottom: 1.75rem;
+            display: flex; gap: 1.25rem; align-items: flex-start;
+        }
+        .intro-icon { font-size: 2.5rem; flex-shrink: 0; margin-top: 0.1rem; }
+        .intro-card h1 { font-size: 1.45rem; font-weight: 700; margin-bottom: 0.4rem; }
+        .intro-card p { opacity: 0.9; font-size: 0.95rem; line-height: 1.6; }
+        .intro-card .version { margin-top: 0.75rem; font-size: 0.8rem; opacity: 0.7; }
+
+        .scroll-hint {
+            background: #fff8e1; border: 1px solid #ffe082; border-radius: 10px;
+            padding: 0.85rem 1.1rem; margin-bottom: 1.5rem;
+            display: flex; align-items: center; gap: 0.6rem;
+            font-size: 0.88rem; color: #7a5200; font-weight: 500;
+        }
+        .scroll-hint i { color: #f59e0b; }
+
+        .coc-card {
+            background: white; border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            overflow: hidden; margin-bottom: 1.5rem;
+        }
+        .coc-scroll-area {
+            max-height: 480px; overflow-y: auto; padding: 2rem;
+            font-size: 0.92rem; line-height: 1.75; color: #333;
+        }
+        .coc-scroll-area::-webkit-scrollbar { width: 6px; }
+        .coc-scroll-area::-webkit-scrollbar-track { background: #f0f0f0; }
+        .coc-scroll-area::-webkit-scrollbar-thumb { background: #aaa; border-radius: 3px; }
+
+        .coc-scroll-area h2 {
+            font-size: 1rem; font-weight: 700; color: #2c5530;
+            margin: 1.75rem 0 0.6rem; display: flex; align-items: center; gap: 0.5rem;
+        }
+        .coc-scroll-area h2:first-child { margin-top: 0; }
+        .coc-scroll-area h2 i { color: #4caf50; width: 18px; text-align: center; }
+        .coc-scroll-area p { margin-bottom: 0.75rem; color: #444; }
+        .coc-scroll-area ul { padding-left: 1.4rem; margin-bottom: 0.75rem; }
+        .coc-scroll-area ul li { margin-bottom: 0.35rem; color: #444; }
+        .coc-scroll-area .section-divider { border: none; border-top: 1px solid #e8f5e9; margin: 1.5rem 0; }
+        .coc-scroll-area .highlight-box {
+            background: #e8f5e9; border-left: 4px solid #4caf50;
+            border-radius: 0 8px 8px 0; padding: 0.85rem 1rem; margin: 0.75rem 0;
+            font-size: 0.88rem; color: #2c5530; font-weight: 500;
+        }
+
+        .scroll-progress {
+            background: #f8f9fa; padding: 0.75rem 1.5rem;
+            border-top: 1px solid #e0e0e0;
+            display: flex; align-items: center; gap: 0.75rem; font-size: 0.83rem; color: #777;
+        }
+        .progress-bar-wrap { flex: 1; background: #e0e0e0; border-radius: 4px; height: 6px; overflow: hidden; }
+        .progress-bar { background: #4caf50; height: 100%; width: 0%; border-radius: 4px; transition: width 0.2s; }
+
+        .agree-section {
+            background: white; border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            padding: 1.75rem 2rem;
+        }
+        .agree-check-row {
+            display: flex; align-items: flex-start; gap: 0.85rem; margin-bottom: 1.25rem;
+            padding: 1rem; background: #f8f9fa; border-radius: 10px;
+            border: 2px solid #e0e0e0; transition: border-color 0.2s;
+            cursor: pointer;
+        }
+        .agree-check-row.checked { border-color: #4caf50; background: #f0fdf4; }
+        .agree-check-row input[type="checkbox"] { width: 20px; height: 20px; flex-shrink: 0; margin-top: 1px; accent-color: #4caf50; cursor: pointer; }
+        .agree-check-label { font-size: 0.9rem; color: #333; line-height: 1.5; cursor: pointer; }
+        .agree-check-label strong { color: #2c5530; }
+
+        .staff-name-row { margin-bottom: 1.25rem; }
+        .staff-name-row label { display: block; font-size: 0.85rem; font-weight: 600; color: #555; margin-bottom: 0.4rem; }
+        .staff-name-row input {
+            width: 100%; padding: 0.7rem 0.9rem; border: 1.5px solid #ddd; border-radius: 8px;
+            font-size: 0.95rem; font-family: inherit; transition: border-color 0.2s;
+        }
+        .staff-name-row input:focus { outline: none; border-color: #4caf50; box-shadow: 0 0 0 3px rgba(76,175,80,0.15); }
+
+        .btn-agree {
+            width: 100%; padding: 1rem; background: #4caf50; color: white;
+            border: none; border-radius: 10px; font-size: 1rem; font-weight: 700;
+            cursor: pointer; font-family: inherit; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+        }
+        .btn-agree:hover:not(:disabled) { background: #388e3c; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(76,175,80,0.35); }
+        .btn-agree:disabled { background: #bdbdbd; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-agree-note { text-align: center; font-size: 0.78rem; color: #9e9e9e; margin-top: 0.6rem; }
+
+        .already-agreed {
+            display: none; background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 12px;
+            padding: 1.25rem 1.5rem; text-align: center; color: #2e7d32; margin-bottom: 1.5rem;
+        }
+        .already-agreed i { font-size: 1.5rem; margin-bottom: 0.5rem; display: block; }
+        .already-agreed strong { display: block; font-size: 1rem; margin-bottom: 0.25rem; }
+        .already-agreed small { opacity: 0.8; font-size: 0.85rem; }
+        .btn-continue { display: inline-block; margin-top: 1rem; padding: 0.65rem 1.75rem; background: #4caf50; color: white; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 0.9rem; }
+
+        @media (max-width: 600px) {
+            .intro-card { flex-direction: column; gap: 0.75rem; }
+            .agree-section { padding: 1.25rem; }
+            .coc-scroll-area { padding: 1.25rem; max-height: 360px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="staff-header">
+        <div class="header-brand">
+            <img src="assets/images/hollidays-logo.optimized-1280.png" alt="Holliday's Lawn & Garden"/>
+            <div>
+                <span class="brand-text">Holliday's Lawn & Garden</span>
+                <span class="brand-sub">Staff Portal</span>
+            </div>
+        </div>
+        <button class="btn-logout" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> Sign Out
+        </button>
+    </header>
+
+    <div class="page-wrap">
+
+        <!-- Already agreed banner (shown if previously signed) -->
+        <div class="already-agreed" id="alreadyAgreed">
+            <i class="fas fa-check-circle"></i>
+            <strong>You've already signed this Code of Conduct.</strong>
+            <small id="agreedDate"></small>
+            <br/>
+            <a href="staff-portal.html" class="btn-continue"><i class="fas fa-arrow-right"></i> Continue to Staff Portal</a>
+        </div>
+
+        <!-- Intro -->
+        <div class="intro-card">
+            <div class="intro-icon"><i class="fas fa-handshake"></i></div>
+            <div>
+                <h1>Staff Code of Conduct</h1>
+                <p>Please read the following Code of Conduct carefully. It outlines the standards of professionalism, safety, and integrity expected of every team member at Holliday's Lawn & Garden.</p>
+                <p class="version">Version 1.0 &mdash; Effective January 2026</p>
+            </div>
+        </div>
+
+        <div class="scroll-hint" id="scrollHint">
+            <i class="fas fa-arrow-down"></i>
+            Scroll to the bottom of the document before you can agree.
+        </div>
+
+        <!-- Document -->
+        <div class="coc-card">
+            <div class="coc-scroll-area" id="cocScroll">
+
+                <h2><i class="fas fa-star"></i> Our Mission</h2>
+                <p>Holliday's Lawn & Garden is committed to delivering exceptional, professional lawn care and landscaping services to every customer. As a member of our team, you represent our brand and our values every day — on the job site, in the community, and online.</p>
+
+                <hr class="section-divider"/>
+
+                <h2><i class="fas fa-tshirt"></i> 1. Professional Appearance</h2>
+                <p>All staff members are expected to maintain a neat, professional appearance while on duty.</p>
+                <ul>
+                    <li>Wear company-provided or approved work attire when on a job site.</li>
+                    <li>Clothing must be clean, free of offensive graphics or language.</li>
+                    <li>Wear appropriate personal protective equipment (PPE) at all times.</li>
+                    <li>Maintain personal hygiene appropriate for a customer-facing role.</li>
+                </ul>
+
+                <hr class="section-divider"/>
+
+                <h2><i class="fas fa-clock"></i> 2. Punctuality &amp; Attendance</h2>
+                <p>Reliability is essential to our operations and to the trust our customers place in us.</p>
+                <ul>
+                    <li>Arrive on time for every scheduled shift and job assignment.</li>
+                    <li>Notify your supervisor as early as possible if you cannot attend a shift.</li>
+                    <li>Excessive tardiness or unexcused absences may result in disciplinary action.</li>
+                    <li>Use the staff time clock to accurately record all hours worked.</li>
+                </ul>
+                <div class="highlight-box"><i class="fas fa-info-circle"></i> Always clock in at the start of your shift and clock out when your work is complete. Falsifying time records is grounds for immediate termination.</div>
+
+                <hr class="section-divider"/>
+
+                <h2><i class="fas fa-hard-hat"></i> 3. Safety First</h2>
+                <p>The safety of our team members and customers is our highest priority.</p>
+                <ul>
+                    <li>Follow all OSHA and company safety guidelines at all times.</li>
+                    <li>Wear appropriate PPE including eye protection, gloves, and steel-toed boots where required.</li>
+                    <li>Never operate equipment you have not been trained and authorized to use.</li>
+                    <li>Report any unsafe conditions, near-misses, or injuries to your supervisor immediately.</li>
+                    <li>Do not perform work in conditions that you believe pose an unreasonable risk of harm.</li>
+                    <li>Keep all work areas clean and free of hazards during and after each job.</li>
+                </ul>
+
+                <hr class="section-divider"/>
+
+                <h2><i class="fas fa-tools"></i> 4. Equipment &amp; Company Property</h2>
+                <ul>
+                    <li>Treat all company vehicles, tools, and equipment with care and respect.</li>
+                    <li>Report any damaged or malfunctioning equipment immediately — do not attempt unauthorized repairs.</li>
+                    <li>Never use company vehicles or equipment for personal use without explicit written permission.</li>
+                    <li>Return all tools and equipment clean and in good working order at the end of each shift.</li>
+                    <li>Loss or damage caused by negligence or misconduct may result in financial responsibility.</li>
+                </ul>
+
+                <hr class="section-divider"/>
+
+                <h2><i class="fas fa-user-friends"></i> 5. Customer Relations</h2>
+                <p>Our customers are the foundation of our business. Every interaction should be courteous, professional, and respectful.</p>
+                <ul>
+                    <li>Greet customers politely and represent Holliday's Lawn & Garden with pride.</li>
+                    <li>Do not argue with or speak disrespectfully to customers under any circumstances.</li>
+                    <li>Respect customer property — never enter a home or access areas beyond the work scope without permission.</li>
+                    <li>Do not solicit tips or personal side-work from customers.</li>
+                    <li>Direct any customer complaints or concerns to your supervisor promptly.</li>
+                </ul>
+
+                <hr class="section-divider"/>
+
+                <h2><i class="fas fa-ban"></i> 6. Drug &amp; Alcohol-Free Workplace</h2>
+                <div class="highlight-box"><i class="fas fa-exclamation-triangle"></i> Holliday's Lawn & Garden maintains a strict zero-tolerance policy for drugs and alcohol.</div>
+                <ul>
+                    <li>Reporting to work under the influence of alcohol, illegal drugs, or impairing substances is strictly prohibited and is grounds for immediate termination.</li>
+                    <li>The use, possession, distribution, or sale of illegal substances on company property or during work hours is prohibited.</li>
+                    <li>Prescription medications that may impair your ability to work safely must be disclosed to your supervisor.</li>
+                </ul>
+
+                <hr class="section-divider"/>
+
+                <h2><i class="fas fa-shield-alt"></i> 7. Anti-Harassment &amp; Non-Discrimination</h2>
+                <p>We are committed to a workplace that is inclusive, respectful, and free from harassment and discrimination.</p>
+                <ul>
+                    <li>Harassment of any kind — including sexual, verbal, physical, or workplace bullying — is strictly prohibited.</li>
+                    <li>Discrimination based on race, color, religion, gender, national origin, age, disability, or any other protected characteristic will not be tolerated.</li>
+                    <li>All staff are encouraged to report harassment or discrimination to the owner immediately.</li>
+                    <li>Retaliation against anyone who reports a concern in good faith is strictly prohibited.</li>
+                </ul>
+
+                <hr class="section-divider"/>
+
+                <h2><i class="fas fa-lock"></i> 8. Confidentiality</h2>
+                <ul>
+                    <li>Do not disclose customer information, addresses, schedules, or personal details to any unauthorized person.</li>
+                    <li>Business information including pricing, contracts, supplier relationships, and internal operations is confidential.</li>
+                    <li>This obligation continues after your employment ends.</li>
+                </ul>
+
+                <hr class="section-divider"/>
+
+                <h2><i class="fas fa-mobile-alt"></i> 9. Mobile Phone &amp; Social Media Use</h2>
+                <ul>
+                    <li>Personal mobile phone use should be limited during active work hours and job sites.</li>
+                    <li>Do not photograph or record customers, their property, or job sites without explicit written permission.</li>
+                    <li>Do not post anything on social media that could embarrass or harm Holliday's Lawn & Garden, its customers, or fellow employees.</li>
+                    <li>Never represent yourself as speaking on behalf of the company on personal social media accounts.</li>
+                </ul>
+
+                <hr class="section-divider"/>
+
+                <h2><i class="fas fa-exclamation-circle"></i> 10. Reporting Violations</h2>
+                <p>If you witness or experience a violation of this Code of Conduct, you are encouraged to report it promptly.</p>
+                <ul>
+                    <li>Report concerns to the owner, Karl Holliday, directly at <strong>(504) 717-1887</strong> or <strong>7holliday@gmail.com</strong>.</li>
+                    <li>All reports will be taken seriously and investigated promptly and confidentially.</li>
+                    <li>No retaliation will be taken against anyone who reports a concern honestly and in good faith.</li>
+                </ul>
+
+                <hr class="section-divider"/>
+
+                <h2><i class="fas fa-balance-scale"></i> 11. Consequences of Violations</h2>
+                <p>Violations of this Code of Conduct may result in disciplinary action up to and including termination of employment, depending on the severity and circumstances of the violation. Certain violations (e.g., violence, drug/alcohol use, theft, fraud) will result in immediate termination.</p>
+
+                <hr class="section-divider"/>
+
+                <p style="font-size:0.85rem;color:#888;text-align:center;margin-top:1rem;">By agreeing below, you acknowledge that you have read, understood, and agree to abide by this Code of Conduct. This acknowledgement is recorded electronically and stored securely.</p>
+
+            </div>
+
+            <!-- Progress bar -->
+            <div class="scroll-progress">
+                <span id="progressLabel">0%</span>
+                <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+                <span id="progressEnd" style="font-size:0.8rem;"><i class="fas fa-lock" style="color:#bbb;"></i></span>
+            </div>
+        </div>
+
+        <!-- Agreement section -->
+        <div class="agree-section" id="agreeSection">
+            <div class="staff-name-row">
+                <label for="fullName">Your Full Name <span style="color:#c62828;">*</span></label>
+                <input type="text" id="fullName" placeholder="Type your full name to sign" autocomplete="name"/>
+            </div>
+
+            <label class="agree-check-row" id="checkRow" for="agreeCheck">
+                <input type="checkbox" id="agreeCheck" disabled/>
+                <span class="agree-check-label">
+                    I, <strong id="namePreview">____________</strong>, have read and understood the Holliday's Lawn & Garden Staff Code of Conduct in full, and I agree to abide by its terms as a condition of my employment.
+                </span>
+            </label>
+
+            <button class="btn-agree" id="agreeBtn" disabled onclick="submitAgreement()">
+                <i class="fas fa-signature"></i>
+                <span id="agreeBtnText">Sign &amp; Agree</span>
+            </button>
+            <p class="btn-agree-note" id="agreeNote">Scroll to the bottom of the document and enter your name to agree.</p>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import {
+            getFirestore, doc, getDoc, setDoc, serverTimestamp
+        } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyACm0j7I8RX4ExIQRoejfk1HZMOQRGigBw",
+            authDomain: "holiday-lawn-and-garden.firebaseapp.com",
+            projectId: "holiday-lawn-and-garden",
+            storageBucket: "holiday-lawn-and-garden.firebasestorage.app",
+            messagingSenderId: "135322230444",
+            appId: "1:135322230444:web:1a487b25a48aae07368909"
+        };
+
+        const app  = initializeApp(firebaseConfig);
+        const db   = getFirestore(app);
+        const auth = getAuth(app);
+
+        let currentUser  = null;
+        let scrolledToBottom = false;
+        const COC_VERSION = '1.0';
+
+        // ── Auth guard ──────────────────────────────────────────────
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.href = 'login.html'; return; }
+            const userDoc = await getDoc(doc(db, 'users', user.uid)).catch(() => null);
+            const role = userDoc?.exists() ? userDoc.data().role : null;
+            if (role !== 'staff' && role !== 'admin') {
+                await signOut(auth);
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUser = user;
+
+            // Check if already agreed to current version
+            const agreeDoc = await getDoc(doc(db, 'staffAgreements', user.uid)).catch(() => null);
+            if (agreeDoc?.exists() && agreeDoc.data().version === COC_VERSION) {
+                const agreedAt = agreeDoc.data().agreedAt?.toDate ? agreeDoc.data().agreedAt.toDate() : new Date(agreeDoc.data().agreedAt);
+                document.getElementById('alreadyAgreed').style.display = 'block';
+                document.getElementById('agreedDate').textContent = 'Signed on ' + agreedAt.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) + ' as "' + agreeDoc.data().signedName + '"';
+                document.getElementById('agreeSection').style.display = 'none';
+                document.querySelector('.scroll-hint').style.display = 'none';
+            }
+        });
+
+        // ── Scroll progress ─────────────────────────────────────────
+        const scrollArea = document.getElementById('cocScroll');
+        scrollArea.addEventListener('scroll', () => {
+            const pct = scrollArea.scrollTop / (scrollArea.scrollHeight - scrollArea.clientHeight);
+            const pctClamped = Math.min(100, Math.round(pct * 100));
+            document.getElementById('progressBar').style.width = pctClamped + '%';
+            document.getElementById('progressLabel').textContent = pctClamped + '%';
+
+            if (pctClamped >= 98 && !scrolledToBottom) {
+                scrolledToBottom = true;
+                document.getElementById('progressEnd').innerHTML = '<i class="fas fa-check-circle" style="color:#4caf50;"></i>';
+                document.getElementById('scrollHint').style.display = 'none';
+                document.getElementById('agreeCheck').disabled = false;
+                updateAgreeBtn();
+            }
+        });
+
+        // ── Name input ──────────────────────────────────────────────
+        const nameInput = document.getElementById('fullName');
+        nameInput.addEventListener('input', () => {
+            const val = nameInput.value.trim();
+            document.getElementById('namePreview').textContent = val || '____________';
+            updateAgreeBtn();
+        });
+
+        // ── Checkbox ────────────────────────────────────────────────
+        document.getElementById('agreeCheck').addEventListener('change', () => {
+            const row = document.getElementById('checkRow');
+            row.classList.toggle('checked', document.getElementById('agreeCheck').checked);
+            updateAgreeBtn();
+        });
+
+        function updateAgreeBtn() {
+            const ready = scrolledToBottom
+                && document.getElementById('agreeCheck').checked
+                && nameInput.value.trim().length > 1;
+            document.getElementById('agreeBtn').disabled = !ready;
+            document.getElementById('agreeNote').textContent = ready
+                ? 'Click above to record your agreement.'
+                : 'Scroll to the bottom of the document and enter your name to agree.';
+        }
+
+        // ── Submit agreement ────────────────────────────────────────
+        window.submitAgreement = async function () {
+            const btn = document.getElementById('agreeBtn');
+            const name = nameInput.value.trim();
+            if (!name || !currentUser) return;
+
+            btn.disabled = true;
+            document.getElementById('agreeBtnText').textContent = 'Recording...';
+
+            try {
+                await setDoc(doc(db, 'staffAgreements', currentUser.uid), {
+                    userId:     currentUser.uid,
+                    email:      currentUser.email,
+                    signedName: name,
+                    version:    COC_VERSION,
+                    agreedAt:   serverTimestamp(),
+                    userAgent:  navigator.userAgent,
+                    ip:         null
+                });
+                // Redirect to staff portal
+                window.location.href = 'staff-portal.html';
+            } catch (err) {
+                btn.disabled = false;
+                document.getElementById('agreeBtnText').innerHTML = 'Sign &amp; Agree';
+                alert('Could not record your agreement. Please try again or contact your administrator.');
+                console.error(err);
+            }
+        };
+
+        window.logout = function () {
+            signOut(auth).then(() => { window.location.href = 'login.html'; });
+        };
+    </script>
+</body>
+</html>
