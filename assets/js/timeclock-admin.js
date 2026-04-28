@@ -220,9 +220,12 @@ function renderEntriesTable(entries) {
             <td><span class="badge ${isActive ? 'badge-in' : 'badge-out'}">
                 ${isActive ? '<i class="fas fa-circle"></i> Clocked In' : '<i class="fas fa-check"></i> Complete'}
             </span></td>
-            <td>
+            <td style="white-space:nowrap;">
                 <button class="btn btn-outline btn-sm" onclick="openEditModal('${e.id}')">
                     <i class="fas fa-edit"></i> Edit
+                </button>
+                <button class="btn btn-sm" style="margin-left:0.4rem;background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;" onclick="deleteEntryById('${e.id}')">
+                    <i class="fas fa-trash"></i>
                 </button>
             </td>
         </tr>`;
@@ -369,6 +372,18 @@ window.deleteEntry = async function () {
     closeModal();
     showMsg('Entry deleted.', 'success');
     applyFilters();
+};
+
+window.deleteEntryById = async function (entryId) {
+    if (!confirm('Delete this time entry? This cannot be undone.')) return;
+    try {
+        await deleteDoc(doc(db, 'timeclock', entryId));
+        allEntries = allEntries.filter(e => e.id !== entryId);
+        rerender();
+        showMsg('Entry deleted.', 'success');
+    } catch (err) {
+        showMsg('Error deleting entry: ' + err.message, 'error');
+    }
 };
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
@@ -546,7 +561,10 @@ function showMsg(text, type) {
     el.textContent  = text;
     el.className    = `msg msg-${type}`;
     el.style.display = 'block';
-    setTimeout(() => { el.style.display = 'none'; }, 4000);
+    // Errors stay visible until the next action; other messages auto-dismiss
+    if (type !== 'error') {
+        setTimeout(() => { el.style.display = 'none'; }, 4000);
+    }
 }
 
 window.logout = function () {
