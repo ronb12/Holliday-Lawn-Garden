@@ -32,7 +32,8 @@ onAuthStateChanged(auth, async (user) => {
         window.location.href = 'login.html';
         return;
     }
-    await Promise.all([loadStaff(), loadPayRates()]);
+    await loadStaff();       // must finish first so allStaff is ready
+    await loadPayRates();    // uses allStaff to build uid-keyed rate index
     loadEntries();
     listenForActiveSessions();
 });
