@@ -10,9 +10,14 @@ git config --global user.email "replit-autosync@users.noreply.github.com" 2>/dev
 git config --global user.name "Replit Auto-Sync" 2>/dev/null || true
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
-AUTH_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/ronb12/Holliday-Lawn-Garden.git"
 
-if ! git diff --quiet || ! git diff --cached --quiet; then
+CREDFILE=$(mktemp)
+chmod 600 "$CREDFILE"
+printf "https://x-access-token:%s@github.com\n" "$GITHUB_TOKEN" > "$CREDFILE"
+cleanup() { rm -f "$CREDFILE"; }
+trap cleanup EXIT
+
+if [ -n "$(git status --porcelain)" ]; then
   echo "Staging and committing local changes..."
   git add -A
   git commit -m "Auto-sync from Replit $(date -u '+%Y-%m-%d %H:%M UTC')"
@@ -25,5 +30,5 @@ if [ "$AHEAD" -eq 0 ]; then
 fi
 
 echo "Pushing $AHEAD commit(s) to GitHub (branch: $BRANCH)..."
-git push "$AUTH_URL" "HEAD:refs/heads/${BRANCH}"
+git -c credential.helper="store --file=${CREDFILE}" push origin "HEAD:refs/heads/${BRANCH}"
 echo "Successfully synced to GitHub!"
