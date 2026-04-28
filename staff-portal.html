@@ -404,6 +404,11 @@
                 window.location.href = 'login.html';
                 return;
             }
+            // Show admin preview banner
+            if (role === 'admin') {
+                const banner = document.getElementById('adminPreviewBanner');
+                if (banner) banner.style.display = 'flex';
+            }
             // Check code of conduct agreement (skip for admins)
             const agreeDoc = await getDoc(doc(db, 'staffAgreements', user.uid)).catch(() => null);
             if (role === 'staff') {
