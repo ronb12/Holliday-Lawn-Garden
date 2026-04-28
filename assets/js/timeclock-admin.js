@@ -106,16 +106,18 @@ async function loadEntries() {
     const period = document.getElementById('filterPeriod').value;
     const since  = periodStart(period);
 
-    let q;
-    if (since) {
-        q = query(collection(db, 'timeclock'), where('date', '>=', since), orderBy('date', 'desc'));
-    } else {
-        q = query(collection(db, 'timeclock'), orderBy('date', 'desc'));
+    try {
+        // Single-field query (no composite index required); date filtering is done client-side.
+        const q = query(collection(db, 'timeclock'), orderBy('date', 'desc'));
+        const snap = await getDocs(q);
+        let entries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        if (since) entries = entries.filter(e => !e.date || e.date >= since);
+        allEntries = entries;
+        rerender();
+    } catch (err) {
+        console.error('loadEntries error:', err);
+        showMsg('Failed to load entries: ' + err.message, 'error');
     }
-
-    const snap = await getDocs(q);
-    allEntries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    rerender();
 }
 
 function periodStart(period) {
@@ -235,19 +237,25 @@ function updateStatCards() {
 function listenForActiveSessions() {
     const q = query(collection(db, 'timeclock'), where('clockOut', '==', null));
     onSnapshot(q, (snap) => {
-        // Update allEntries with fresh active entries
+        // Merge fresh active entries into allEntries so IDs are always current
         const activeIds = new Set(snap.docs.map(d => d.id));
-        // Remove stale active entries then add current
         allEntries = allEntries.filter(e => !activeIds.has(e.id));
         snap.docs.forEach(d => allEntries.push({ id: d.id, ...d.data() }));
         document.getElementById('statClockedIn').textContent = snap.size;
+        // Re-sync filteredEntries so the table and allEntries stay consistent
+        rerender();
     });
 }
 
 // ── Edit modal ────────────────────────────────────────────────────────────────
 window.openEditModal = function (entryId) {
-    const entry = allEntries.find(e => e.id === entryId);
-    if (!entry) return;
+    // Search allEntries first; fall back to filteredEntries in case of sync lag
+    const entry = allEntries.find(e => e.id === entryId)
+                || filteredEntries.find(e => e.id === entryId);
+    if (!entry) {
+        showMsg('Entry not found — please refresh the page and try again.', 'error');
+        return;
+    }
 
     document.getElementById('editEntryId').value = entryId;
 
