@@ -21,8 +21,6 @@
     <link href="assets/css/components/payment.css?v=1.0.1" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/forms.css">
     
-    <!-- PayPal SDK -->
-    <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD&intent=capture&disable-funding=venmo,paylater"></script>
     
     <style>
         /* Suppress any potential warnings */
@@ -255,10 +253,11 @@
                 <li><a href="education.html">Education</a></li>
                 <li><a href="faq.html">FAQ</a></li>
                 <li><a href="contact.html">Contact</a></li>
+                <li><a href="testimonials.html">Reviews</a></li>
                 <li><a href="pay-your-bill.html" class="active">Pay Your Bill</a></li>
             </ul>
             <div class="login-buttons">
-                <a href="login.html" class="btn-login btn-customer"><i class="fas fa-user"></i>Customer Login</a>
+                <a href="login.html" class="btn-login btn-customer"><i class="fas fa-user"></i> Customer Login</a>
                 <a href="login.html" class="btn-login btn-admin"><i class="fas fa-lock"></i> Admin Login</a>
             </div>
         </nav>
@@ -633,5 +632,7 @@
             }
         });
     </script>
+    <!-- PayPal SDK (loaded after page content to prevent render-blocking) -->
+    <script src="https://www.paypal.com/sdk/js?client-id=test&currency=USD&intent=capture&disable-funding=venmo,paylater"></script>
 </body>
 </html>
