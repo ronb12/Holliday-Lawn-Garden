@@ -1,5 +1,5 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getFirestore, collection, addDoc, updateDoc, serverTimestamp, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getFirestore, collection, addDoc, updateDoc, setDoc, serverTimestamp, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 // Firebase configuration
@@ -69,6 +69,14 @@ document.addEventListener('DOMContentLoaded', async () => {
           if (el && d[f] !== undefined) el.value = d[f];
         });
       }
+      // Load existing pay rate
+      const rateSnap = await getDoc(doc(db, 'staffPayRates', editId));
+      if (rateSnap.exists()) {
+        const rateEl = document.getElementById('hourlyRate');
+        if (rateEl && rateSnap.data().hourlyRate !== undefined) {
+          rateEl.value = parseFloat(rateSnap.data().hourlyRate).toFixed(2);
+        }
+      }
     } catch (err) {
       console.error('Error loading staff for edit:', err);
     }
@@ -79,13 +87,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const data = Object.fromEntries(new FormData(form));
+      const formData = Object.fromEntries(new FormData(form));
+      // Separate pay rate from staff profile data
+      const { hourlyRate, ...staffData } = formData;
+      const rate = parseFloat(hourlyRate);
       try {
         if (editId) {
-          await updateDoc(doc(db, 'staff', editId), { ...data, updatedAt: serverTimestamp() });
+          await updateDoc(doc(db, 'staff', editId), { ...staffData, updatedAt: serverTimestamp() });
+          if (!isNaN(rate) && rate >= 0) {
+            await setDoc(doc(db, 'staffPayRates', editId), { hourlyRate: rate, updatedAt: serverTimestamp() }, { merge: true });
+          }
           alert('Staff member updated successfully!');
         } else {
-          await addDoc(collection(db, 'staff'), { ...data, createdAt: serverTimestamp() });
+          const docRef = await addDoc(collection(db, 'staff'), { ...staffData, createdAt: serverTimestamp() });
+          if (!isNaN(rate) && rate >= 0) {
+            await setDoc(doc(db, 'staffPayRates', docRef.id), { hourlyRate: rate, updatedAt: serverTimestamp() });
+          }
           alert('Staff member added successfully!');
           form.reset();
         }
