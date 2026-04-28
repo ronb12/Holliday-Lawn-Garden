@@ -72,6 +72,9 @@ service cloud.firestore {
       allow read, write: if isAdmin();
       // Staff can read their own record (doc ID == their UID)
       allow get: if isAuthenticated() && request.auth.uid == staffId;
+      // Allow authenticated users to query staff by email so the timeclock
+      // can resolve the correct staff doc ID for pay-rate lookups.
+      allow list: if isAuthenticated();
     }
 
     match /contractors/{document} {

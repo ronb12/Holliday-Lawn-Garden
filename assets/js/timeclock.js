@@ -165,10 +165,11 @@ window.handleClockAction = async function () {
         if (!activeEntry) {
             // Clock In
             const docRef = await addDoc(collection(db, 'timeclock'), {
-                staffId:   staffData.id,
-                staffName: staffData.name || currentUser.email,
-                clockIn:   serverTimestamp(),
-                clockOut:  null,
+                staffId:    staffData.id,
+                staffName:  staffData.name || currentUser.email,
+                staffEmail: currentUser.email,
+                clockIn:    serverTimestamp(),
+                clockOut:   null,
                 totalMinutes: null,
                 date: new Date().toISOString().split('T')[0]
             });

@@ -95,6 +95,10 @@ async function loadPayRates() {
 // staffId = auth UID, staffName = email or displayName
 function getEntryPayRate(entry) {
     if (payRates[entry.staffId] != null) return payRates[entry.staffId];
+    // Use staffEmail stored directly on the entry (most reliable key)
+    const emailKey = (entry.staffEmail || '').toLowerCase();
+    if (emailKey && payRatesByEmail[emailKey] != null) return payRatesByEmail[emailKey];
+    // Last resort: staffName might be an email address
     const nameKey = (entry.staffName || '').toLowerCase();
     if (payRatesByEmail[nameKey] != null) return payRatesByEmail[nameKey];
     return null;
