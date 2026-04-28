@@ -15,6 +15,11 @@ async function routeAfterLogin(user) {
     // Support both legacy single-role and new multi-role array
     const roles = Array.isArray(data.roles) ? data.roles : (role ? [role] : []);
 
+    // Always keep email up-to-date in the users doc so pay-rate lookups work
+    if (user.email) {
+        await setDoc(doc(db, "users", user.uid), { email: user.email }, { merge: true }).catch(() => {});
+    }
+
     if (roles.includes('admin') || role === 'admin') {
         window.location.href = "admin-dashboard.html";
         return;
