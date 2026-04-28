@@ -338,15 +338,6 @@
         stars.forEach(s => s.style.color = +s.dataset.val <= n ? '#f9a825' : '#ddd');
     }
 
-    const FALLBACK_REVIEWS = [
-        { name: 'Sarah M.', rating: 5, service: 'Lawn Maintenance', review: 'Karl and his team have been maintaining our lawn for over a year now. They are always on time, professional, and our yard has never looked better. Highly recommend!' },
-        { name: 'James T.', rating: 5, service: 'Landscaping', review: 'Absolutely transformed our backyard. The design was creative and exactly what we envisioned. Great attention to detail and very fair pricing.' },
-        { name: 'Linda R.', rating: 5, service: 'Pressure Washing', review: 'Our driveway and patio look brand new after the pressure washing. Quick, thorough, and left everything spotless. Will definitely use them again.' },
-        { name: 'David K.', rating: 5, service: 'Garden Care', review: 'They brought our neglected garden back to life. Very knowledgeable about plants and what works in Louisiana's climate. Couldn\'t be happier.' },
-        { name: 'Michelle B.', rating: 5, service: 'Lawn Maintenance', review: 'Consistent, reliable, and the yard always looks great after their visits. The crew is friendly and respectful of the property.' },
-        { name: 'Robert C.', rating: 5, service: 'Landscaping', review: 'Used Holliday\'s for a complete front yard makeover. The results were stunning — neighbors keep asking who did the work. Outstanding quality!' }
-    ];
-
     function renderReviewCard(r) {
         const stars = '&#9733;'.repeat(r.rating || 5) + '&#9734;'.repeat(5 - (r.rating || 5));
         const card = document.createElement('div');
@@ -363,26 +354,21 @@
         return card;
     }
 
-    // Show fallback reviews immediately, then silently upgrade to live Firebase reviews
     async function loadReviews() {
         const listEl = document.getElementById('reviews-list');
-
-        // Show fallback immediately so the page never looks empty
-        FALLBACK_REVIEWS.forEach(r => listEl.appendChild(renderReviewCard(r)));
-
-        // Attempt to load real reviews from Firestore in the background
+        const emptyMsg = '<div style="text-align:center;padding:2.5rem;grid-column:1/-1;"><p style="color:#555;font-size:1.05rem;margin-bottom:1rem;">No reviews yet — be the first!</p><a href="#review-form" style="display:inline-block;padding:0.65rem 1.5rem;background:#2e7d32;color:white;border-radius:6px;text-decoration:none;font-weight:600;font-size:0.95rem;">Leave a Review</a></div>';
         try {
             const snap = await Promise.race([
                 getDocs(query(collection(db, 'reviews'), where('approved', '==', true), orderBy('createdAt', 'desc'))),
                 new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
             ]);
-            if (!snap.empty) {
-                // Replace fallbacks with real approved reviews
-                listEl.innerHTML = '';
+            if (snap.empty) {
+                listEl.innerHTML = emptyMsg;
+            } else {
                 snap.forEach(doc => listEl.appendChild(renderReviewCard(doc.data())));
             }
         } catch (_) {
-            // Fallback reviews already shown — nothing to do
+            listEl.innerHTML = emptyMsg;
         }
     }
     loadReviews();
