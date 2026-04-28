@@ -24,6 +24,21 @@
     gap: 0 !important;
 }
 
+/* Inner content wrapper (used by some pages e.g. login.html) */
+.main-header .header-content {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    height: 100% !important;
+    gap: 0 !important;
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
 /* Logo */
 .main-header .logo,
 .main-header > .logo {
@@ -119,6 +134,13 @@
     line-height: 1.4 !important;
     border: none !important;
     cursor: pointer !important;
+    min-width: auto !important;
+    width: auto !important;
+    box-sizing: border-box !important;
+    height: auto !important;
+    text-align: center !important;
+    letter-spacing: normal !important;
+    text-transform: none !important;
 }
 
 .main-header .btn-login:hover {
