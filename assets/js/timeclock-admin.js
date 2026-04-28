@@ -131,16 +131,48 @@ window.savePayRate = async function (staffId) {
     const rate  = parseFloat(input.value);
     if (isNaN(rate) || rate < 0) { showMsg('Enter a valid hourly rate.', 'error'); return; }
 
-    await setDoc(doc(db, 'staffPayRates', staffId), { hourlyRate: rate, updatedAt: serverTimestamp() });
+    const rateData = { hourlyRate: rate, updatedAt: serverTimestamp() };
+    await setDoc(doc(db, 'staffPayRates', staffId), rateData);
     payRates[staffId] = rate;
+
+    // Build email index immediately so getEntryPayRate can use it
+    const staffMember = allStaff.find(s => s.id === staffId);
+    if (staffMember?.email) {
+        payRatesByEmail[staffMember.email.toLowerCase()] = rate;
+    }
+
+    // Heal old entries: scan allEntries for any staffId (uid) that belongs to this
+    // person (matched by staffEmail OR by display-name pattern "First L") and save
+    // the rate at that uid in Firestore + in memory so earnings show immediately.
+    const uidsToHeal = new Set();
+    allEntries.forEach(e => {
+        if (e.staffId === staffId) return; // already keyed correctly
+        const entryEmail = (e.staffEmail || '').toLowerCase();
+        const memberEmail = (staffMember?.email || '').toLowerCase();
+        // Match by email stored on entry
+        if (entryEmail && memberEmail && entryEmail === memberEmail) {
+            uidsToHeal.add(e.staffId);
+            return;
+        }
+        // Match by "FirstName L" display-name pattern
+        if (staffMember?.firstName && staffMember?.lastName) {
+            const namePattern = `${staffMember.firstName} ${staffMember.lastName[0]}`.toLowerCase();
+            if ((e.staffName || '').toLowerCase() === namePattern) {
+                uidsToHeal.add(e.staffId);
+            }
+        }
+    });
+    for (const uid of uidsToHeal) {
+        await setDoc(doc(db, 'staffPayRates', uid), rateData, { merge: true });
+        payRates[uid] = rate;
+    }
 
     const savedEl = document.getElementById(`saved-${staffId}`);
     savedEl.style.display = 'inline-flex';
     setTimeout(() => { savedEl.style.display = 'none'; }, 2500);
 
-    // Refresh summaries if visible
-    renderSummaryTab();
-    updateStatCards();
+    // Refresh all views so earnings appear immediately
+    rerender();
 };
 
 // ── Load entries ──────────────────────────────────────────────────────────────
