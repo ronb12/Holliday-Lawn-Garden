@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Expenses - Admin Dashboard</title>
+    <link href="assets/css/main.min.css" rel="stylesheet"/>
+    <link href="assets/css/admin-dashboard.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon/favicon-32x32.png" />
+    <link rel="manifest" href="manifest.json" />
+    <meta content="#2e7d32" name="theme-color"/>
+    <style>
+        body { padding-top: 80px; margin: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; }
+        .dashboard-main { max-width: 1400px; margin: 2rem auto; padding: 0 1.5rem; }
+        .page-header { background: #fff; padding: 1.5rem 2rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .page-title { font-size: 1.8rem; font-weight: 700; color: #2c5530; margin: 0; }
+        .page-subtitle { color: #666; margin: 0.25rem 0 0; }
+        .btn { padding: 0.65rem 1.25rem; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; font-size: 0.9rem; transition: all 0.2s; }
+        .btn-primary { background: #4caf50; color: white; }
+        .btn-primary:hover { background: #388e3c; }
+        .btn-danger { background: #e53935; color: white; }
+        .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem; }
+        .stat-card { background: #fff; padding: 1.25rem 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); display: flex; align-items: center; gap: 1rem; }
+        .stat-icon { width: 46px; height: 46px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+        .icon-red { background: #ffebee; color: #c62828; }
+        .icon-orange { background: #fff3e0; color: #e65100; }
+        .icon-blue { background: #e3f2fd; color: #1565c0; }
+        .icon-purple { background: #f3e5f5; color: #6a1b9a; }
+        .stat-info .stat-number { font-size: 1.7rem; font-weight: 700; color: #2c5530; display: block; line-height: 1; }
+        .stat-info .stat-label { font-size: 0.82rem; color: #777; margin-top: 0.2rem; display: block; }
+        .toolbar { background: #fff; padding: 1rem 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; }
+        .filter-group { display: flex; flex-direction: column; gap: 0.35rem; }
+        .filter-group label { font-size: 0.82rem; font-weight: 600; color: #555; }
+        .filter-group select, .filter-group input { padding: 0.6rem 0.85rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; min-width: 150px; }
+        .toolbar-actions { margin-left: auto; display: flex; gap: 0.75rem; align-items: flex-end; }
+        .table-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); overflow: hidden; }
+        .table-header { background: #f8f9fa; padding: 1rem 1.5rem; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
+        .table-header h3 { margin: 0; font-size: 1rem; color: #333; }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th, td { padding: 0.85rem 1.1rem; text-align: left; border-bottom: 1px solid #f0f0f0; }
+        th { background: #f8f9fa; font-weight: 600; color: #555; white-space: nowrap; }
+        tr:hover td { background: #fafff9; }
+        tr:last-child td { border-bottom: none; }
+        .cat-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.65rem; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+        .cat-fuel { background: #fff3e0; color: #e65100; }
+        .cat-equipment { background: #e3f2fd; color: #1565c0; }
+        .cat-supplies { background: #e8f5e9; color: #2e7d32; }
+        .cat-labor { background: #fce4ec; color: #c2185b; }
+        .cat-vehicle { background: #f3e5f5; color: #6a1b9a; }
+        .cat-other { background: #f3f4f6; color: #6b7280; }
+        .no-data { text-align: center; padding: 3rem; color: #9e9e9e; }
+        .loading { text-align: center; padding: 3rem; color: #666; }
+        .chart-section { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); padding: 1.5rem; margin-bottom: 1.5rem; }
+        .chart-section h3 { font-size: 1rem; font-weight: 700; color: #2c5530; margin: 0 0 1rem; }
+        .category-bars { display: flex; flex-direction: column; gap: 0.65rem; }
+        .cat-row { display: flex; align-items: center; gap: 0.75rem; }
+        .cat-name { min-width: 90px; font-size: 0.82rem; font-weight: 600; color: #555; }
+        .cat-bar-wrap { flex: 1; background: #f3f4f6; border-radius: 4px; height: 18px; overflow: hidden; }
+        .cat-bar { height: 100%; border-radius: 4px; transition: width 0.5s; background: #4caf50; }
+        .cat-amount { min-width: 70px; text-align: right; font-size: 0.82rem; font-weight: 600; color: #333; }
+        @media (max-width: 768px) { .dashboard-main { padding: 0 1rem; } .stats-grid { grid-template-columns: 1fr 1fr; } .toolbar { flex-direction: column; } .toolbar-actions { margin-left: 0; width: 100%; } .page-header { flex-direction: column; align-items: flex-start; } }
+    </style>
+    <link rel="stylesheet" href="assets/css/mobile.css">
+</head>
+<body>
+    <header class="admin-header">
+        <div class="container header-content">
+            <div class="logo">
+                <img src="assets/images/hollidays-logo.optimized-1280.png" alt="Holliday's Lawn &amp; Garden" />
+                <span style="font-weight:700;color:#2c5530;">Admin Dashboard</span>
+            </div>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle"><i class="fas fa-bars"></i></button>
+            <nav class="admin-nav" id="adminNav">
+                <a href="admin-dashboard.html">Dashboard</a>
+                <a href="appointments.html">Appointments</a>
+                <a href="customers.html">Customers</a>
+                <a href="payments.html">Payments</a>
+                <a href="invoices.html">Invoices</a>
+                <a href="expenses.html" class="active">Expenses</a>
+                <a href="payroll.html">Payroll</a>
+                <a href="analytics.html">Analytics</a>
+                <button class="btn btn-danger" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="dashboard-main">
+        <nav aria-label="Breadcrumb" style="padding:0.6rem 0 0.2rem;font-size:0.85rem;color:#777;">
+            <a href="admin-dashboard.html" style="color:#2e7d32;text-decoration:none;font-weight:500;"><i class="fas fa-home"></i> Dashboard</a>
+            <span style="margin:0 0.4rem;">›</span> Expenses
+        </nav>
+
+        <div class="page-header">
+            <div>
+                <h1 class="page-title"><i class="fas fa-receipt" style="color:#4caf50;margin-right:0.5rem;"></i>Expenses</h1>
+                <p class="page-subtitle">Track business costs — fuel, equipment, supplies, and more</p>
+            </div>
+            <a href="add-expense.html" class="btn btn-primary"><i class="fas fa-plus"></i> Log Expense</a>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon icon-red"><i class="fas fa-dollar-sign"></i></div>
+                <div class="stat-info"><span class="stat-number" id="stat-total">$0</span><span class="stat-label">Total Expenses</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon icon-orange"><i class="fas fa-calendar-alt"></i></div>
+                <div class="stat-info"><span class="stat-number" id="stat-month">$0</span><span class="stat-label">This Month</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon icon-blue"><i class="fas fa-list-ul"></i></div>
+                <div class="stat-info"><span class="stat-number" id="stat-count">0</span><span class="stat-label">Total Entries</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon icon-purple"><i class="fas fa-tags"></i></div>
+                <div class="stat-info"><span class="stat-number" id="stat-top-cat">—</span><span class="stat-label">Top Category</span></div>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <h3><i class="fas fa-chart-bar" style="margin-right:0.4rem;color:#4caf50;"></i>Spending by Category</h3>
+            <div class="category-bars" id="categoryBars">
+                <p style="color:#aaa;font-size:0.9rem;">Loading...</p>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <div class="filter-group">
+                <label>Category</label>
+                <select id="filterCat">
+                    <option value="">All Categories</option>
+                    <option value="Fuel">Fuel</option>
+                    <option value="Equipment">Equipment</option>
+                    <option value="Supplies">Supplies</option>
+                    <option value="Labor">Labor</option>
+                    <option value="Vehicle">Vehicle</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>From</label>
+                <input type="date" id="filterFrom">
+            </div>
+            <div class="filter-group">
+                <label>To</label>
+                <input type="date" id="filterTo">
+            </div>
+            <div class="filter-group">
+                <label>Search</label>
+                <input type="text" id="searchInput" placeholder="Description or vendor...">
+            </div>
+            <div class="toolbar-actions">
+                <button class="btn" style="background:#f1f5f9;color:#374151;" onclick="exportCSV()"><i class="fas fa-download"></i> Export</button>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-header">
+                <h3 id="tableTitle">All Expenses</h3>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Vendor</th>
+                            <th>Receipt #</th>
+                            <th>Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expenseTableBody">
+                        <tr><td colspan="7" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading expenses...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, getDocs, deleteDoc, doc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyACm0j7I8RX4ExIQRoejfk1HZMOQRGigBw",
+            authDomain: "holiday-lawn-and-garden.firebaseapp.com",
+            projectId: "holiday-lawn-and-garden",
+            storageBucket: "holiday-lawn-and-garden.firebasestorage.app",
+            messagingSenderId: "135322230444",
+            appId: "1:135322230444:web:1a487b25a48aae07368909"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        let allExpenses = [];
+
+        const catColors = { Fuel:'#e65100', Equipment:'#1565c0', Supplies:'#2e7d32', Labor:'#c2185b', Vehicle:'#6a1b9a', Other:'#6b7280' };
+        const catBadgeClass = { Fuel:'cat-fuel', Equipment:'cat-equipment', Supplies:'cat-supplies', Labor:'cat-labor', Vehicle:'cat-vehicle', Other:'cat-other' };
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => { await signOut(auth); window.location.href = 'login.html'; });
+        document.getElementById('mobileMenuToggle')?.addEventListener('click', () => { document.getElementById('adminNav').classList.toggle('open'); });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.href = 'login.html'; return; }
+            await loadExpenses();
+        });
+
+        async function loadExpenses() {
+            try {
+                const q = query(collection(db, 'expenses'), orderBy('date', 'desc'));
+                const snap = await getDocs(q);
+                allExpenses = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                updateStats();
+                renderChart();
+                renderTable(allExpenses);
+            } catch (e) {
+                document.getElementById('expenseTableBody').innerHTML = '<tr><td colspan="7" class="no-data"><i class="fas fa-info-circle"></i> No expenses found. <a href="add-expense.html">Log your first expense.</a></td></tr>';
+                document.getElementById('categoryBars').innerHTML = '<p style="color:#aaa;font-size:0.9rem;">No data yet.</p>';
+            }
+        }
+
+        function updateStats() {
+            const now = new Date();
+            const monthStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+            const total = allExpenses.reduce((s, e) => s + parseFloat(e.amount || 0), 0);
+            const monthTotal = allExpenses.filter(e => (e.date || '').startsWith(monthStr)).reduce((s, e) => s + parseFloat(e.amount || 0), 0);
+            // Top category
+            const catTotals = {};
+            allExpenses.forEach(e => { catTotals[e.category || 'Other'] = (catTotals[e.category || 'Other'] || 0) + parseFloat(e.amount || 0); });
+            const topCat = Object.entries(catTotals).sort((a, b) => b[1] - a[1])[0]?.[0] || '—';
+            document.getElementById('stat-total').textContent = '$' + total.toFixed(2);
+            document.getElementById('stat-month').textContent = '$' + monthTotal.toFixed(2);
+            document.getElementById('stat-count').textContent = allExpenses.length;
+            document.getElementById('stat-top-cat').textContent = topCat;
+        }
+
+        function renderChart() {
+            const catTotals = {};
+            allExpenses.forEach(e => { catTotals[e.category || 'Other'] = (catTotals[e.category || 'Other'] || 0) + parseFloat(e.amount || 0); });
+            const max = Math.max(...Object.values(catTotals), 1);
+            const cats = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
+            const container = document.getElementById('categoryBars');
+            if (!cats.length) { container.innerHTML = '<p style="color:#aaa;font-size:0.9rem;">No expense data yet.</p>'; return; }
+            container.innerHTML = cats.map(([cat, total]) => `
+                <div class="cat-row">
+                    <span class="cat-name">${cat}</span>
+                    <div class="cat-bar-wrap"><div class="cat-bar" style="width:${(total/max*100).toFixed(1)}%;background:${catColors[cat] || '#4caf50'};"></div></div>
+                    <span class="cat-amount">$${total.toFixed(2)}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderTable(expenses) {
+            const tbody = document.getElementById('expenseTableBody');
+            document.getElementById('tableTitle').textContent = `${expenses.length} Expense${expenses.length !== 1 ? 's' : ''}`;
+            if (!expenses.length) { tbody.innerHTML = '<tr><td colspan="7" class="no-data"><i class="fas fa-receipt"></i><br>No expenses found</td></tr>'; return; }
+            tbody.innerHTML = expenses.map(exp => `<tr>
+                <td>${exp.date || '—'}</td>
+                <td><span class="cat-badge ${catBadgeClass[exp.category] || 'cat-other'}">${exp.category || 'Other'}</span></td>
+                <td>${exp.description || '—'}</td>
+                <td>${exp.vendor || '—'}</td>
+                <td>${exp.receiptNumber || '—'}</td>
+                <td><strong>$${parseFloat(exp.amount || 0).toFixed(2)}</strong></td>
+                <td><button class="btn btn-sm btn-danger" onclick="deleteExpense('${exp.id}')"><i class="fas fa-trash"></i></button></td>
+            </tr>`).join('');
+        }
+
+        window.deleteExpense = async (id) => {
+            if (!confirm('Delete this expense?')) return;
+            await deleteDoc(doc(db, 'expenses', id));
+            allExpenses = allExpenses.filter(e => e.id !== id);
+            updateStats();
+            renderChart();
+            applyFilters();
+        };
+
+        function applyFilters() {
+            const cat = document.getElementById('filterCat').value;
+            const from = document.getElementById('filterFrom').value;
+            const to = document.getElementById('filterTo').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = allExpenses.filter(e => {
+                if (cat && e.category !== cat) return false;
+                if (from && e.date < from) return false;
+                if (to && e.date > to) return false;
+                if (search && !(e.description || '').toLowerCase().includes(search) && !(e.vendor || '').toLowerCase().includes(search)) return false;
+                return true;
+            });
+            renderTable(filtered);
+        }
+
+        ['filterCat','filterFrom','filterTo','searchInput'].forEach(id => {
+            document.getElementById(id).addEventListener('input', applyFilters);
+        });
+
+        window.exportCSV = () => {
+            const rows = [['Date','Category','Description','Vendor','Receipt #','Amount']];
+            allExpenses.forEach(e => rows.push([e.date, e.category, e.description, e.vendor, e.receiptNumber, e.amount]));
+            const csv = rows.map(r => r.map(v => `"${v || ''}"`).join(',')).join('\n');
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+            a.download = `expenses-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        };
+    </script>
+    <script src="assets/js/hide-loading.js"></script>
+</body>
+</html>
