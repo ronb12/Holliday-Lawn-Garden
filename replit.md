@@ -39,3 +39,10 @@ Note: In production, ensure `PORT` environment variable is set to 5000 or config
 
 ## Pages
 Major pages include: Home, About, Services, Education, FAQ, Contact, Reviews, Pay Your Bill, Customer Dashboard, Admin Dashboard, Appointments, Inventory, Staff, Gallery, and many payment status pages.
+
+## Shared Styles
+- `assets/css/header.css` — Single source of truth for the site-wide header and footer styles. Added as the last stylesheet in all public-facing pages so it overrides page-level CSS with `!important`. Fixes logo/nav overlap, ensures all login buttons are visible, and provides a consistent footer.
+
+## Known Development Notes
+- Firebase Analytics logs 403 errors on localhost — expected; Analytics only works on authorized domains (the production Firebase Hosting URL).
+- Firestore `reviews` collection: `firestore.rules` allows public `list` for review queries; composite index added to `firestore.indexes.json` (approved + createdAt desc). Must be deployed with Firebase CLI (`firebase deploy --only firestore`) to take effect on production.

@@ -1,0 +1,241 @@
+/* ============================================================
+   Holliday's Lawn & Garden — Shared Header & Footer Styles
+   Applied site-wide; overrides page-level styles.
+   ============================================================ */
+
+/* ── Header ─────────────────────────────────────────────────── */
+.main-header {
+    background: #fff !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 1.75rem !important;
+    min-height: 72px !important;
+    height: 72px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09) !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1000 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    gap: 0 !important;
+}
+
+/* Logo */
+.main-header .logo,
+.main-header > .logo {
+    display: flex !important;
+    align-items: center !important;
+    flex-shrink: 0 !important;
+    margin-right: 1.25rem !important;
+    text-decoration: none !important;
+}
+
+.main-header .logo img,
+.main-header > .logo img {
+    height: 46px !important;
+    width: auto !important;
+    display: block !important;
+}
+
+/* Nav wrapper */
+.main-header nav,
+.main-header #nav-menu {
+    display: flex !important;
+    align-items: center !important;
+    flex: 1 !important;
+    justify-content: flex-end !important;
+    min-width: 0 !important;
+    gap: 0.5rem !important;
+}
+
+/* Nav link list */
+.main-header .nav-links {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    flex-wrap: nowrap !important;
+    flex-shrink: 1 !important;
+    min-width: 0 !important;
+}
+
+.main-header .nav-links li,
+.main-header nav > ul > li {
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+}
+
+.main-header .nav-links a,
+.main-header nav > ul > li > a {
+    display: block !important;
+    padding: 0.4rem 0.6rem !important;
+    color: #333 !important;
+    font-weight: 500 !important;
+    font-size: 0.875rem !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    border-radius: 4px !important;
+    transition: color 0.2s ease, background-color 0.2s ease !important;
+    line-height: 1.4 !important;
+}
+
+.main-header .nav-links a:hover,
+.main-header .nav-links a.active {
+    color: #2e7d32 !important;
+    background-color: rgba(46, 125, 50, 0.07) !important;
+}
+
+/* Login buttons */
+.main-header .login-buttons {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    flex-shrink: 0 !important;
+    margin-left: 0.75rem !important;
+}
+
+.main-header .btn-login {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.35rem !important;
+    padding: 0.45rem 0.9rem !important;
+    border-radius: 5px !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    font-size: 0.82rem !important;
+    white-space: nowrap !important;
+    transition: opacity 0.2s ease, transform 0.15s ease !important;
+    line-height: 1.4 !important;
+    border: none !important;
+    cursor: pointer !important;
+}
+
+.main-header .btn-login:hover {
+    opacity: 0.85 !important;
+    transform: translateY(-1px) !important;
+}
+
+.main-header .btn-customer,
+.main-header a.btn-customer {
+    background: #2e7d32 !important;
+    color: #fff !important;
+}
+
+.main-header .btn-admin,
+.main-header a.btn-admin {
+    background: #1565c0 !important;
+    color: #fff !important;
+}
+
+/* ── Footer ─────────────────────────────────────────────────── */
+.footer {
+    background: #1a2e1a !important;
+    color: #b8c8b8 !important;
+    padding: 3rem 0 0 !important;
+    margin-top: auto !important;
+}
+
+.footer-content {
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    padding: 0 2rem !important;
+}
+
+.footer-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+    gap: 2rem !important;
+    padding-bottom: 2.5rem !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.footer-section h3 {
+    color: #fff !important;
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    margin: 0 0 1rem !important;
+    padding-bottom: 0.5rem !important;
+    border-bottom: 2px solid #2e7d32 !important;
+}
+
+.footer-section ul {
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.footer-section ul li {
+    margin-bottom: 0.55rem !important;
+    font-size: 0.875rem !important;
+    color: #a0b4a0 !important;
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+    line-height: 1.5 !important;
+}
+
+.footer-section ul li a {
+    color: #a0b4a0 !important;
+    text-decoration: none !important;
+    transition: color 0.2s !important;
+}
+
+.footer-section ul li a:hover {
+    color: #81c784 !important;
+}
+
+.footer-section ul li i {
+    color: #4caf50 !important;
+    margin-top: 0.2rem !important;
+    flex-shrink: 0 !important;
+    width: 14px !important;
+    text-align: center !important;
+}
+
+.footer-bottom {
+    padding: 1.25rem 2rem !important;
+    text-align: center !important;
+    font-size: 0.8rem !important;
+    color: #6a7a6a !important;
+}
+
+/* ── Mobile responsive ───────────────────────────────────────── */
+@media (max-width: 900px) {
+    .main-header .nav-links a,
+    .main-header nav > ul > li > a {
+        padding: 0.4rem 0.45rem !important;
+        font-size: 0.82rem !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-header {
+        padding: 0 1rem !important;
+    }
+    .main-header .nav-links {
+        display: none !important;
+    }
+    .main-header .login-buttons {
+        display: none !important;
+    }
+    .footer-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 1.5rem !important;
+    }
+    .footer-content {
+        padding: 0 1.25rem !important;
+    }
+}
