@@ -10,14 +10,17 @@ googleProvider.setCustomParameters({ prompt: 'select_account' });
 
 async function routeAfterLogin(user) {
     const userDoc = await getDoc(doc(db, "users", user.uid)).catch(() => null);
-    const role = userDoc?.exists() ? userDoc.data().role : null;
+    const data = userDoc?.exists() ? userDoc.data() : {};
+    const role  = data.role || null;
+    // Support both legacy single-role and new multi-role array
+    const roles = Array.isArray(data.roles) ? data.roles : (role ? [role] : []);
 
-    if (role === 'admin') {
+    if (roles.includes('admin') || role === 'admin') {
         window.location.href = "admin-dashboard.html";
         return;
     }
 
-    if (role === 'staff') {
+    if (roles.includes('staff') || role === 'staff') {
         window.location.href = "staff-portal.html";
         return;
     }

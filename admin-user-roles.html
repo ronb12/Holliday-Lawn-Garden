@@ -86,13 +86,15 @@
         .role-badge.admin    { background: #e3f2fd; color: #1565c0; }
         .role-badge.unknown  { background: #f3e5f5; color: #6a1b9a; }
 
-        .role-select-wrap { display: flex; align-items: center; gap: 0.6rem; }
-        .role-select {
-            padding: 0.4rem 0.75rem; border: 1.5px solid #ddd; border-radius: 7px;
-            font-size: 0.85rem; font-family: inherit; background: white; cursor: pointer;
-            transition: border-color 0.2s;
+        .roles-wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+        .role-check-label {
+            display: inline-flex; align-items: center; gap: 0.3rem;
+            font-size: 0.82rem; font-weight: 600; cursor: pointer;
+            padding: 0.28rem 0.55rem; border: 1.5px solid #e0e0e0; border-radius: 6px;
+            user-select: none; transition: border-color 0.15s, background 0.15s;
         }
-        .role-select:focus { outline: none; border-color: #2e7d32; }
+        .role-check-label:has(input:checked) { border-color: #2e7d32; background: #f0fdf4; color: #1b5e20; }
+        .role-check-label input[type=checkbox] { accent-color: #2e7d32; cursor: pointer; }
         .btn-save {
             padding: 0.4rem 0.9rem; background: #2e7d32; color: white; border: none;
             border-radius: 7px; font-size: 0.82rem; font-weight: 700; cursor: pointer;

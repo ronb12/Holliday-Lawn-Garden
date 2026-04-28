@@ -96,8 +96,11 @@ window.restore = async function () {
     showStatus('Restoring…', 'info');
 
     try {
-        await setDoc(doc(db, 'users', currentUser.uid), { role: 'admin' }, { merge: true });
-        showStatus('Done! Role restored to admin. Redirecting to admin dashboard…', 'ok');
+        await setDoc(doc(db, 'users', currentUser.uid), {
+            role:  'admin',
+            roles: ['admin', 'staff']
+        }, { merge: true });
+        showStatus('Done! Role restored — you are now Admin + Staff. Redirecting to admin dashboard…', 'ok');
         setTimeout(() => window.location.href = 'admin-dashboard.html', 2000);
     } catch (e) {
         showStatus('Error: ' + e.message, 'err');
