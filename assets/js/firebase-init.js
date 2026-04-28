@@ -25,8 +25,9 @@ window.saveContactForm = async function(data) {
 };
 
 window.saveQuoteForm = async function(data) {
-  await addDoc(collection(db, 'quotes'), {
+  await addDoc(collection(db, 'quote-requests'), {
     ...data,
+    status: 'new',
     timestamp: serverTimestamp()
   });
 };
