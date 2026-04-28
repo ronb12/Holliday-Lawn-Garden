@@ -149,7 +149,7 @@ async function loadAdminStats() {
   if (!statsBar) return;
 
   const collections = [
-    { id: "stat-customers", label: "Customers", icon: "fas fa-users", col: "users" },
+    { id: "stat-customers", label: "Customers", icon: "fas fa-users", col: "users", filter: ["role", "==", "customer"] },
     { id: "stat-appointments", label: "Appointments", icon: "fas fa-calendar-check", col: "appointments" },
     { id: "stat-payments", label: "Payments", icon: "fas fa-credit-card", col: "payments" },
     { id: "stat-staff", label: "Staff", icon: "fas fa-user-tie", col: "staff" },
@@ -159,7 +159,10 @@ async function loadAdminStats() {
 
   for (const s of collections) {
     try {
-      const snap = await getCountFromServer(collection(db, s.col));
+      const ref = s.filter
+        ? query(collection(db, s.col), where(s.filter[0], s.filter[1], s.filter[2]))
+        : collection(db, s.col);
+      const snap = await getCountFromServer(ref);
       const el = document.getElementById(s.id);
       if (el) el.textContent = snap.data().count;
     } catch {
