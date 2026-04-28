@@ -59,6 +59,13 @@ async function loadStaffProfile() {
     document.getElementById('staffName').textContent = staffData.name || staffData.firstName || currentUser.email;
 }
 
+async function loadPayRate() {
+    const rateDoc = await getDoc(doc(db, 'staffPayRates', staffData.id)).catch(() => null);
+    if (rateDoc && rateDoc.exists()) {
+        currentPayRate = parseFloat(rateDoc.data().hourlyRate) || null;
+    }
+}
+
 // ── Live clock ────────────────────────────────────────────────────────────────
 function startLiveClock() {
     const tick = () => {
@@ -122,11 +129,27 @@ function setUIState(state) {
 
 function startShiftTimer() {
     clearInterval(shiftInterval);
+
+    // Populate rate display once, then show the earnings block
+    const earningsEl = document.getElementById('liveEarnings');
+    const liveRateEl = document.getElementById('liveRate');
+    const liveEarnedEl = document.getElementById('liveEarned');
+
+    if (currentPayRate !== null) {
+        liveRateEl.textContent = `$${currentPayRate.toFixed(2)}/hr`;
+        earningsEl.style.display = 'flex';
+    }
+
     const tick = () => {
         if (!activeEntry?.clockIn) return;
         const inTime = activeEntry.clockIn.toDate ? activeEntry.clockIn.toDate() : new Date(activeEntry.clockIn);
-        const elapsed = Math.floor((Date.now() - inTime.getTime()) / 1000);
-        document.getElementById('shiftDuration').textContent = formatDuration(elapsed);
+        const elapsedSec = Math.floor((Date.now() - inTime.getTime()) / 1000);
+        document.getElementById('shiftDuration').textContent = formatDuration(elapsedSec);
+
+        if (currentPayRate !== null) {
+            const earned = (elapsedSec / 3600) * currentPayRate;
+            liveEarnedEl.textContent = `$${earned.toFixed(2)}`;
+        }
     };
     tick();
     shiftInterval = setInterval(tick, 1000);

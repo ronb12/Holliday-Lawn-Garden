@@ -174,8 +174,10 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    match /staffPayRates/{document} {
+    match /staffPayRates/{staffId} {
       allow read, write: if isAdmin();
+      // Staff can read their own pay rate
+      allow get: if isAuthenticated() && request.auth.uid == staffId;
     }
 
     // ── Services ──────────────────────────────────────────────────
