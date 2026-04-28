@@ -344,6 +344,23 @@
         padding: 0 1rem !important;
         min-height: 60px !important;
     }
+
+    /* Shrink logo so it has breathing room inside 60px header */
+    .main-header .logo img,
+    .main-header > .logo img {
+        height: 44px !important;
+    }
+
+    /* Match body top-padding to the 60px mobile header */
+    body {
+        padding-top: 60px !important;
+    }
+
+    /* Ensure content doesn't hide behind the bottom tab bar */
+    body:has(.mobile-tab-bar) {
+        padding-bottom: 64px !important;
+    }
+
     .main-header .nav-links {
         display: none !important;
     }
@@ -351,10 +368,10 @@
         display: none !important;
     }
     .footer-grid {
-        grid-template-columns: 1fr 1fr !important;
-        gap: 1.5rem !important;
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
     }
     .footer-content {
-        padding: 0 1.25rem !important;
+        padding: 0 1rem !important;
     }
 }
