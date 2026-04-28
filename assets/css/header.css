@@ -212,6 +212,61 @@
     color: #6a7a6a !important;
 }
 
+.social-links {
+    display: flex !important;
+    gap: 0.75rem !important;
+    flex-wrap: wrap !important;
+    margin-top: 0.5rem !important;
+}
+
+.social-link {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 38px !important;
+    height: 38px !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 50% !important;
+    color: #fff !important;
+    text-decoration: none !important;
+    font-size: 1rem !important;
+    transition: background 0.2s, transform 0.2s !important;
+}
+
+.social-link:hover {
+    background: #2e7d32 !important;
+    color: #fff !important;
+    transform: translateY(-2px) !important;
+}
+
+.footer-contact {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+    font-size: 0.875rem !important;
+}
+
+.footer-contact a {
+    color: #a0b4a0 !important;
+    text-decoration: none !important;
+    transition: color 0.2s !important;
+}
+
+.footer-contact a:hover {
+    color: #81c784 !important;
+}
+
+.footer-contact a i {
+    color: #4caf50 !important;
+    margin-right: 0.4rem !important;
+}
+
+.footer-owner {
+    color: #fff !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.25rem !important;
+}
+
 /* ── Mobile responsive ───────────────────────────────────────── */
 @media (max-width: 900px) {
     .main-header .nav-links a,
