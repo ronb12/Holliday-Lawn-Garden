@@ -57,31 +57,47 @@ function populateStaffFilter() {
 }
 
 // ── Pay rates ─────────────────────────────────────────────────────────────────
+// payRates is keyed by Firestore staff doc ID (auto-generated).
+// payRatesByEmail is a secondary index keyed by staff email (lowercase).
+// Timeclock entries use auth UID as staffId (because the Firestore email-query
+// lookup fails for staff under current rules), so we need both indexes.
+let payRatesByEmail = {};
+
 async function loadPayRates() {
     const snap = await getDocs(collection(db, 'staffPayRates'));
     payRates = {};
     snap.docs.forEach(d => { payRates[d.id] = d.data().hourlyRate; });
 
-    // Timeclock entries store staffId = auth UID (fallback when the email-based
-    // staff lookup fails due to Firestore rules), but staffPayRates docs are
-    // keyed by the Firestore staff doc ID (auto-generated).  Build a second
-    // index keyed by auth UID so earnings look-ups always resolve correctly.
+    // Build email-keyed index from allStaff (must run after loadStaff)
+    payRatesByEmail = {};
+    allStaff.forEach(s => {
+        if (s.email && payRates[s.id] != null) {
+            payRatesByEmail[s.email.toLowerCase()] = payRates[s.id];
+        }
+    });
+
+    // Also try users collection to map uid → rate (supplementary)
     try {
         const usersSnap = await getDocs(collection(db, 'users'));
-        const emailToUid = {};
         usersSnap.docs.forEach(d => {
-            const email = d.data().email;
-            if (email) emailToUid[email.toLowerCase()] = d.id;
-        });
-        allStaff.forEach(s => {
-            const uid = emailToUid[(s.email || '').toLowerCase()];
-            if (uid && uid !== s.id && payRates[s.id] != null) {
-                payRates[uid] = payRates[s.id];
+            const email = (d.data().email || '').toLowerCase();
+            const uid   = d.id;
+            if (email && payRatesByEmail[email] != null && payRates[uid] == null) {
+                payRates[uid] = payRatesByEmail[email];
             }
         });
     } catch (e) {
         console.warn('Could not build UID pay-rate index:', e);
     }
+}
+
+// Return pay rate for a timeclock entry, trying all known indexes.
+// staffId = auth UID, staffName = email or displayName
+function getEntryPayRate(entry) {
+    if (payRates[entry.staffId] != null) return payRates[entry.staffId];
+    const nameKey = (entry.staffName || '').toLowerCase();
+    if (payRatesByEmail[nameKey] != null) return payRatesByEmail[nameKey];
+    return null;
 }
 
 function renderPayRatesPanel() {
@@ -178,7 +194,7 @@ function renderEntriesTable(entries) {
         const inTime  = e.clockIn  ? tsToDate(e.clockIn)  : null;
         const outTime = e.clockOut ? tsToDate(e.clockOut) : null;
         const isActive = !outTime;
-        const rate = payRates[e.staffId];
+        const rate = getEntryPayRate(e);
         let earningsCell;
         if (isActive) {
             earningsCell = '<em style="color:#888;">In progress</em>';
@@ -217,7 +233,7 @@ function renderSummaryTab() {
     // Group by staff
     const byStaff = {};
     entries.forEach(e => {
-        if (!byStaff[e.staffId]) byStaff[e.staffId] = { name: e.staffName || e.staffId, minutes: 0, shifts: 0 };
+        if (!byStaff[e.staffId]) byStaff[e.staffId] = { name: e.staffName || e.staffId, staffName: e.staffName, minutes: 0, shifts: 0 };
         byStaff[e.staffId].minutes += e.totalMinutes;
         byStaff[e.staffId].shifts++;
     });
@@ -229,7 +245,7 @@ function renderSummaryTab() {
 
     body.innerHTML = Object.entries(byStaff).map(([staffId, data]) => {
         const hours = data.minutes / 60;
-        const rate  = payRates[staffId];
+        const rate  = getEntryPayRate({ staffId, staffName: data.staffName });
         const pay   = rate != null ? (hours * rate).toFixed(2) : null;
         return `<tr>
             <td><i class="fas fa-user" style="color:#4caf50;margin-right:0.4rem;"></i>${data.name}</td>
