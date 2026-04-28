@@ -150,6 +150,14 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
+    // ── Staff Code of Conduct Agreements ─────────────────────────
+    // Staff can create/update their own agreement; admins can read all.
+    match /staffAgreements/{userId} {
+      allow create, update: if isAuthenticated() && request.auth.uid == userId;
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      allow read: if isAdmin();
+    }
+
     // ── Staff time clock & pay rates ─────────────────────────────
     match /timeclock/{document} {
       allow read: if isAdmin() || isAuthenticated();
