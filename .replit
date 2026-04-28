@@ -22,6 +22,10 @@ args = "Start application"
 task = "workflow.run"
 args = "Sync to GitHub"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "GitHub Auto-Sync"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -41,6 +45,17 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "bash github-sync.sh"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow]]
+name = "GitHub Auto-Sync"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bash github-sync-daemon.sh"
 
 [workflows.workflow.metadata]
 outputType = "console"
