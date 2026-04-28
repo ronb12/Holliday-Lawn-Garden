@@ -37,6 +37,13 @@
         .shift-timer-label { font-size: 0.85rem; color: #16a34a; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
         .shift-timer-value { font-size: 2rem; font-weight: 700; color: #15803d; font-variant-numeric: tabular-nums; }
 
+        /* Live earnings */
+        .live-earnings { margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid #bbf7d0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+        .live-earnings-rate { font-size: 0.85rem; color: #555; font-weight: 500; }
+        .live-earnings-rate span { font-weight: 700; color: #2c5530; }
+        .live-earnings-amount { font-size: 1.3rem; font-weight: 800; color: #15803d; font-variant-numeric: tabular-nums; }
+        .live-earnings-label { font-size: 0.75rem; color: #6b7280; font-weight: 500; display: block; text-align: right; margin-top: 0.1rem; }
+
         /* Buttons */
         .clock-btn { width: 100%; max-width: 320px; padding: 1.1rem; border-radius: 10px; border: none; font-size: 1.15rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; transition: all 0.2s; }
         .btn-clock-in { background: #4caf50; color: #fff; }
@@ -106,6 +113,13 @@
             <div class="shift-timer" id="shiftTimer">
                 <div class="shift-timer-label">Current Shift Duration</div>
                 <div class="shift-timer-value" id="shiftDuration">0:00:00</div>
+                <div class="live-earnings" id="liveEarnings" style="display:none;">
+                    <div class="live-earnings-rate">Rate: <span id="liveRate">--</span></div>
+                    <div>
+                        <div class="live-earnings-amount" id="liveEarned">$0.00</div>
+                        <span class="live-earnings-label">earned this shift</span>
+                    </div>
+                </div>
             </div>
 
             <button class="clock-btn btn-clock-in" id="clockBtn" onclick="handleClockAction()">

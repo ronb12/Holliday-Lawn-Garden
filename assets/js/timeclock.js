@@ -23,12 +23,14 @@ let staffData = null;
 let activeEntry = null;   // open (not yet clocked-out) entry
 let shiftInterval = null;
 let clockInterval = null;
+let currentPayRate = null;
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
     if (!user) { window.location.href = 'login.html'; return; }
     currentUser = user;
     await loadStaffProfile();
+    await loadPayRate();
     startLiveClock();
     await checkActiveShift();
     loadHistory();
