@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>New Invoice - Admin Dashboard</title>
+    <link href="assets/css/main.min.css" rel="stylesheet"/>
+    <link href="assets/css/admin-dashboard.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon/favicon-32x32.png" />
+    <link rel="manifest" href="manifest.json" />
+    <meta content="#2e7d32" name="theme-color"/>
+    <style>
+        body { padding-top: 80px; margin: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; }
+        .dashboard-main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem; }
+        .page-header { background: #fff; padding: 1.5rem 2rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .page-title { font-size: 1.8rem; font-weight: 700; color: #2c5530; margin: 0; }
+        .page-subtitle { color: #666; margin: 0.25rem 0 0; }
+        .card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); padding: 1.75rem; margin-bottom: 1.5rem; }
+        .card h3 { font-size: 1rem; font-weight: 700; color: #2c5530; margin: 0 0 1.25rem; padding-bottom: 0.75rem; border-bottom: 2px solid #e8f5e9; display: flex; align-items: center; gap: 0.5rem; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #444; margin-bottom: 0.4rem; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.65rem 0.85rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; box-sizing: border-box; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #4caf50; box-shadow: 0 0 0 2px rgba(76,175,80,0.15); }
+        /* Line items */
+        .line-items-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+        .line-items-table th { background: #f8f9fa; padding: 0.65rem 0.75rem; text-align: left; font-size: 0.82rem; font-weight: 600; color: #555; border-bottom: 1px solid #e0e0e0; }
+        .line-items-table td { padding: 0.5rem 0.4rem; vertical-align: middle; }
+        .line-items-table input { padding: 0.5rem; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9rem; width: 100%; box-sizing: border-box; }
+        .line-items-table .col-desc { min-width: 200px; }
+        .line-items-table .col-qty { width: 80px; }
+        .line-items-table .col-price { width: 100px; }
+        .line-items-table .col-total { width: 100px; font-weight: 600; color: #2c5530; }
+        .line-items-table .col-del { width: 40px; text-align: center; }
+        .btn-del { background: none; border: none; color: #e53935; font-size: 1rem; cursor: pointer; padding: 0.3rem; }
+        .btn-add-line { background: #e8f5e9; color: #2e7d32; border: 1px dashed #4caf50; border-radius: 6px; padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: 600; cursor: pointer; width: 100%; margin-top: 0.5rem; }
+        .btn-add-line:hover { background: #c8e6c9; }
+        .totals-section { display: flex; justify-content: flex-end; }
+        .totals-table { min-width: 260px; }
+        .totals-table tr td { padding: 0.35rem 0.5rem; font-size: 0.9rem; color: #555; }
+        .totals-table tr td:last-child { text-align: right; font-weight: 600; }
+        .totals-table .grand-total td { font-size: 1.1rem; color: #2c5530; border-top: 2px solid #4caf50; padding-top: 0.5rem; }
+        .form-actions { display: flex; gap: 1rem; justify-content: flex-end; flex-wrap: wrap; }
+        .btn { padding: 0.65rem 1.25rem; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; font-size: 0.9rem; transition: all 0.2s; }
+        .btn-primary { background: #4caf50; color: white; }
+        .btn-primary:hover { background: #388e3c; }
+        .btn-secondary { background: #f1f5f9; color: #374151; }
+        .btn-secondary:hover { background: #e2e8f0; }
+        .btn-danger { background: #e53935; color: white; }
+        .msg { padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; display: none; }
+        .msg-success { background: #e8f5e9; color: #2e7d32; }
+        .msg-error { background: #ffebee; color: #c62828; }
+        /* Print styles */
+        @media print {
+            .admin-header, .page-header .form-actions, .btn, nav, .no-print { display: none !important; }
+            body { padding-top: 0; background: white; }
+            .card { box-shadow: none; border: 1px solid #ddd; }
+            .dashboard-main { max-width: 100%; }
+        }
+        @media (max-width: 768px) { .dashboard-main { padding: 0 1rem; } .form-row { grid-template-columns: 1fr; } .form-actions { flex-direction: column; } .page-header { flex-direction: column; align-items: flex-start; } }
+    </style>
+    <link rel="stylesheet" href="assets/css/mobile.css">
+</head>
+<body>
+    <header class="admin-header no-print">
+        <div class="container header-content">
+            <div class="logo">
+                <img src="assets/images/hollidays-logo.optimized-1280.png" alt="Holliday's Lawn &amp; Garden" />
+                <span style="font-weight:700;color:#2c5530;">Admin Dashboard</span>
+            </div>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle"><i class="fas fa-bars"></i></button>
+            <nav class="admin-nav" id="adminNav">
+                <a href="admin-dashboard.html">Dashboard</a>
+                <a href="invoices.html">Invoices</a>
+                <a href="expenses.html">Expenses</a>
+                <a href="payments.html">Payments</a>
+                <button class="btn btn-danger" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="dashboard-main">
+        <nav aria-label="Breadcrumb" class="no-print" style="padding:0.6rem 0 0.2rem;font-size:0.85rem;color:#777;">
+            <a href="admin-dashboard.html" style="color:#2e7d32;text-decoration:none;font-weight:500;"><i class="fas fa-home"></i> Dashboard</a>
+            <span style="margin:0 0.4rem;">›</span>
+            <a href="invoices.html" style="color:#2e7d32;text-decoration:none;font-weight:500;">Invoices</a>
+            <span style="margin:0 0.4rem;">›</span> New Invoice
+        </nav>
+
+        <div class="page-header no-print">
+            <div>
+                <h1 class="page-title"><i class="fas fa-file-invoice" style="color:#4caf50;margin-right:0.5rem;"></i>New Invoice</h1>
+                <p class="page-subtitle">Create a professional invoice for a customer</p>
+            </div>
+        </div>
+
+        <div id="msgBox" class="msg"></div>
+
+        <form id="invoiceForm">
+            <!-- Business + Customer Info -->
+            <div class="card">
+                <h3><i class="fas fa-building"></i> Invoice Details</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Customer *</label>
+                        <select id="customerSelect" required>
+                            <option value="">Loading customers...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Invoice Number</label>
+                        <input type="text" id="invoiceNumber" placeholder="Auto-generated" readonly style="background:#f8f9fa;">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Invoice Date *</label>
+                        <input type="date" id="invoiceDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Due Date *</label>
+                        <input type="date" id="dueDate" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Customer Address (for invoice)</label>
+                    <input type="text" id="customerAddress" placeholder="Will auto-fill when customer selected">
+                </div>
+            </div>
+
+            <!-- Line Items -->
+            <div class="card">
+                <h3><i class="fas fa-list"></i> Services / Line Items</h3>
+                <table class="line-items-table">
+                    <thead>
+                        <tr>
+                            <th class="col-desc">Description</th>
+                            <th class="col-qty">Qty</th>
+                            <th class="col-price">Unit Price</th>
+                            <th class="col-total">Total</th>
+                            <th class="col-del"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="lineItemsBody"></tbody>
+                </table>
+                <button type="button" class="btn-add-line" onclick="addLineItem()"><i class="fas fa-plus"></i> Add Line Item</button>
+
+                <div class="totals-section" style="margin-top:1.5rem;">
+                    <table class="totals-table">
+                        <tr><td>Subtotal</td><td id="subtotal">$0.00</td></tr>
+                        <tr>
+                            <td>Tax Rate (%)</td>
+                            <td><input type="number" id="taxRate" value="0" min="0" max="100" step="0.1" style="width:70px;padding:0.3rem;border:1px solid #ddd;border-radius:4px;text-align:right;" oninput="recalcTotals()"></td>
+                        </tr>
+                        <tr><td>Tax Amount</td><td id="taxAmount">$0.00</td></tr>
+                        <tr class="grand-total"><td><strong>Total Due</strong></td><td><strong id="grandTotal">$0.00</strong></td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="card">
+                <h3><i class="fas fa-sticky-note"></i> Notes</h3>
+                <div class="form-group">
+                    <label>Invoice Notes (appears on invoice)</label>
+                    <textarea id="notes" rows="3" placeholder="e.g. Thank you for your business! Payment due within 30 days."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="invoiceStatus">
+                        <option value="unpaid">Unpaid (Send to customer)</option>
+                        <option value="draft">Draft (Save for later)</option>
+                        <option value="paid">Paid (Already collected)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-actions no-print">
+                <a href="invoices.html" class="btn btn-secondary"><i class="fas fa-times"></i> Cancel</a>
+                <button type="button" class="btn btn-secondary" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Invoice</button>
+            </div>
+        </form>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, getDocs, addDoc, getDoc, doc, serverTimestamp, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyACm0j7I8RX4ExIQRoejfk1HZMOQRGigBw",
+            authDomain: "holiday-lawn-and-garden.firebaseapp.com",
+            projectId: "holiday-lawn-and-garden",
+            storageBucket: "holiday-lawn-and-garden.firebasestorage.app",
+            messagingSenderId: "135322230444",
+            appId: "1:135322230444:web:1a487b25a48aae07368909"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        let customers = [];
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => { await signOut(auth); window.location.href = 'login.html'; });
+        document.getElementById('mobileMenuToggle')?.addEventListener('click', () => { document.getElementById('adminNav').classList.toggle('open'); });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.href = 'login.html'; return; }
+            await init();
+        });
+
+        async function init() {
+            // Set default dates
+            const today = new Date();
+            const due = new Date(); due.setDate(due.getDate() + 30);
+            document.getElementById('invoiceDate').value = today.toISOString().split('T')[0];
+            document.getElementById('dueDate').value = due.toISOString().split('T')[0];
+
+            // Generate invoice number
+            const snap = await getDocs(collection(db, 'invoices'));
+            const num = String(snap.size + 1).padStart(4, '0');
+            const year = today.getFullYear();
+            document.getElementById('invoiceNumber').value = `INV-${year}-${num}`;
+
+            // Load customers
+            const cSnap = await getDocs(query(collection(db, 'customers'), orderBy('lastName')));
+            customers = cSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+            const sel = document.getElementById('customerSelect');
+            sel.innerHTML = '<option value="">Select a customer...</option>' + customers.map(c =>
+                `<option value="${c.id}">${c.firstName} ${c.lastName} — ${c.email || ''}</option>`
+            ).join('');
+            sel.addEventListener('change', () => {
+                const c = customers.find(x => x.id === sel.value);
+                if (c) {
+                    document.getElementById('customerAddress').value = [c.address, c.city, c.state].filter(Boolean).join(', ');
+                }
+            });
+
+            addLineItem(); // Start with one blank row
+        }
+
+        window.addLineItem = function() {
+            const tbody = document.getElementById('lineItemsBody');
+            const idx = tbody.children.length;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="col-desc"><input type="text" placeholder="e.g. Lawn mowing - front yard" data-field="desc" oninput="recalcRow(this)"></td>
+                <td class="col-qty"><input type="number" value="1" min="1" data-field="qty" oninput="recalcRow(this)" style="text-align:center;"></td>
+                <td class="col-price"><input type="number" value="" min="0" step="0.01" placeholder="0.00" data-field="price" oninput="recalcRow(this)" style="text-align:right;"></td>
+                <td class="col-total" data-total="0">$0.00</td>
+                <td class="col-del"><button type="button" class="btn-del" onclick="this.closest('tr').remove();recalcTotals();"><i class="fas fa-times"></i></button></td>
+            `;
+            tbody.appendChild(tr);
+        };
+
+        window.recalcRow = function(input) {
+            const row = input.closest('tr');
+            const qty = parseFloat(row.querySelector('[data-field="qty"]').value) || 0;
+            const price = parseFloat(row.querySelector('[data-field="price"]').value) || 0;
+            const total = qty * price;
+            row.querySelector('[data-total]').textContent = '$' + total.toFixed(2);
+            row.querySelector('[data-total]').dataset.total = total;
+            recalcTotals();
+        };
+
+        window.recalcTotals = function() {
+            const totals = Array.from(document.querySelectorAll('[data-total]')).map(el => parseFloat(el.dataset.total) || 0);
+            const subtotal = totals.reduce((a, b) => a + b, 0);
+            const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+            const tax = subtotal * (taxRate / 100);
+            const grand = subtotal + tax;
+            document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+            document.getElementById('taxAmount').textContent = '$' + tax.toFixed(2);
+            document.getElementById('grandTotal').textContent = '$' + grand.toFixed(2);
+        };
+
+        function showMsg(text, type) {
+            const box = document.getElementById('msgBox');
+            box.textContent = text;
+            box.className = `msg msg-${type}`;
+            box.style.display = 'block';
+            if (type === 'success') setTimeout(() => { box.style.display = 'none'; }, 4000);
+        }
+
+        document.getElementById('invoiceForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const customerId = document.getElementById('customerSelect').value;
+            if (!customerId) { showMsg('Please select a customer.', 'error'); return; }
+            const rows = Array.from(document.getElementById('lineItemsBody').children);
+            const lineItems = rows.map(tr => ({
+                description: tr.querySelector('[data-field="desc"]').value,
+                qty: parseFloat(tr.querySelector('[data-field="qty"]').value) || 1,
+                unitPrice: parseFloat(tr.querySelector('[data-field="price"]').value) || 0,
+                total: parseFloat(tr.querySelector('[data-total]').dataset.total) || 0
+            })).filter(item => item.description);
+            if (!lineItems.length) { showMsg('Add at least one line item.', 'error'); return; }
+            const subtotal = parseFloat(document.getElementById('subtotal').textContent.replace('$',''));
+            const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+            const tax = parseFloat(document.getElementById('taxAmount').textContent.replace('$',''));
+            const total = parseFloat(document.getElementById('grandTotal').textContent.replace('$',''));
+            const customer = customers.find(c => c.id === customerId);
+            try {
+                await addDoc(collection(db, 'invoices'), {
+                    invoiceNumber: document.getElementById('invoiceNumber').value,
+                    customerId,
+                    customerName: customer ? `${customer.firstName} ${customer.lastName}` : '',
+                    customerEmail: customer?.email || '',
+                    customerAddress: document.getElementById('customerAddress').value,
+                    invoiceDate: document.getElementById('invoiceDate').value,
+                    dueDate: document.getElementById('dueDate').value,
+                    lineItems,
+                    subtotal,
+                    taxRate,
+                    tax,
+                    total,
+                    notes: document.getElementById('notes').value,
+                    status: document.getElementById('invoiceStatus').value,
+                    createdAt: serverTimestamp()
+                });
+                showMsg('Invoice saved successfully!', 'success');
+                setTimeout(() => { window.location.href = 'invoices.html'; }, 1500);
+            } catch (err) {
+                showMsg('Error saving invoice: ' + err.message, 'error');
+            }
+        });
+    </script>
+    <script src="assets/js/hide-loading.js"></script>
+</body>
+</html>
