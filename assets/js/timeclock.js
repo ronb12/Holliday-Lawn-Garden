@@ -35,22 +35,26 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 async function loadStaffProfile() {
-    // Look up staff record by uid or email
-    let snap = await getDoc(doc(db, 'staff', currentUser.uid)).catch(() => null);
+    // Look up staff record by uid first
+    const snap = await getDoc(doc(db, 'staff', currentUser.uid)).catch(() => null);
     if (snap && snap.exists()) {
         staffData = { id: snap.id, ...snap.data() };
     } else {
-        // Fallback: query by email
-        const q = query(collection(db, 'staff'), where('email', '==', currentUser.email));
-        const qs = await getDocs(q);
-        if (!qs.empty) {
-            staffData = { id: qs.docs[0].id, ...qs.docs[0].data() };
-        } else {
-            // Use auth display name / email as fallback
+        // Fallback: query by email (may fail if rules don't allow staff to list)
+        try {
+            const q = query(collection(db, 'staff'), where('email', '==', currentUser.email));
+            const qs = await getDocs(q);
+            if (!qs.empty) {
+                staffData = { id: qs.docs[0].id, ...qs.docs[0].data() };
+            } else {
+                staffData = { id: currentUser.uid, name: currentUser.displayName || currentUser.email };
+            }
+        } catch {
+            // No staff record found or no permission — use auth identity as fallback
             staffData = { id: currentUser.uid, name: currentUser.displayName || currentUser.email };
         }
     }
-    document.getElementById('staffName').textContent = staffData.name || currentUser.email;
+    document.getElementById('staffName').textContent = staffData.name || staffData.firstName || currentUser.email;
 }
 
 // ── Live clock ────────────────────────────────────────────────────────────────
@@ -176,16 +180,20 @@ window.loadHistory = async function () {
     const days = parseInt(document.getElementById('periodFilter').value);
     const since = new Date();
     since.setDate(since.getDate() - days);
+    const sinceStr = since.toISOString().split('T')[0];
 
+    // Simple single-field query — no composite index required.
+    // Date filtering and sorting are done client-side.
     const q = query(
         collection(db, 'timeclock'),
-        where('staffId', '==', staffData.id),
-        where('date', '>=', since.toISOString().split('T')[0]),
-        orderBy('date', 'desc')
+        where('staffId', '==', staffData.id)
     );
 
-    const snap = await getDocs(q);
-    const entries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const snap = await getDocs(q).catch(() => ({ docs: [] }));
+    const entries = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .filter(e => !e.date || e.date >= sinceStr)
+        .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
     renderHistory(entries);
     renderPaySummary(entries);

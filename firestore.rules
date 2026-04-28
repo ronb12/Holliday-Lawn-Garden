@@ -68,8 +68,10 @@ service cloud.firestore {
     }
 
     // ── Staff & Contractors ───────────────────────────────────────
-    match /staff/{document} {
+    match /staff/{staffId} {
       allow read, write: if isAdmin();
+      // Staff can read their own record (doc ID == their UID)
+      allow get: if isAuthenticated() && request.auth.uid == staffId;
     }
 
     match /contractors/{document} {
