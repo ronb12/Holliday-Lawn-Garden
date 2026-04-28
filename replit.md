@@ -28,7 +28,15 @@ PORT=5000 node server.js
 - `assets/` — CSS, JS modules, images, fonts, icons
 - `.env` — Environment variables (PayPal credentials; PORT overridden at runtime)
 
-## Environment Variables
+## GitHub Auto-Sync
+Changes are automatically pushed to GitHub every 60 seconds via the **GitHub Auto-Sync** workflow:
+- `github-sync-daemon.sh` — runs a continuous loop, calling `github-sync.sh` every minute
+- `github-sync.sh` — stages/commits any local changes, then pushes to GitHub using the `GITHUB_TOKEN` secret
+- No manual PAT entry or intervention needed — the daemon handles authentication securely (token is never stored in git config)
+- The **Sync to GitHub** workflow can also be used for an immediate on-demand push
+
+## Environment Variables / Secrets
+- `GITHUB_TOKEN` — Personal Access Token for GitHub auto-sync (Replit Secret)
 - `PAYPAL_CLIENT_ID` — PayPal sandbox/production client ID
 - `PAYPAL_CLIENT_SECRET` — PayPal sandbox/production client secret
 - `PORT` — Server port (overridden to 5000 at runtime)
