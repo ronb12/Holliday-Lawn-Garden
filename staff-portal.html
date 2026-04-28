@@ -156,6 +156,41 @@
         .pay-label { color: #555; }
         .pay-value { font-weight: 600; }
 
+        /* Documents section */
+        .section-heading {
+            font-size: 1rem; font-weight: 700; color: #2c5530;
+            margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;
+        }
+        .docs-grid { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; }
+        .doc-card {
+            background: white; border-radius: 14px; padding: 1.25rem 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+            display: flex; align-items: center; gap: 1.1rem; flex-wrap: wrap;
+        }
+        .doc-icon-wrap {
+            width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem;
+        }
+        .icon-teal   { background: #e0f2f1; color: #00695c; }
+        .icon-amber  { background: #fff8e1; color: #e65100; }
+        .doc-info { flex: 1; min-width: 0; }
+        .doc-info h3 { font-size: 0.95rem; font-weight: 700; color: #222; margin-bottom: 0.15rem; }
+        .doc-meta { font-size: 0.78rem; color: #888; margin-bottom: 0.55rem; }
+        .doc-sig-badge {
+            display: inline-flex; align-items: center; gap: 0.35rem;
+            padding: 0.3rem 0.75rem; border-radius: 20px; font-size: 0.78rem; font-weight: 600;
+        }
+        .sig-signed   { background: #e8f5e9; color: #2e7d32; }
+        .sig-unsigned { background: #fff3e0; color: #e65100; }
+        .doc-sig-detail { font-size: 0.75rem; color: #888; margin-top: 0.3rem; }
+        .btn-view-doc {
+            padding: 0.55rem 1.1rem; border-radius: 8px; font-size: 0.83rem; font-weight: 700;
+            border: 1.5px solid #4caf50; color: #2e7d32; text-decoration: none;
+            background: transparent; transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
+        }
+        .btn-view-doc:hover { background: #4caf50; color: white; }
+
         @media (max-width: 600px) {
             .welcome-banner { flex-direction: column; }
             .welcome-clock-wrap { text-align: left; }
@@ -163,6 +198,8 @@
             .stat-value { font-size: 1.4rem; }
             .links-grid { grid-template-columns: 1fr; }
             .clock-btn { width: 100%; }
+            .doc-card { gap: 0.85rem; }
+            .btn-view-doc { width: 100%; text-align: center; }
         }
     </style>
 </head>
@@ -273,6 +310,50 @@
             </a>
         </div>
 
+        <!-- Documents -->
+        <h2 class="section-heading"><i class="fas fa-folder-open"></i> My Documents</h2>
+        <div class="docs-grid">
+
+            <!-- Code of Conduct -->
+            <div class="doc-card">
+                <div class="doc-icon-wrap icon-teal"><i class="fas fa-handshake"></i></div>
+                <div class="doc-info">
+                    <h3>Staff Code of Conduct</h3>
+                    <p class="doc-meta">Version 1.1 &mdash; Professional standards, safety &amp; workplace policy</p>
+                    <span class="doc-sig-badge sig-signed" id="cocBadge" style="display:none">
+                        <i class="fas fa-check-circle"></i> Digitally Signed
+                    </span>
+                    <span class="doc-sig-badge sig-unsigned" id="cocUnsignedBadge" style="display:none">
+                        <i class="fas fa-exclamation-circle"></i> Signature Required
+                    </span>
+                    <div class="doc-sig-detail" id="cocSigDetail"></div>
+                </div>
+                <a href="staff-code-of-conduct.html" class="btn-view-doc">
+                    <i class="fas fa-eye"></i> View &amp; Sign
+                </a>
+            </div>
+
+            <!-- Dress Code -->
+            <div class="doc-card">
+                <div class="doc-icon-wrap icon-amber"><i class="fas fa-vest"></i></div>
+                <div class="doc-info">
+                    <h3>Dress Code &amp; Uniform Standards</h3>
+                    <p class="doc-meta">Version 1.1 &mdash; Required clothing, footwear &amp; PPE for landscaping staff</p>
+                    <span class="doc-sig-badge sig-signed" id="dressBadge" style="display:none">
+                        <i class="fas fa-check-circle"></i> Digitally Signed
+                    </span>
+                    <span class="doc-sig-badge sig-unsigned" id="dressUnsignedBadge" style="display:none">
+                        <i class="fas fa-exclamation-circle"></i> Signature Required
+                    </span>
+                    <div class="doc-sig-detail" id="dressSigDetail"></div>
+                </div>
+                <a href="staff-code-of-conduct.html#dress-code" class="btn-view-doc">
+                    <i class="fas fa-eye"></i> View &amp; Sign
+                </a>
+            </div>
+
+        </div>
+
     </main>
 
     <script type="module">
@@ -296,9 +377,10 @@
         const db   = getFirestore(app);
         const auth = getAuth(app);
 
-        let currentUser  = null;
-        let staffData    = null;
-        let activeEntry  = null;
+        let currentUser   = null;
+        let staffData     = null;
+        let activeEntry   = null;
+        let agreementData = null;
         let shiftInterval = null;
         let clockInterval = null;
 
@@ -315,18 +397,20 @@
                 return;
             }
             // Check code of conduct agreement (skip for admins)
+            const agreeDoc = await getDoc(doc(db, 'staffAgreements', user.uid)).catch(() => null);
             if (role === 'staff') {
-                const agreeDoc = await getDoc(doc(db, 'staffAgreements', user.uid)).catch(() => null);
                 if (!agreeDoc?.exists() || agreeDoc.data().version !== COC_VERSION) {
                     window.location.href = 'staff-code-of-conduct.html';
                     return;
                 }
             }
+            agreementData = agreeDoc?.exists() ? agreeDoc.data() : null;
             currentUser = user;
             await loadStaffProfile();
             startLiveClock();
             await checkActiveShift();
             await loadStats();
+            loadDocumentStatus();
         });
 
         // ── Staff profile ───────────────────────────────────────────
@@ -504,6 +588,39 @@
             } else {
                 document.getElementById('payRate').textContent  = 'Not set by admin';
                 document.getElementById('payTotal').textContent = 'N/A';
+            }
+        }
+
+        // ── Document status ─────────────────────────────────────────
+        function loadDocumentStatus() {
+            const signed = agreementData && agreementData.version === COC_VERSION;
+
+            // Shared signed-at detail
+            let detail = '';
+            if (signed && agreementData.signedAt) {
+                const ts = agreementData.signedAt.toDate ? agreementData.signedAt.toDate() : new Date(agreementData.signedAt);
+                const dateStr = ts.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                const timeStr = ts.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                const name = agreementData.employeeName || agreementData.name || currentUser.email;
+                detail = `Signed by ${name} &mdash; ${dateStr} at ${timeStr}`;
+            }
+
+            // Code of Conduct card
+            if (signed) {
+                document.getElementById('cocBadge').style.display = 'inline-flex';
+                document.getElementById('cocSigDetail').innerHTML = detail;
+            } else {
+                document.getElementById('cocUnsignedBadge').style.display = 'inline-flex';
+                document.getElementById('cocSigDetail').textContent = 'Please review and sign this document.';
+            }
+
+            // Dress Code card (same agreement covers both — dress code is section 2 of CoC)
+            if (signed) {
+                document.getElementById('dressBadge').style.display = 'inline-flex';
+                document.getElementById('dressSigDetail').innerHTML = detail;
+            } else {
+                document.getElementById('dressUnsignedBadge').style.display = 'inline-flex';
+                document.getElementById('dressSigDetail').textContent = 'Please review and sign this document.';
             }
         }
 
