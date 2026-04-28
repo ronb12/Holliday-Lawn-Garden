@@ -106,6 +106,43 @@
         }
         .staff-name-row input:focus { outline: none; border-color: #4caf50; box-shadow: 0 0 0 3px rgba(76,175,80,0.15); }
 
+        /* Signature pad */
+        .sig-pad-section { margin-bottom: 1.25rem; }
+        .sig-pad-label { font-size: 0.85rem; font-weight: 600; color: #555; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem; }
+        .sig-canvas-wrap {
+            border: 1.5px solid #ddd; border-radius: 10px; background: #fafafa;
+            position: relative; overflow: hidden; touch-action: none;
+            transition: border-color 0.2s;
+        }
+        .sig-canvas-wrap:hover, .sig-canvas-wrap.active { border-color: #4caf50; }
+        .sig-canvas-wrap canvas { display: block; width: 100%; height: 160px; cursor: crosshair; }
+        .sig-hint {
+            position: absolute; inset: 0; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 0.4rem;
+            color: #bbb; font-size: 0.9rem; pointer-events: none; user-select: none;
+            transition: opacity 0.2s;
+        }
+        .sig-hint i { font-size: 1.8rem; }
+        .sig-hint.hidden { opacity: 0; }
+        .sig-pad-footer {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-top: 0.4rem; padding: 0 0.25rem;
+        }
+        .sig-underline { font-size: 0.75rem; color: #aaa; letter-spacing: 1px; }
+        .btn-clear-sig {
+            font-size: 0.78rem; color: #888; background: none; border: 1px solid #ddd;
+            cursor: pointer; font-weight: 600; padding: 0.25rem 0.65rem; border-radius: 5px;
+            display: flex; align-items: center; gap: 0.3rem; transition: all 0.15s;
+        }
+        .btn-clear-sig:hover { color: #c62828; border-color: #c62828; background: #fff5f5; }
+
+        .agree-statement {
+            background: #f0fdf4; border: 1px solid #a5d6a7; border-radius: 10px;
+            padding: 0.85rem 1rem; margin-bottom: 1.25rem; font-size: 0.88rem;
+            color: #2c5530; line-height: 1.6; display: flex; gap: 0.6rem;
+        }
+        .agree-statement i { flex-shrink: 0; margin-top: 2px; }
+
         .btn-agree {
             width: 100%; padding: 1rem; background: #4caf50; color: white;
             border: none; border-radius: 10px; font-size: 1rem; font-weight: 700;
@@ -115,6 +152,10 @@
         .btn-agree:hover:not(:disabled) { background: #388e3c; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(76,175,80,0.35); }
         .btn-agree:disabled { background: #bdbdbd; cursor: not-allowed; transform: none; box-shadow: none; }
         .btn-agree-note { text-align: center; font-size: 0.78rem; color: #9e9e9e; margin-top: 0.6rem; }
+
+        /* Signature preview (already-agreed banner) */
+        .sig-preview-wrap { margin-top: 0.75rem; text-align: center; }
+        .sig-preview-wrap img { max-width: 200px; max-height: 70px; filter: invert(20%) sepia(70%) saturate(600%) hue-rotate(90deg); opacity: 0.85; }
 
         .already-agreed {
             display: none; background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 12px;
@@ -154,6 +195,9 @@
             <i class="fas fa-check-circle"></i>
             <strong>You've already signed this Code of Conduct.</strong>
             <small id="agreedDate"></small>
+            <div class="sig-preview-wrap" id="sigPreviewWrap" style="display:none">
+                <img id="sigPreviewImg" src="" alt="Your signature"/>
+            </div>
             <br/>
             <a href="staff-portal.html" class="btn-continue"><i class="fas fa-arrow-right"></i> Continue to Staff Portal</a>
         </div>
