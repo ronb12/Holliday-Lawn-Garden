@@ -60,6 +60,27 @@ async function loadPayRates() {
     const snap = await getDocs(collection(db, 'staffPayRates'));
     payRates = {};
     snap.docs.forEach(d => { payRates[d.id] = d.data().hourlyRate; });
+
+    // Timeclock entries store staffId = auth UID (fallback when the email-based
+    // staff lookup fails due to Firestore rules), but staffPayRates docs are
+    // keyed by the Firestore staff doc ID (auto-generated).  Build a second
+    // index keyed by auth UID so earnings look-ups always resolve correctly.
+    try {
+        const usersSnap = await getDocs(collection(db, 'users'));
+        const emailToUid = {};
+        usersSnap.docs.forEach(d => {
+            const email = d.data().email;
+            if (email) emailToUid[email.toLowerCase()] = d.id;
+        });
+        allStaff.forEach(s => {
+            const uid = emailToUid[(s.email || '').toLowerCase()];
+            if (uid && uid !== s.id && payRates[s.id] != null) {
+                payRates[uid] = payRates[s.id];
+            }
+        });
+    } catch (e) {
+        console.warn('Could not build UID pay-rate index:', e);
+    }
 }
 
 function renderPayRatesPanel() {
