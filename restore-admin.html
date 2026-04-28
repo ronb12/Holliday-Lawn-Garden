@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Restore Admin Access</title>
+    <style>
+        body { font-family: sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #f5f5f5; }
+        .card { background: #fff; border-radius: 12px; padding: 2.5rem 2rem; max-width: 420px; width: 100%; box-shadow: 0 2px 16px rgba(0,0,0,0.1); text-align: center; }
+        h2 { color: #2c5530; margin-bottom: 0.5rem; }
+        p { color: #555; margin-bottom: 1.5rem; }
+        .btn { display: inline-block; padding: 0.9rem 2rem; background: #2c5530; color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; width: 100%; }
+        .btn:disabled { background: #aaa; cursor: not-allowed; }
+        .status { margin-top: 1rem; padding: 0.8rem; border-radius: 8px; font-weight: 500; display: none; }
+        .ok   { background: #e8f5e9; color: #2e7d32; }
+        .err  { background: #ffebee; color: #c62828; }
+        .info { background: #e3f2fd; color: #1565c0; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>Restore Admin Access</h2>
+    <p id="desc">This page resets <strong>ronellbradley@gmail.com</strong> back to <strong>Admin</strong> role. Sign in first if prompted.</p>
+    <button class="btn" id="restoreBtn" onclick="restore()">Restore Admin Role</button>
+    <div class="status info" id="status">Working…</div>
+</div>
+
+<script type="module">
+import { initializeApp }           from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword }
+                                    from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getFirestore, doc, setDoc, getDoc }
+                                    from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+const ALLOWED_EMAIL = 'ronellbradley@gmail.com';
+
+const app  = initializeApp({
+    apiKey: "AIzaSyACm0j7I8RX4ExIQRoejfk1HZMOQRGigBw",
+    authDomain: "holiday-lawn-and-garden.firebaseapp.com",
+    projectId: "holiday-lawn-and-garden",
+    storageBucket: "holiday-lawn-and-garden.firebasestorage.app",
+    messagingSenderId: "135322230444",
+    appId: "1:135322230444:web:1a487b25a48aae07368909"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+let currentUser = null;
+
+function showStatus(msg, cls) {
+    const el = document.getElementById('status');
+    el.textContent = msg;
+    el.className = 'status ' + cls;
+    el.style.display = 'block';
+}
+
+onAuthStateChanged(auth, user => {
+    currentUser = user;
+    const btn = document.getElementById('restoreBtn');
+    if (user) {
+        if (user.email !== ALLOWED_EMAIL) {
+            showStatus(`Signed in as ${user.email} — this tool only works for ${ALLOWED_EMAIL}.`, 'err');
+            btn.disabled = true;
+        } else {
+            showStatus(`Signed in as ${user.email}. Click the button to restore admin role.`, 'info');
+        }
+    } else {
+        showStatus('Not signed in — you will be prompted for credentials when you click the button.', 'info');
+    }
+});
+
+window.restore = async function () {
+    const btn = document.getElementById('restoreBtn');
+    btn.disabled = true;
+
+    // Sign in if needed
+    if (!currentUser) {
+        const email    = prompt('Email:');
+        const password = prompt('Password:');
+        if (!email || !password) { btn.disabled = false; return; }
+        try {
+            const { user } = await signInWithEmailAndPassword(auth, email, password);
+            currentUser = user;
+        } catch (e) {
+            showStatus('Sign-in failed: ' + e.message, 'err');
+            btn.disabled = false;
+            return;
+        }
+    }
+
+    if (currentUser.email !== ALLOWED_EMAIL) {
+        showStatus('This account cannot be restored here.', 'err');
+        btn.disabled = false;
+        return;
+    }
+
+    showStatus('Restoring…', 'info');
+
+    try {
+        await setDoc(doc(db, 'users', currentUser.uid), { role: 'admin' }, { merge: true });
+        showStatus('Done! Role restored to admin. Redirecting to admin dashboard…', 'ok');
+        setTimeout(() => window.location.href = 'admin-dashboard.html', 2000);
+    } catch (e) {
+        showStatus('Error: ' + e.message, 'err');
+        btn.disabled = false;
+    }
+};
+</script>
+</body>
+</html>
