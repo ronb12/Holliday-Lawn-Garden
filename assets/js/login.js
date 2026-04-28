@@ -18,7 +18,7 @@ async function routeAfterLogin(user) {
     }
 
     if (role === 'staff') {
-        window.location.href = "timeclock.html";
+        window.location.href = "staff-portal.html";
         return;
     }
 
