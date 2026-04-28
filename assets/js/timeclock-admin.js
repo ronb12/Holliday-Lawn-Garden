@@ -112,7 +112,7 @@ function renderPayRatesPanel() {
     }
     grid.innerHTML = allStaff.map(s => `
         <div class="pay-row" id="payrow-${s.id}">
-            <span class="pay-staff-name"><i class="fas fa-user" style="color:#4caf50;margin-right:0.4rem;"></i>${s.name || s.email || s.id}</span>
+            <span class="pay-staff-name"><i class="fas fa-user" style="color:#4caf50;margin-right:0.4rem;"></i>${s.firstName && s.lastName ? s.firstName + ' ' + s.lastName : s.name || s.email || s.id}</span>
             <div class="pay-input-wrap">
                 <span>$</span>
                 <input class="pay-input" type="number" min="0" step="0.01"
@@ -142,25 +142,25 @@ window.savePayRate = async function (staffId) {
     }
 
     // Heal old entries: scan allEntries for any staffId (uid) that belongs to this
-    // person (matched by staffEmail OR by display-name pattern "First L") and save
-    // the rate at that uid in Firestore + in memory so earnings show immediately.
+    // person and save the rate at that uid so earnings show immediately.
+    // Tries multiple matching strategies since display names vary.
+    const memberEmail  = (staffMember?.email || '').toLowerCase();
+    const firstName    = staffMember?.firstName || '';
+    const lastName     = staffMember?.lastName  || '';
+    const fullName     = `${firstName} ${lastName}`.trim().toLowerCase();
+    const shortName    = firstName && lastName ? `${firstName} ${lastName[0]}`.toLowerCase() : '';
+
     const uidsToHeal = new Set();
     allEntries.forEach(e => {
-        if (e.staffId === staffId) return; // already keyed correctly
+        if (e.staffId === staffId) return; // already keyed by staff doc ID, skip
+        if (payRates[e.staffId] != null) return; // already has a rate, skip
         const entryEmail = (e.staffEmail || '').toLowerCase();
-        const memberEmail = (staffMember?.email || '').toLowerCase();
-        // Match by email stored on entry
-        if (entryEmail && memberEmail && entryEmail === memberEmail) {
-            uidsToHeal.add(e.staffId);
-            return;
+        const entryName  = (e.staffName  || '').toLowerCase();
+        if (memberEmail && (entryEmail === memberEmail || entryName === memberEmail)) {
+            uidsToHeal.add(e.staffId); return;
         }
-        // Match by "FirstName L" display-name pattern
-        if (staffMember?.firstName && staffMember?.lastName) {
-            const namePattern = `${staffMember.firstName} ${staffMember.lastName[0]}`.toLowerCase();
-            if ((e.staffName || '').toLowerCase() === namePattern) {
-                uidsToHeal.add(e.staffId);
-            }
-        }
+        if (fullName  && entryName === fullName)  { uidsToHeal.add(e.staffId); return; }
+        if (shortName && entryName === shortName) { uidsToHeal.add(e.staffId); return; }
     });
     for (const uid of uidsToHeal) {
         await setDoc(doc(db, 'staffPayRates', uid), rateData, { merge: true });
