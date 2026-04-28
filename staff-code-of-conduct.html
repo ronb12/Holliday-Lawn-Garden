@@ -470,9 +470,55 @@
         const db   = getFirestore(app);
         const auth = getAuth(app);
 
-        let currentUser  = null;
+        let currentUser      = null;
         let scrolledToBottom = false;
-        const COC_VERSION = '1.1';
+        let sigPad           = null;
+        let sigDrawn         = false;
+        const COC_VERSION    = '1.1';
+
+        // ── Initialize signature pad ────────────────────────────────
+        function initSigPad() {
+            const canvas = document.getElementById('sigCanvas');
+            const wrap   = document.getElementById('sigCanvasWrap');
+
+            // Size the canvas in actual pixels (retina-aware)
+            function resizeCanvas() {
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                canvas.width  = canvas.offsetWidth  * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                canvas.getContext('2d').scale(ratio, ratio);
+                if (sigPad) sigPad.clear();
+            }
+
+            sigPad = new window.SignaturePad(canvas, {
+                penColor:   '#1a237e',
+                minWidth:   1.5,
+                maxWidth:   3,
+                throttle:   16
+            });
+
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            // Show/hide hint and update button on draw
+            sigPad.addEventListener('beginStroke', () => {
+                wrap.classList.add('active');
+                document.getElementById('sigHint').classList.add('hidden');
+            });
+            sigPad.addEventListener('endStroke', () => {
+                sigDrawn = !sigPad.isEmpty();
+                wrap.classList.toggle('active', sigDrawn);
+                updateAgreeBtn();
+            });
+        }
+
+        window.clearSig = function () {
+            sigPad.clear();
+            sigDrawn = false;
+            document.getElementById('sigHint').classList.remove('hidden');
+            document.getElementById('sigCanvasWrap').classList.remove('active');
+            updateAgreeBtn();
+        };
 
         // ── Auth guard ──────────────────────────────────────────────
         onAuthStateChanged(auth, async (user) => {
@@ -489,12 +535,24 @@
             // Check if already agreed to current version
             const agreeDoc = await getDoc(doc(db, 'staffAgreements', user.uid)).catch(() => null);
             if (agreeDoc?.exists() && agreeDoc.data().version === COC_VERSION) {
-                const agreedAt = agreeDoc.data().agreedAt?.toDate ? agreeDoc.data().agreedAt.toDate() : new Date(agreeDoc.data().agreedAt);
+                const data    = agreeDoc.data();
+                const agreedAt = data.agreedAt?.toDate ? data.agreedAt.toDate() : new Date(data.agreedAt);
                 document.getElementById('alreadyAgreed').style.display = 'block';
-                document.getElementById('agreedDate').textContent = 'Signed on ' + agreedAt.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) + ' as "' + agreeDoc.data().signedName + '"';
+                document.getElementById('agreedDate').textContent =
+                    'Signed on ' + agreedAt.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' })
+                    + ' as "' + data.signedName + '"';
+                // Show saved signature preview if available
+                if (data.signatureDataUrl) {
+                    document.getElementById('sigPreviewImg').src = data.signatureDataUrl;
+                    document.getElementById('sigPreviewWrap').style.display = 'block';
+                }
                 document.getElementById('agreeSection').style.display = 'none';
-                document.querySelector('.scroll-hint').style.display = 'none';
+                document.querySelector('.scroll-hint').style.display  = 'none';
+                return;
             }
+
+            // Init the signature pad for signing
+            initSigPad();
         });
 
         // ── Scroll progress ─────────────────────────────────────────
@@ -502,14 +560,13 @@
         scrollArea.addEventListener('scroll', () => {
             const pct = scrollArea.scrollTop / (scrollArea.scrollHeight - scrollArea.clientHeight);
             const pctClamped = Math.min(100, Math.round(pct * 100));
-            document.getElementById('progressBar').style.width = pctClamped + '%';
+            document.getElementById('progressBar').style.width   = pctClamped + '%';
             document.getElementById('progressLabel').textContent = pctClamped + '%';
 
             if (pctClamped >= 98 && !scrolledToBottom) {
                 scrolledToBottom = true;
-                document.getElementById('progressEnd').innerHTML = '<i class="fas fa-check-circle" style="color:#4caf50;"></i>';
+                document.getElementById('progressEnd').innerHTML   = '<i class="fas fa-check-circle" style="color:#4caf50;"></i>';
                 document.getElementById('scrollHint').style.display = 'none';
-                document.getElementById('agreeCheck').disabled = false;
                 updateAgreeBtn();
             }
         });
@@ -522,41 +579,44 @@
             updateAgreeBtn();
         });
 
-        // ── Checkbox ────────────────────────────────────────────────
-        document.getElementById('agreeCheck').addEventListener('change', () => {
-            const row = document.getElementById('checkRow');
-            row.classList.toggle('checked', document.getElementById('agreeCheck').checked);
-            updateAgreeBtn();
-        });
-
         function updateAgreeBtn() {
-            const ready = scrolledToBottom
-                && document.getElementById('agreeCheck').checked
-                && nameInput.value.trim().length > 1;
+            const hasName = nameInput.value.trim().length > 1;
+            const ready   = scrolledToBottom && hasName && sigDrawn;
             document.getElementById('agreeBtn').disabled = !ready;
-            document.getElementById('agreeNote').textContent = ready
-                ? 'Click above to record your agreement.'
-                : 'Scroll to the bottom of the document and enter your name to agree.';
+
+            if (!scrolledToBottom) {
+                document.getElementById('agreeNote').textContent = 'Scroll to the bottom of the document first.';
+            } else if (!hasName) {
+                document.getElementById('agreeNote').textContent = 'Enter your full legal name above.';
+            } else if (!sigDrawn) {
+                document.getElementById('agreeNote').textContent = 'Draw your signature in the box above.';
+            } else {
+                document.getElementById('agreeNote').textContent = 'Ready — click the button to submit your signed agreement.';
+            }
         }
 
         // ── Submit agreement ────────────────────────────────────────
         window.submitAgreement = async function () {
-            const btn = document.getElementById('agreeBtn');
+            const btn  = document.getElementById('agreeBtn');
             const name = nameInput.value.trim();
-            if (!name || !currentUser) return;
+            if (!name || !currentUser || sigPad.isEmpty()) return;
+
+            // Capture signature as PNG data URL
+            const signatureDataUrl = sigPad.toDataURL('image/png');
 
             btn.disabled = true;
-            document.getElementById('agreeBtnText').textContent = 'Recording...';
+            document.getElementById('agreeBtnText').textContent = 'Saving...';
 
             try {
                 await setDoc(doc(db, 'staffAgreements', currentUser.uid), {
-                    userId:     currentUser.uid,
-                    email:      currentUser.email,
-                    signedName: name,
-                    version:    COC_VERSION,
-                    agreedAt:   serverTimestamp(),
-                    userAgent:  navigator.userAgent,
-                    ip:         null
+                    userId:           currentUser.uid,
+                    email:            currentUser.email,
+                    signedName:       name,
+                    signatureDataUrl: signatureDataUrl,
+                    version:          COC_VERSION,
+                    agreedAt:         serverTimestamp(),
+                    userAgent:        navigator.userAgent,
+                    ip:               null
                 });
                 // Write admin notification
                 try {
@@ -571,12 +631,11 @@
                         read:          false
                     });
                 } catch (e) { console.warn('Notification write failed:', e); }
-                // Redirect to staff portal
                 window.location.href = 'staff-portal.html';
             } catch (err) {
                 btn.disabled = false;
-                document.getElementById('agreeBtnText').innerHTML = 'Sign &amp; Agree';
-                alert('Could not record your agreement. Please try again or contact your administrator.');
+                document.getElementById('agreeBtnText').innerHTML = 'Submit Signed Agreement';
+                alert('Could not save your agreement. Please try again or contact your administrator.');
                 console.error(err);
             }
         };

@@ -415,9 +415,15 @@
 
                 <div class="sc-sig-block">
                     <div class="sc-sig-label"><i class="fas fa-signature"></i> Digital Signature</div>
-                    <div class="sc-sig-name">${escHtml(r.signedName || '—')}</div>
+                    ${r.signatureDataUrl
+                        ? `<div style="background:white;border:1px solid #c8e6c9;border-radius:6px;padding:0.75rem;margin-bottom:0.75rem;text-align:center;">
+                               <img src="${r.signatureDataUrl}" alt="Drawn signature" style="max-width:280px;max-height:100px;display:block;margin:0 auto;"/>
+                           </div>`
+                        : `<div class="sc-sig-name">${escHtml(r.signedName || '—')}</div>`
+                    }
                     <div class="sc-sig-meta">
-                        By typing their name above, the employee acknowledged that they read, understood, and agreed to all
+                        Legal name: <strong>${escHtml(r.signedName || '—')}</strong><br/>
+                        By drawing their signature above, the employee acknowledged that they read, understood, and agreed to all
                         terms of the Holliday's Lawn &amp; Garden Staff Code of Conduct &amp; Dress Code (v${escHtml(r.version || '?')}).<br/>
                         This digital signature is legally equivalent to a handwritten signature under applicable e-signature law.
                     </div>
