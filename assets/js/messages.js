@@ -78,35 +78,65 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Load messages from Firebase
-async function loadMessages() {
-    try {
-        loadingDiv.style.display = 'block';
-        messagesTable.style.display = 'none';
-        errorDiv.style.display = 'none';
+// Separate arrays for each source; merged into `messages` on every update.
+let _messagesArr = [];
+let _contactArr  = [];
 
-        const messagesRef = collection(db, 'messages');
-        const q = query(messagesRef, orderBy('createdAt', 'desc'));
-        
-        onSnapshot(q, (snapshot) => {
-            messages = [];
-            snapshot.forEach((doc) => {
-                messages.push({
-                    id: doc.id,
-                    ...doc.data()
-                });
-            });
-            
-            updateStats();
-            filterMessages();
-            loadingDiv.style.display = 'none';
-            messagesTable.style.display = 'table';
-        });
+function _mergeAndRender() {
+    messages = [..._messagesArr, ..._contactArr].sort((a, b) => {
+        const toMs = v => v?.toDate ? v.toDate().getTime() : (v ? new Date(v).getTime() : 0);
+        return toMs(b.createdAt) - toMs(a.createdAt);
+    });
+    updateStats();
+    filterMessages();
+    loadingDiv.style.display = 'none';
+    messagesTable.style.display = 'table';
+}
 
-    } catch (error) {
-        console.error('Error loading messages:', error);
-        showError('Failed to load messages. Please try again.');
-    }
+// Normalize a contact-submissions doc to the same shape as a messages doc.
+function _normalizeContact(d) {
+    const data = d.data();
+    return {
+        id:          d.id,
+        _collection: 'contact-submissions',
+        senderName:  data.name  || data.senderName  || '',
+        senderEmail: data.email || data.senderEmail || '',
+        subject:     data.service ? `Service Inquiry: ${data.service}` : (data.subject || 'Contact Form Submission'),
+        content:     data.message || data.content || '',
+        phone:       data.phone || '',
+        type:        'contact',
+        status:      data.status   || 'new',
+        priority:    data.priority || 'normal',
+        read:        data.read     || false,
+        createdAt:   data.timestamp || data.createdAt || null,
+    };
+}
+
+// Load messages from Firebase — reads both `messages` and `contact-submissions`.
+function loadMessages() {
+    loadingDiv.style.display = 'block';
+    messagesTable.style.display = 'none';
+    errorDiv.style.display = 'none';
+
+    // Listener 1: admin-composed messages
+    onSnapshot(
+        query(collection(db, 'messages'), orderBy('createdAt', 'desc')),
+        (snap) => {
+            _messagesArr = snap.docs.map(d => ({ id: d.id, _collection: 'messages', ...d.data() }));
+            _mergeAndRender();
+        },
+        (err) => { console.error('messages listener error:', err); showError('Failed to load messages.'); }
+    );
+
+    // Listener 2: public contact-form submissions
+    onSnapshot(
+        query(collection(db, 'contact-submissions'), orderBy('timestamp', 'desc')),
+        (snap) => {
+            _contactArr = snap.docs.map(d => _normalizeContact(d));
+            _mergeAndRender();
+        },
+        (err) => { console.error('contact-submissions listener error:', err); }
+    );
 }
 
 // Update statistics
@@ -261,9 +291,9 @@ function showError(message) {
 window.viewMessage = function(messageId) {
     const message = messages.find(m => m.id === messageId);
     if (message) {
-        // Mark as read
+        // Mark as read in the correct collection
         if (!message.read) {
-            updateDoc(doc(db, 'messages', messageId), { read: true });
+            updateDoc(doc(db, message._collection || 'messages', messageId), { read: true });
         }
         
         // Show message details
@@ -281,6 +311,7 @@ window.viewMessage = function(messageId) {
                 </div>
                 <div style="margin-bottom: 1rem;">
                     <strong>From:</strong> ${message.senderName || 'Unknown'} (${message.senderEmail || 'No email'})<br>
+                    ${message.phone ? `<strong>Phone:</strong> ${message.phone}<br>` : ''}
                     <strong>Date:</strong> ${formatDate(message.createdAt)}<br>
                     <strong>Type:</strong> ${message.type || 'General'}<br>
                     <strong>Priority:</strong> ${message.priority || 'Normal'}
@@ -344,9 +375,11 @@ window.replyMessage = function(messageId) {
 };
 
 window.deleteMessage = async function(messageId) {
+    const message = messages.find(m => m.id === messageId);
+    if (!message) return;
     if (confirm('Are you sure you want to delete this message?')) {
         try {
-            await deleteDoc(doc(db, 'messages', messageId));
+            await deleteDoc(doc(db, message._collection || 'messages', messageId));
         } catch (error) {
             console.error('Error deleting message:', error);
             showError('Failed to delete message. Please try again.');

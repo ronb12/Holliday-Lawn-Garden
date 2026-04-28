@@ -102,6 +102,13 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
+    // ── Contact Form Submissions ──────────────────────────────────
+    // Anyone can submit the public contact form; only admins can read/manage.
+    match /contact-submissions/{document} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
     // ── Messages ──────────────────────────────────────────────────
     match /messages/{document} {
       allow read, write: if isAdmin();
