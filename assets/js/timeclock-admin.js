@@ -271,11 +271,13 @@ function updateStatCards() {
     // Est pay this week
     const byStaffWeek = {};
     allEntries.filter(e => e.date >= weekStart && e.totalMinutes != null).forEach(e => {
-        byStaffWeek[e.staffId] = (byStaffWeek[e.staffId] || 0) + e.totalMinutes;
+        if (!byStaffWeek[e.staffId]) byStaffWeek[e.staffId] = { mins: 0, staffName: e.staffName };
+        byStaffWeek[e.staffId].mins += e.totalMinutes;
     });
     let payWeek = 0;
-    Object.entries(byStaffWeek).forEach(([sid, mins]) => {
-        if (payRates[sid] != null) payWeek += (mins / 60) * payRates[sid];
+    Object.entries(byStaffWeek).forEach(([sid, data]) => {
+        const rate = getEntryPayRate({ staffId: sid, staffName: data.staffName });
+        if (rate != null) payWeek += (data.mins / 60) * rate;
     });
 
     document.getElementById('statClockedIn').textContent  = clockedIn;
@@ -382,7 +384,8 @@ window.exportCSV = function () {
         const inTime  = e.clockIn  ? tsToDate(e.clockIn).toLocaleString()  : '';
         const outTime = e.clockOut ? tsToDate(e.clockOut).toLocaleString() : '';
         const hours   = e.totalMinutes != null ? (e.totalMinutes / 60).toFixed(2) : '';
-        const rate    = payRates[e.staffId] != null ? parseFloat(payRates[e.staffId]).toFixed(2) : '';
+        const rateVal = getEntryPayRate(e);
+        const rate    = rateVal != null ? parseFloat(rateVal).toFixed(2) : '';
         const pay     = hours && rate ? (parseFloat(hours) * parseFloat(rate)).toFixed(2) : '';
         rows.push([e.staffName || e.staffId, e.date, inTime, outTime, hours, rate ? '$' + rate : '', pay ? '$' + pay : '']);
     });
@@ -405,15 +408,16 @@ window.printPDF = function () {
     // Build pay summary grouped by staff
     const byStaff = {};
     entries.filter(e => e.totalMinutes != null).forEach(e => {
-        if (!byStaff[e.staffId]) byStaff[e.staffId] = { name: e.staffName || e.staffId, minutes: 0, shifts: 0 };
+        if (!byStaff[e.staffId]) byStaff[e.staffId] = { name: e.staffName || e.staffId, staffName: e.staffName, minutes: 0, shifts: 0 };
         byStaff[e.staffId].minutes += e.totalMinutes;
         byStaff[e.staffId].shifts++;
     });
 
     const summaryRows = Object.entries(byStaff).map(([sid, data]) => {
-        const hours = (data.minutes / 60).toFixed(2);
-        const rate  = payRates[sid] != null ? parseFloat(payRates[sid]).toFixed(2) : null;
-        const pay   = rate != null ? (parseFloat(hours) * parseFloat(rate)).toFixed(2) : null;
+        const hours   = (data.minutes / 60).toFixed(2);
+        const rateVal = getEntryPayRate({ staffId: sid, staffName: data.staffName });
+        const rate    = rateVal != null ? parseFloat(rateVal).toFixed(2) : null;
+        const pay     = rate != null ? (parseFloat(hours) * parseFloat(rate)).toFixed(2) : null;
         return `<tr>
             <td>${data.name}</td>
             <td>${hours} hrs</td>
