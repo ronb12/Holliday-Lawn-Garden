@@ -1,5 +1,5 @@
 export const CONFIG = {
-  BASE_PATH: '/Holliday-Lawn-Garden/assets/',
+  BASE_PATH: '/assets/',
   API_VERSION: '1.0.4',
   FIREBASE_VERSION: '10.8.0',
   ERROR_MESSAGES: {
