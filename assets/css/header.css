@@ -298,16 +298,44 @@
     margin-bottom: 0.25rem !important;
 }
 
+/* ── Medium screens: compact nav so all 8 items + 2 buttons fit ─ */
+@media (max-width: 1280px) {
+    .main-header .nav-links {
+        gap: 0.15rem !important;
+    }
+
+    .main-header .nav-links a,
+    .main-header nav > ul > li > a {
+        padding: 0.45rem 0.65rem !important;
+        font-size: 0.875rem !important;
+    }
+
+    .main-header .btn-login {
+        min-width: auto !important;
+        padding: 0.45rem 0.75rem !important;
+        font-size: 0.82rem !important;
+    }
+
+    .main-header .login-buttons {
+        gap: 0.5rem !important;
+    }
+}
+
 /* ── Mobile responsive ───────────────────────────────────────── */
 @media (max-width: 900px) {
     .main-header .nav-links a,
     .main-header nav > ul > li > a {
-        padding: 0.4rem 0.6rem !important;
+        padding: 0.4rem 0.5rem !important;
         font-size: 0.82rem !important;
     }
 
     .main-header .nav-links {
-        gap: 0.25rem !important;
+        gap: 0.1rem !important;
+    }
+
+    .main-header .btn-login {
+        padding: 0.4rem 0.6rem !important;
+        font-size: 0.8rem !important;
     }
 }
 
