@@ -20,10 +20,6 @@ args = "Start application"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Sync to GitHub"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "GitHub Auto-Sync"
 
 [[workflows.workflow]]
@@ -37,17 +33,6 @@ outputType = "webview"
 task = "shell.exec"
 args = "PORT=5000 node server.js"
 waitForPort = 5000
-
-[[workflows.workflow]]
-name = "Sync to GitHub"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "bash github-sync.sh"
-
-[workflows.workflow.metadata]
-outputType = "console"
 
 [[workflows.workflow]]
 name = "GitHub Auto-Sync"
