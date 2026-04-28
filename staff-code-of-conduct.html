@@ -490,6 +490,19 @@
                     userAgent:  navigator.userAgent,
                     ip:         null
                 });
+                // Write admin notification
+                try {
+                    await addDoc(collection(db, 'notifications'), {
+                        type:          'document_signed',
+                        staffId:       currentUser.uid,
+                        staffEmail:    currentUser.email,
+                        staffName:     name,
+                        documentTitle: `Code of Conduct & Dress Code (v${COC_VERSION})`,
+                        version:       COC_VERSION,
+                        createdAt:     serverTimestamp(),
+                        read:          false
+                    });
+                } catch (e) { console.warn('Notification write failed:', e); }
                 // Redirect to staff portal
                 window.location.href = 'staff-portal.html';
             } catch (err) {

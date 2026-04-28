@@ -150,6 +150,13 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
+    // ── Admin Notifications ───────────────────────────────────────
+    // Staff can create notifications (their own sign events); admin can read/update all.
+    match /notifications/{notifId} {
+      allow create: if isAuthenticated();
+      allow read, update: if isAdmin();
+    }
+
     // ── Staff Code of Conduct Agreements ─────────────────────────
     // Staff can create/update their own agreement; admins can read all.
     match /staffAgreements/{userId} {
