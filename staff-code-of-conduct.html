@@ -405,26 +405,50 @@
 
         <!-- Agreement section -->
         <div class="agree-section" id="agreeSection">
+
+            <!-- Step 1: Full name -->
             <div class="staff-name-row">
-                <label for="fullName">Your Full Name <span style="color:#c62828;">*</span></label>
-                <input type="text" id="fullName" placeholder="Type your full name to sign" autocomplete="name"/>
+                <label for="fullName">1. Your Legal Full Name <span style="color:#c62828;">*</span></label>
+                <input type="text" id="fullName" placeholder="Type your full legal name" autocomplete="name"/>
             </div>
 
-            <label class="agree-check-row" id="checkRow" for="agreeCheck">
-                <input type="checkbox" id="agreeCheck" disabled/>
-                <span class="agree-check-label">
-                    I, <strong id="namePreview">____________</strong>, have read and understood the Holliday's Lawn & Garden Staff Code of Conduct in full, and I agree to abide by its terms as a condition of my employment.
-                </span>
-            </label>
+            <!-- Step 2: Drawn signature -->
+            <div class="sig-pad-section">
+                <div class="sig-pad-label">
+                    <span>2. Draw Your Signature <span style="color:#c62828;">*</span></span>
+                </div>
+                <div class="sig-canvas-wrap" id="sigCanvasWrap">
+                    <canvas id="sigCanvas"></canvas>
+                    <div class="sig-hint" id="sigHint">
+                        <i class="fas fa-pen-nib"></i>
+                        <span>Sign here with your mouse or finger</span>
+                    </div>
+                </div>
+                <div class="sig-pad-footer">
+                    <span class="sig-underline">X ________________________________</span>
+                    <button type="button" class="btn-clear-sig" onclick="clearSig()">
+                        <i class="fas fa-undo"></i> Clear
+                    </button>
+                </div>
+            </div>
+
+            <!-- Agreement statement -->
+            <div class="agree-statement">
+                <i class="fas fa-info-circle"></i>
+                <span>By signing above, I, <strong id="namePreview">____________</strong>, confirm that I have read and understood the Holliday's Lawn &amp; Garden Staff Code of Conduct &amp; Dress Code in full, and I agree to abide by its terms as a condition of my employment.</span>
+            </div>
 
             <button class="btn-agree" id="agreeBtn" disabled onclick="submitAgreement()">
                 <i class="fas fa-signature"></i>
-                <span id="agreeBtnText">Sign &amp; Agree</span>
+                <span id="agreeBtnText">Submit Signed Agreement</span>
             </button>
-            <p class="btn-agree-note" id="agreeNote">Scroll to the bottom of the document and enter your name to agree.</p>
+            <p class="btn-agree-note" id="agreeNote">Scroll to the bottom of the document, enter your name, and draw your signature to agree.</p>
         </div>
 
     </div>
+
+    <!-- Signature Pad library (loaded before module so it's a global) -->
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
