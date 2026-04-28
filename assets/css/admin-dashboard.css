@@ -353,6 +353,11 @@ tr:hover {
     color: #f57c00;
 }
 
+.status-confirmed {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
 .status-active {
     background: #e8f5e8;
     color: #2e7d32;
