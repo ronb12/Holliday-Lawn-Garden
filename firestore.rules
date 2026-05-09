@@ -1,0 +1,231 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper functions ──────────────────────────────────────────
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Safe isAdmin: reads the users doc directly without recursion.
+    // Works because the users rule allows an authenticated user to
+    // read their OWN document unconditionally (uid == userId).
+    function isAdmin() {
+      return isAuthenticated() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isOwner() {
+      return isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    function isCreatingOwn() {
+      return isAuthenticated() && request.resource.data.userId == request.auth.uid;
+    }
+
+    // ── Users ─────────────────────────────────────────────────────
+    // IMPORTANT: a user must ALWAYS be able to read their own document
+    // without calling isAdmin() — otherwise isAdmin() deadlocks.
+    match /users/{userId} {
+      allow read:  if isAuthenticated() && request.auth.uid == userId;
+      allow write: if isAuthenticated() && request.auth.uid == userId;
+      // Admins can read/write any user doc
+      allow read, write: if isAdmin();
+    }
+
+    // ── Appointments ──────────────────────────────────────────────
+    // Public can create (online booking form); admins have full access;
+    // authenticated users can read/cancel their own.
+    match /appointments/{document} {
+      allow create: if true; // public booking form (no login required)
+      allow read, update, delete: if isAdmin();
+      allow read: if isOwner();
+      allow update: if isOwner() && request.resource.data.status == 'cancelled';
+    }
+
+    // ── Quote Requests ────────────────────────────────────────────
+    // Public can submit; only admins can read/manage.
+    match /quote-requests/{document} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ── Reviews ───────────────────────────────────────────────────
+    // Public can submit; only approved reviews visible to public;
+    // admins can read all and approve/delete.
+    // NOTE: allow list must be true for collection queries to work;
+    //       resource.data is not available during list operations.
+    match /reviews/{document} {
+      allow create: if true;
+      allow get:    if resource.data.approved == true || isAdmin();
+      allow list:   if true;
+      allow update, delete: if isAdmin();
+    }
+
+    // ── Customers ─────────────────────────────────────────────────
+    match /customers/{document} {
+      allow read, write: if isAdmin();
+    }
+
+    // ── Staff & Contractors ───────────────────────────────────────
+    match /staff/{staffId} {
+      allow read, write: if isAdmin();
+      // Staff can read their own record (doc ID == their UID)
+      allow get: if isAuthenticated() && request.auth.uid == staffId;
+      // Allow authenticated users to query staff by email so the timeclock
+      // can resolve the correct staff doc ID for pay-rate lookups.
+      allow list: if isAuthenticated();
+    }
+
+    match /contractors/{document} {
+      allow read, write: if isAdmin();
+    }
+
+    match /contractor_projects/{document} {
+      allow read, write: if isAdmin();
+    }
+
+    // ── Inventory / Equipment / Supplies ──────────────────────────
+    match /inventory/{document} {
+      allow read, write: if isAdmin();
+    }
+
+    match /equipment/{document} {
+      allow read, write: if isAdmin();
+    }
+
+    match /supplies/{document} {
+      allow read, write: if isAdmin();
+    }
+
+    match /maintenance/{document} {
+      allow read, write: if isAdmin();
+    }
+
+    // ── Contact Form Submissions ──────────────────────────────────
+    // Anyone can submit the public contact form; only admins can read/manage.
+    match /contact-submissions/{document} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ── Messages ──────────────────────────────────────────────────
+    match /messages/{document} {
+      allow read, write: if isAdmin();
+    }
+
+    // bulk-messages (hyphenated collection name used in code)
+    match /bulk-messages/{document} {
+      allow read, write: if isAdmin();
+    }
+
+    // legacy camelCase name (kept for backwards compatibility)
+    match /bulkMessages/{document} {
+      allow read, write: if isAdmin();
+    }
+
+    // ── Notifications ─────────────────────────────────────────────
+    match /notifications/{document} {
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      allow write: if isAdmin();
+    }
+
+    // ── Schedule ──────────────────────────────────────────────────
+    match /schedule/{document} {
+      allow read: if isAdmin() || isOwner();
+      allow write: if isAdmin();
+    }
+
+    match /scheduledServices/{document} {
+      allow read: if isAdmin() || isOwner();
+      allow write: if isAdmin();
+    }
+
+    // ── Payments / Invoices / Billing ─────────────────────────────
+    match /payments/{document} {
+      allow read: if isAdmin() || isOwner();
+      allow write: if isAdmin();
+    }
+
+    match /invoices/{document} {
+      allow read: if isAdmin() || isOwner();
+      allow write: if isAdmin();
+    }
+
+    match /billing/{document} {
+      allow read: if isAdmin() || isOwner();
+      allow write: if isAdmin();
+    }
+
+    // ── Expenses (business costs) ─────────────────────────────────
+    match /expenses/{document} {
+      allow read, write: if isAdmin();
+    }
+
+    // ── Admin Notifications ───────────────────────────────────────
+    // Staff can create notifications (their own sign events); admin can read/update all.
+    match /notifications/{notifId} {
+      allow create: if isAuthenticated();
+      allow read, update: if isAdmin();
+    }
+
+    // ── Staff Code of Conduct Agreements ─────────────────────────
+    // Staff can create/update their own agreement; admins can read all.
+    match /staffAgreements/{userId} {
+      allow create, update: if isAuthenticated() && request.auth.uid == userId;
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      allow read: if isAdmin();
+    }
+
+    // ── Staff time clock & pay rates ─────────────────────────────
+    match /timeclock/{document} {
+      allow read: if isAdmin() || isAuthenticated();
+      allow write: if isAuthenticated();  // staff can clock in/out
+      allow delete: if isAdmin();
+    }
+
+    match /staffPayRates/{staffId} {
+      allow read, write: if isAdmin();
+      // Staff can read their own pay rate
+      allow get: if isAuthenticated() && request.auth.uid == staffId;
+    }
+
+    // ── Services ──────────────────────────────────────────────────
+    match /services/{document} {
+      allow read: if isAdmin() || isOwner();
+      allow write: if isAdmin();
+    }
+
+    match /serviceRequests/{document} {
+      allow create: if isCreatingOwn();
+      allow read:   if isAdmin() || isOwner();
+      allow update, delete: if isAdmin();
+    }
+
+    // ── Chat ──────────────────────────────────────────────────────
+    // Customers can read/write their own chat messages; admins have full access.
+    match /chats/{document} {
+      allow read, write: if isAdmin();
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+    }
+
+    match /typing/{document} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // ── Analytics / Reports ───────────────────────────────────────
+    match /analytics/{document} {
+      allow read, write: if isAdmin();
+    }
+
+    match /reports/{document} {
+      allow read, write: if isAdmin();
+    }
+
+    // ── Deny everything else ──────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

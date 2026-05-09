@@ -1,0 +1,462 @@
+/* ============================================================
+   Holliday's Lawn & Garden — Shared Header & Footer Styles
+   Applied site-wide; overrides page-level styles.
+   ============================================================ */
+
+/* ── Header ─────────────────────────────────────────────────── */
+.main-header {
+    background: white !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 1rem !important;
+    min-height: 80px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1000 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Inner content wrapper (used by some pages e.g. login.html) */
+.main-header .header-content {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    height: 100% !important;
+    gap: 0 !important;
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Logo */
+.main-header .logo,
+.main-header > .logo {
+    display: flex !important;
+    align-items: center !important;
+    flex-shrink: 0 !important;
+    margin-right: 2rem !important;
+    text-decoration: none !important;
+    height: 100% !important;
+}
+
+.main-header .logo img,
+.main-header > .logo img {
+    height: 60px !important;
+    width: auto !important;
+    display: block !important;
+    margin: 0 !important;
+}
+
+/* Nav wrapper */
+.main-header nav,
+.main-header #nav-menu {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex: 1 !important;
+    gap: 1rem !important;
+    min-width: 0 !important;
+}
+
+/* Nav link list */
+.main-header .nav-links {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 1.5rem !important;
+    flex: 1 !important;
+    flex-wrap: nowrap !important;
+    flex-shrink: 1 !important;
+    min-width: 0 !important;
+}
+
+.main-header .nav-links li,
+.main-header nav > ul > li {
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+}
+
+.main-header .nav-links a,
+.main-header nav > ul > li > a {
+    display: block !important;
+    padding: 0.5rem 1rem !important;
+    color: #333 !important;
+    font-weight: 500 !important;
+    font-size: 0.9rem !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    border-radius: 6px !important;
+    transition: all 0.3s ease !important;
+    line-height: 1.4 !important;
+}
+
+.main-header .nav-links a:hover,
+.main-header nav > ul > li > a:hover {
+    color: #2e7d32 !important;
+    background-color: rgba(0, 0, 0, 0.05) !important;
+    transform: translateY(-1px) !important;
+}
+
+.main-header .nav-links a.active {
+    color: #2e7d32 !important;
+    background-color: rgba(46, 125, 50, 0.08) !important;
+}
+
+/* Login buttons */
+.main-header .login-buttons {
+    display: flex !important;
+    align-items: center !important;
+    gap: 1rem !important;
+    flex-shrink: 0 !important;
+    margin-left: auto !important;
+}
+
+/* ── Login Dropdown ─────────────────────────────────────────── */
+.login-dropdown {
+    position: relative !important;
+    display: inline-block !important;
+}
+.btn-login-main {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.45rem !important;
+    padding: 0.55rem 1.1rem !important;
+    background: #2e7d32 !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 6px !important;
+    font-family: inherit !important;
+    font-weight: 700 !important;
+    font-size: 0.875rem !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.12) !important;
+    transition: background 0.2s, box-shadow 0.2s !important;
+    line-height: 1.4 !important;
+}
+.btn-login-main:hover {
+    background: #1b5e20 !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.18) !important;
+}
+.login-chevron {
+    font-size: 0.65rem !important;
+    margin-left: 2px !important;
+    transition: transform 0.2s !important;
+}
+.login-drop-menu {
+    display: none;
+    position: absolute !important;
+    top: calc(100% + 8px) !important;
+    right: 0 !important;
+    background: #fff !important;
+    border-radius: 10px !important;
+    min-width: 215px !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18) !important;
+    border: 1px solid #e0e0e0 !important;
+    overflow: hidden !important;
+    z-index: 9999 !important;
+}
+.login-drop-menu.open {
+    display: block !important;
+}
+.login-drop-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.85rem !important;
+    padding: 0.9rem 1.1rem !important;
+    text-decoration: none !important;
+    color: #222 !important;
+    border-bottom: 1px solid #f0f0f0 !important;
+    transition: background 0.15s !important;
+}
+.login-drop-item:last-child { border-bottom: none !important; }
+.login-drop-item:hover { background: #f0fdf4 !important; }
+.login-drop-item i {
+    font-size: 1.05rem !important;
+    width: 26px !important;
+    text-align: center !important;
+    flex-shrink: 0 !important;
+}
+.login-drop-item.customer-item i { color: #2e7d32 !important; }
+.login-drop-item.staff-item    i { color: #e65100 !important; }
+.login-drop-item.admin-item    i { color: #1565c0 !important; }
+.login-drop-item div {
+    display: flex !important;
+    flex-direction: column !important;
+}
+.login-drop-item div strong {
+    font-size: 0.88rem !important;
+    font-weight: 700 !important;
+    line-height: 1.3 !important;
+    color: #111 !important;
+}
+.login-drop-item div span {
+    font-size: 0.74rem !important;
+    color: #888 !important;
+    margin-top: 0.1rem !important;
+}
+
+.main-header .btn-login {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+    padding: 0.5rem 0.75rem !important;
+    border-radius: 6px !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
+    white-space: nowrap !important;
+    transition: all 0.3s ease !important;
+    line-height: 1.4 !important;
+    border: none !important;
+    cursor: pointer !important;
+    min-width: 110px !important;
+    width: auto !important;
+    box-sizing: border-box !important;
+    height: auto !important;
+    text-align: center !important;
+    letter-spacing: normal !important;
+    text-transform: none !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.main-header .btn-login:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+    opacity: 1 !important;
+}
+
+.main-header .btn-customer,
+.main-header a.btn-customer {
+    background: #2e7d32 !important;
+    color: #fff !important;
+}
+
+.main-header .btn-admin,
+.main-header a.btn-admin {
+    background: #1565c0 !important;
+    color: #fff !important;
+}
+
+/* ── Footer ─────────────────────────────────────────────────── */
+.footer {
+    background: #1a2e1a !important;
+    color: #b8c8b8 !important;
+    padding: 3rem 0 0 !important;
+    margin-top: auto !important;
+}
+
+.footer-content {
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    padding: 0 2rem !important;
+}
+
+.footer-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+    gap: 2rem !important;
+    padding-bottom: 2.5rem !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.footer-section h3 {
+    color: #fff !important;
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    margin: 0 0 1rem !important;
+    padding-bottom: 0.5rem !important;
+    border-bottom: 2px solid #2e7d32 !important;
+}
+
+.footer-section ul {
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.footer-section ul li {
+    margin-bottom: 0.55rem !important;
+    font-size: 0.875rem !important;
+    color: #a0b4a0 !important;
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+    line-height: 1.5 !important;
+}
+
+.footer-section ul li a {
+    color: #a0b4a0 !important;
+    text-decoration: none !important;
+    transition: color 0.2s !important;
+}
+
+.footer-section ul li a:hover {
+    color: #81c784 !important;
+}
+
+.footer-section ul li i {
+    color: #4caf50 !important;
+    margin-top: 0.2rem !important;
+    flex-shrink: 0 !important;
+    width: 14px !important;
+    text-align: center !important;
+}
+
+.footer-bottom {
+    padding: 1.25rem 2rem !important;
+    text-align: center !important;
+    font-size: 0.8rem !important;
+    color: #6a7a6a !important;
+}
+
+.social-links {
+    display: flex !important;
+    gap: 0.75rem !important;
+    flex-wrap: wrap !important;
+    margin-top: 0.5rem !important;
+}
+
+.social-link {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 38px !important;
+    height: 38px !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 50% !important;
+    color: #fff !important;
+    text-decoration: none !important;
+    font-size: 1rem !important;
+    transition: background 0.2s, transform 0.2s !important;
+}
+
+.social-link:hover {
+    background: #2e7d32 !important;
+    color: #fff !important;
+    transform: translateY(-2px) !important;
+}
+
+.footer-contact {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+    font-size: 0.875rem !important;
+}
+
+.footer-contact a {
+    color: #a0b4a0 !important;
+    text-decoration: none !important;
+    transition: color 0.2s !important;
+}
+
+.footer-contact a:hover {
+    color: #81c784 !important;
+}
+
+.footer-contact a i {
+    color: #4caf50 !important;
+    margin-right: 0.4rem !important;
+}
+
+.footer-owner {
+    color: #fff !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.25rem !important;
+}
+
+/* ── Medium screens: compact nav so all 8 items + 2 buttons fit ─ */
+@media (max-width: 1280px) {
+    .main-header .nav-links {
+        gap: 0.15rem !important;
+    }
+
+    .main-header .nav-links a,
+    .main-header nav > ul > li > a {
+        padding: 0.45rem 0.65rem !important;
+        font-size: 0.875rem !important;
+    }
+
+    .main-header .btn-login {
+        min-width: auto !important;
+        padding: 0.45rem 0.75rem !important;
+        font-size: 0.82rem !important;
+    }
+
+    .main-header .login-buttons {
+        gap: 0.5rem !important;
+    }
+}
+
+/* ── Mobile responsive ───────────────────────────────────────── */
+@media (max-width: 900px) {
+    .main-header .nav-links a,
+    .main-header nav > ul > li > a {
+        padding: 0.4rem 0.5rem !important;
+        font-size: 0.82rem !important;
+    }
+
+    .main-header .nav-links {
+        gap: 0.1rem !important;
+    }
+
+    .main-header .btn-login {
+        padding: 0.4rem 0.6rem !important;
+        font-size: 0.8rem !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-header {
+        padding: 0 1rem !important;
+        min-height: 60px !important;
+    }
+
+    /* Shrink logo so it has breathing room inside 60px header */
+    .main-header .logo img,
+    .main-header > .logo img {
+        height: 44px !important;
+    }
+
+    /* Match body top-padding to the 60px mobile header */
+    body {
+        padding-top: 60px !important;
+    }
+
+    /* Ensure content doesn't hide behind the bottom tab bar */
+    body:has(.mobile-tab-bar) {
+        padding-bottom: 64px !important;
+    }
+
+    .main-header .nav-links {
+        display: none !important;
+    }
+    .main-header .login-buttons {
+        display: none !important;
+    }
+    .footer-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+    .footer-content {
+        padding: 0 1rem !important;
+    }
+}

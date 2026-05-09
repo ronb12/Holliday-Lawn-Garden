@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Log Expense - Admin Dashboard</title>
+    <link href="assets/css/main.min.css" rel="stylesheet"/>
+    <link href="assets/css/admin-dashboard.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon/favicon-32x32.png" />
+    <link rel="manifest" href="manifest.json" />
+    <meta content="#2e7d32" name="theme-color"/>
+    <style>
+        body { padding-top: 80px; margin: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; }
+        .dashboard-main { max-width: 700px; margin: 2rem auto; padding: 0 1.5rem; }
+        .page-header { background: #fff; padding: 1.5rem 2rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 1.5rem; }
+        .page-title { font-size: 1.8rem; font-weight: 700; color: #2c5530; margin: 0; }
+        .page-subtitle { color: #666; margin: 0.25rem 0 0; }
+        .card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); padding: 1.75rem; margin-bottom: 1.5rem; }
+        .card h3 { font-size: 1rem; font-weight: 700; color: #2c5530; margin: 0 0 1.25rem; padding-bottom: 0.75rem; border-bottom: 2px solid #e8f5e9; display: flex; align-items: center; gap: 0.5rem; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #444; margin-bottom: 0.4rem; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.65rem 0.85rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; box-sizing: border-box; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #4caf50; box-shadow: 0 0 0 2px rgba(76,175,80,0.15); }
+        .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.65rem; margin-top: 0.25rem; }
+        .cat-option { position: relative; }
+        .cat-option input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+        .cat-option label { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; padding: 0.75rem 0.5rem; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; font-size: 0.82rem; font-weight: 600; color: #555; transition: all 0.15s; }
+        .cat-option label i { font-size: 1.2rem; }
+        .cat-option input:checked + label { border-color: #4caf50; background: #f0fdf4; color: #2c5530; }
+        .cat-option label:hover { border-color: #a5d6a7; background: #f9fff9; }
+        .form-actions { display: flex; gap: 1rem; justify-content: flex-end; }
+        .btn { padding: 0.65rem 1.25rem; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; font-size: 0.9rem; transition: all 0.2s; }
+        .btn-primary { background: #4caf50; color: white; }
+        .btn-primary:hover { background: #388e3c; }
+        .btn-secondary { background: #f1f5f9; color: #374151; }
+        .btn-danger { background: #e53935; color: white; }
+        .msg { padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem; display: none; }
+        .msg-success { background: #e8f5e9; color: #2e7d32; }
+        .msg-error { background: #ffebee; color: #c62828; }
+        @media (max-width: 768px) { .dashboard-main { padding: 0 1rem; } .form-row { grid-template-columns: 1fr; } .cat-grid { grid-template-columns: repeat(2, 1fr); } .form-actions { flex-direction: column; } }
+    </style>
+    <link rel="stylesheet" href="assets/css/mobile.css">
+</head>
+<body>
+    <header class="admin-header">
+        <div class="container header-content">
+            <div class="logo">
+                <img src="assets/images/hollidays-logo.optimized-1280.png" alt="Holliday's Lawn &amp; Garden" />
+                <span style="font-weight:700;color:#2c5530;">Admin Dashboard</span>
+            </div>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle"><i class="fas fa-bars"></i></button>
+            <nav class="admin-nav" id="adminNav">
+                <a href="admin-dashboard.html">Dashboard</a>
+                <a href="expenses.html">Expenses</a>
+                <a href="payments.html">Payments</a>
+                <button class="btn btn-danger" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="dashboard-main">
+        <nav aria-label="Breadcrumb" style="padding:0.6rem 0 0.2rem;font-size:0.85rem;color:#777;">
+            <a href="admin-dashboard.html" style="color:#2e7d32;text-decoration:none;font-weight:500;"><i class="fas fa-home"></i> Dashboard</a>
+            <span style="margin:0 0.4rem;">›</span>
+            <a href="expenses.html" style="color:#2e7d32;text-decoration:none;font-weight:500;">Expenses</a>
+            <span style="margin:0 0.4rem;">›</span> Log Expense
+        </nav>
+
+        <div class="page-header">
+            <h1 class="page-title"><i class="fas fa-receipt" style="color:#4caf50;margin-right:0.5rem;"></i>Log Expense</h1>
+            <p class="page-subtitle">Record a business cost to track profitability</p>
+        </div>
+
+        <div id="msgBox" class="msg"></div>
+
+        <form id="expenseForm">
+            <div class="card">
+                <h3><i class="fas fa-tags"></i> Category</h3>
+                <div class="cat-grid">
+                    <div class="cat-option">
+                        <input type="radio" name="category" id="cat-fuel" value="Fuel" checked>
+                        <label for="cat-fuel"><i class="fas fa-gas-pump" style="color:#e65100;"></i>Fuel</label>
+                    </div>
+                    <div class="cat-option">
+                        <input type="radio" name="category" id="cat-equipment" value="Equipment">
+                        <label for="cat-equipment"><i class="fas fa-tools" style="color:#1565c0;"></i>Equipment</label>
+                    </div>
+                    <div class="cat-option">
+                        <input type="radio" name="category" id="cat-supplies" value="Supplies">
+                        <label for="cat-supplies"><i class="fas fa-seedling" style="color:#2e7d32;"></i>Supplies</label>
+                    </div>
+                    <div class="cat-option">
+                        <input type="radio" name="category" id="cat-labor" value="Labor">
+                        <label for="cat-labor"><i class="fas fa-user-hard-hat" style="color:#c2185b;"></i>Labor</label>
+                    </div>
+                    <div class="cat-option">
+                        <input type="radio" name="category" id="cat-vehicle" value="Vehicle">
+                        <label for="cat-vehicle"><i class="fas fa-truck" style="color:#6a1b9a;"></i>Vehicle</label>
+                    </div>
+                    <div class="cat-option">
+                        <input type="radio" name="category" id="cat-other" value="Other">
+                        <label for="cat-other"><i class="fas fa-ellipsis-h" style="color:#6b7280;"></i>Other</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-info-circle"></i> Expense Details</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Date *</label>
+                        <input type="date" id="expenseDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount ($) *</label>
+                        <input type="number" id="amount" step="0.01" min="0" required placeholder="0.00">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description *</label>
+                    <input type="text" id="description" required placeholder="e.g. Gas fill-up for truck, Fertilizer bags, Blade sharpening...">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Vendor / Store</label>
+                        <input type="text" id="vendor" placeholder="e.g. Shell, Home Depot, Auto Zone">
+                    </div>
+                    <div class="form-group">
+                        <label>Receipt / Reference #</label>
+                        <input type="text" id="receiptNumber" placeholder="Receipt or transaction number">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Notes (optional)</label>
+                    <textarea id="notes" rows="2" placeholder="Any extra details about this expense..."></textarea>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="expenses.html" class="btn btn-secondary"><i class="fas fa-times"></i> Cancel</a>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Expense</button>
+            </div>
+        </form>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyACm0j7I8RX4ExIQRoejfk1HZMOQRGigBw",
+            authDomain: "holiday-lawn-and-garden.firebaseapp.com",
+            projectId: "holiday-lawn-and-garden",
+            storageBucket: "holiday-lawn-and-garden.firebasestorage.app",
+            messagingSenderId: "135322230444",
+            appId: "1:135322230444:web:1a487b25a48aae07368909"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => { await signOut(auth); window.location.href = 'login.html'; });
+        document.getElementById('mobileMenuToggle')?.addEventListener('click', () => { document.getElementById('adminNav').classList.toggle('open'); });
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) { window.location.href = 'login.html'; return; }
+        });
+
+        document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
+
+        function showMsg(text, type) {
+            const box = document.getElementById('msgBox');
+            box.textContent = text;
+            box.className = `msg msg-${type}`;
+            box.style.display = 'block';
+        }
+
+        document.getElementById('expenseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const category = document.querySelector('input[name="category"]:checked')?.value || 'Other';
+            try {
+                await addDoc(collection(db, 'expenses'), {
+                    category,
+                    date: document.getElementById('expenseDate').value,
+                    amount: parseFloat(document.getElementById('amount').value),
+                    description: document.getElementById('description').value,
+                    vendor: document.getElementById('vendor').value,
+                    receiptNumber: document.getElementById('receiptNumber').value,
+                    notes: document.getElementById('notes').value,
+                    createdAt: serverTimestamp()
+                });
+                showMsg('Expense saved successfully!', 'success');
+                setTimeout(() => { window.location.href = 'expenses.html'; }, 1200);
+            } catch (err) {
+                showMsg('Error saving expense: ' + err.message, 'error');
+            }
+        });
+    </script>
+    <script src="assets/js/hide-loading.js"></script>
+</body>
+</html>

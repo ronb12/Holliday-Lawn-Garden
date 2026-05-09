@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Staff Portal - Holliday's Lawn & Garden</title>
+    <meta name="robots" content="noindex, nofollow"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon/favicon-32x32.png"/>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #f0f4f0; color: #222; min-height: 100vh; }
+
+        /* Header */
+        .staff-header {
+            background: #2c5530;
+            color: white;
+            padding: 0 1.5rem;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .header-brand { display: flex; align-items: center; gap: 0.75rem; }
+        .header-brand img { height: 40px; border-radius: 6px; }
+        .header-brand .brand-text { font-weight: 700; font-size: 1rem; }
+        .header-brand .brand-sub { font-size: 0.75rem; opacity: 0.75; display: block; }
+        .header-actions { display: flex; align-items: center; gap: 0.75rem; }
+        .btn-logout { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 0.45rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: background 0.2s; }
+        .btn-logout:hover { background: rgba(255,255,255,0.25); }
+
+        /* Main layout */
+        .portal-main { max-width: 900px; margin: 0 auto; padding: 1.75rem 1.25rem 4rem; }
+
+        /* Welcome banner */
+        .welcome-banner {
+            background: linear-gradient(135deg, #2e7d32, #4caf50);
+            color: white;
+            border-radius: 16px;
+            padding: 1.75rem 2rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .welcome-left h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.2rem; }
+        .welcome-left p { opacity: 0.85; font-size: 0.95rem; }
+        .welcome-clock-wrap { text-align: right; }
+        .live-clock { font-size: 2.4rem; font-weight: 700; letter-spacing: 2px; font-variant-numeric: tabular-nums; line-height: 1; }
+        .live-date { font-size: 0.82rem; opacity: 0.8; margin-top: 0.2rem; }
+
+        /* Status + Clock in/out card */
+        .clock-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.45rem 1.1rem; border-radius: 20px; font-weight: 600;
+            font-size: 0.9rem; margin-bottom: 1.25rem;
+        }
+        .status-out { background: #f3f4f6; color: #6b7280; }
+        .status-in  { background: #dcfce7; color: #16a34a; }
+        .status-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+        .dot-in  { background: #16a34a; animation: pulse 1.5s infinite; }
+        .dot-out { background: #9ca3af; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+        .shift-timer {
+            display: none; background: #f0fdf4; border: 1px solid #bbf7d0;
+            border-radius: 10px; padding: 0.85rem 1.25rem; margin-bottom: 1.25rem;
+        }
+        .shift-timer.visible { display: block; }
+        .shift-timer-label { font-size: 0.78rem; color: #16a34a; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .shift-timer-value { font-size: 2rem; font-weight: 700; color: #15803d; font-variant-numeric: tabular-nums; }
+
+        .clock-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem;
+            padding: 1rem 3rem; border-radius: 10px; border: none;
+            font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
+            min-width: 240px;
+        }
+        .btn-in  { background: #4caf50; color: white; }
+        .btn-in:hover { background: #388e3c; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(76,175,80,0.35); }
+        .btn-out { background: #ef5350; color: white; }
+        .btn-out:hover { background: #c62828; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(239,83,80,0.35); }
+        .btn-disabled { background: #e0e0e0 !important; color: #9e9e9e !important; cursor: not-allowed !important; transform: none !important; box-shadow: none !important; }
+
+        .msg { padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-weight: 500; display: none; font-size: 0.9rem; }
+        .msg-success { background: #e8f5e8; color: #2e7d32; }
+        .msg-error { background: #ffebee; color: #c62828; }
+
+        /* Stats row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat-card {
+            background: white; border-radius: 14px; padding: 1.25rem 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.07); text-align: center;
+        }
+        .stat-icon { font-size: 1.5rem; color: #4caf50; margin-bottom: 0.5rem; }
+        .stat-value { font-size: 1.8rem; font-weight: 700; color: #2c5530; line-height: 1; }
+        .stat-label { font-size: 0.78rem; color: #777; margin-top: 0.3rem; font-weight: 500; }
+
+        /* Quick links */
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        .link-card {
+            background: white; border-radius: 14px; padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+            text-decoration: none; color: inherit;
+            display: flex; align-items: center; gap: 1rem;
+            transition: all 0.2s; border: 2px solid transparent;
+        }
+        .link-card:hover { border-color: #4caf50; transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+        .link-icon {
+            width: 50px; height: 50px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; flex-shrink: 0;
+        }
+        .icon-green  { background: #e8f5e9; color: #2e7d32; }
+        .icon-blue   { background: #e3f2fd; color: #1565c0; }
+        .icon-orange { background: #fff3e0; color: #e65100; }
+        .icon-purple { background: #f3e5f5; color: #6a1b9a; }
+        .link-text h3 { font-size: 0.95rem; font-weight: 700; color: #222; margin-bottom: 0.2rem; }
+        .link-text p  { font-size: 0.8rem; color: #777; }
+        .link-arrow { margin-left: auto; color: #bbb; font-size: 0.9rem; }
+
+        /* Pay summary card */
+        .pay-card {
+            background: white; border-radius: 14px; padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.07); margin-bottom: 1.5rem;
+        }
+        .pay-card h3 { font-size: 0.95rem; font-weight: 700; color: #2c5530; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .pay-row { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #f0f0f0; font-size: 0.9rem; }
+        .pay-row:last-child { border-bottom: none; font-weight: 700; color: #2e7d32; font-size: 1rem; padding-top: 0.75rem; }
+        .pay-label { color: #555; }
+        .pay-value { font-weight: 600; }
+
+        /* Documents section */
+        .section-heading {
+            font-size: 1rem; font-weight: 700; color: #2c5530;
+            margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;
+        }
+        .docs-grid { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; }
+        .doc-card {
+            background: white; border-radius: 14px; padding: 1.25rem 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+            display: flex; align-items: center; gap: 1.1rem; flex-wrap: wrap;
+        }
+        .doc-icon-wrap {
+            width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem;
+        }
+        .icon-teal   { background: #e0f2f1; color: #00695c; }
+        .icon-amber  { background: #fff8e1; color: #e65100; }
+        .doc-info { flex: 1; min-width: 0; }
+        .doc-info h3 { font-size: 0.95rem; font-weight: 700; color: #222; margin-bottom: 0.15rem; }
+        .doc-meta { font-size: 0.78rem; color: #888; margin-bottom: 0.55rem; }
+        .doc-sig-badge {
+            display: inline-flex; align-items: center; gap: 0.35rem;
+            padding: 0.3rem 0.75rem; border-radius: 20px; font-size: 0.78rem; font-weight: 600;
+        }
+        .sig-signed   { background: #e8f5e9; color: #2e7d32; }
+        .sig-unsigned { background: #fff3e0; color: #e65100; }
+        .doc-sig-detail { font-size: 0.75rem; color: #888; margin-top: 0.3rem; }
+        .btn-view-doc {
+            padding: 0.55rem 1.1rem; border-radius: 8px; font-size: 0.83rem; font-weight: 700;
+            border: 1.5px solid #4caf50; color: #2e7d32; text-decoration: none;
+            background: transparent; transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
+        }
+        .btn-view-doc:hover { background: #4caf50; color: white; }
+
+        @media (max-width: 600px) {
+            .welcome-banner { flex-direction: column; }
+            .welcome-clock-wrap { text-align: left; }
+            .stats-row { grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+            .stat-value { font-size: 1.4rem; }
+            .links-grid { grid-template-columns: 1fr; }
+            .clock-btn { width: 100%; }
+            .doc-card { gap: 0.85rem; }
+            .btn-view-doc { width: 100%; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Admin preview banner — shown only when admin is viewing as staff -->
+    <div id="adminPreviewBanner" style="display:none;background:#1a237e;color:white;padding:0.5rem 1.25rem;font-size:0.82rem;font-weight:600;display:none;align-items:center;gap:0.75rem;justify-content:space-between;position:sticky;top:0;z-index:2000;">
+        <span><i class="fas fa-eye" style="margin-right:0.4rem;"></i>Admin Preview — viewing as Staff</span>
+        <a href="admin-dashboard.html" style="color:white;text-decoration:none;background:rgba(255,255,255,0.2);padding:0.3rem 0.85rem;border-radius:5px;font-size:0.8rem;border:1px solid rgba(255,255,255,0.35);">
+            <i class="fas fa-arrow-left"></i> Back to Admin
+        </a>
+    </div>
+
+    <header class="staff-header">
+        <div class="header-brand">
+            <img src="assets/images/hollidays-logo.optimized-1280.png" alt="Holliday's Lawn & Garden"/>
+            <div>
+                <span class="brand-text">Holliday's Lawn & Garden</span>
+                <span class="brand-sub">Staff Portal</span>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn-logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Sign Out
+            </button>
+        </div>
+    </header>
+
+    <main class="portal-main">
+
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+            <div class="welcome-left">
+                <h1>Welcome back, <span id="staffName">...</span></h1>
+                <p id="shiftStatusLine">Checking your shift status...</p>
+            </div>
+            <div class="welcome-clock-wrap">
+                <div class="live-clock" id="liveClock">--:--:--</div>
+                <div class="live-date" id="liveDate"></div>
+            </div>
+        </div>
+
+        <!-- Clock In/Out Card -->
+        <div class="clock-card">
+            <div id="msg" class="msg"></div>
+
+            <div class="status-badge status-out" id="statusBadge">
+                <span class="status-dot dot-out" id="statusDot"></span>
+                <span id="statusText">Clocked Out</span>
+            </div>
+
+            <div class="shift-timer" id="shiftTimer">
+                <div class="shift-timer-label">Current Shift Duration</div>
+                <div class="shift-timer-value" id="shiftDuration">0:00:00</div>
+            </div>
+
+            <button class="clock-btn btn-in" id="clockBtn" onclick="handleClockAction()">
+                <i class="fas fa-sign-in-alt" id="clockBtnIcon"></i>
+                <span id="clockBtnText">Clock In</span>
+            </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-sun"></i></div>
+                <div class="stat-value" id="hoursToday">--</div>
+                <div class="stat-label">Hours Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-calendar-week"></i></div>
+                <div class="stat-value" id="hoursWeek">--</div>
+                <div class="stat-label">Hours This Week</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-layer-group"></i></div>
+                <div class="stat-value" id="shiftsWeek">--</div>
+                <div class="stat-label">Shifts This Week</div>
+            </div>
+        </div>
+
+        <!-- Pay Summary -->
+        <div class="pay-card">
+            <h3><i class="fas fa-dollar-sign"></i> Estimated Pay — This Week</h3>
+            <div class="pay-row">
+                <span class="pay-label">Hours worked</span>
+                <span class="pay-value" id="payHours">--</span>
+            </div>
+            <div class="pay-row">
+                <span class="pay-label">Hourly rate</span>
+                <span class="pay-value" id="payRate">--</span>
+            </div>
+            <div class="pay-row">
+                <span class="pay-label">Estimated total</span>
+                <span class="pay-value" id="payTotal">--</span>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="links-grid">
+            <a class="link-card" href="timeclock.html">
+                <div class="link-icon icon-green"><i class="fas fa-history"></i></div>
+                <div class="link-text">
+                    <h3>Full Time History</h3>
+                    <p>View all shifts, dates, and durations</p>
+                </div>
+                <i class="fas fa-chevron-right link-arrow"></i>
+            </a>
+            <a class="link-card" href="mailto:7holliday@gmail.com">
+                <div class="link-icon icon-blue"><i class="fas fa-envelope"></i></div>
+                <div class="link-text">
+                    <h3>Contact Admin</h3>
+                    <p>Email Karl at Holliday's L&G</p>
+                </div>
+                <i class="fas fa-chevron-right link-arrow"></i>
+            </a>
+        </div>
+
+        <!-- Documents -->
+        <h2 class="section-heading"><i class="fas fa-folder-open"></i> My Documents</h2>
+        <div class="docs-grid">
+
+            <!-- Code of Conduct -->
+            <div class="doc-card">
+                <div class="doc-icon-wrap icon-teal"><i class="fas fa-handshake"></i></div>
+                <div class="doc-info">
+                    <h3>Staff Code of Conduct</h3>
+                    <p class="doc-meta">Version 1.1 &mdash; Professional standards, safety &amp; workplace policy</p>
+                    <span class="doc-sig-badge sig-signed" id="cocBadge" style="display:none">
+                        <i class="fas fa-check-circle"></i> Digitally Signed
+                    </span>
+                    <span class="doc-sig-badge sig-unsigned" id="cocUnsignedBadge" style="display:none">
+                        <i class="fas fa-exclamation-circle"></i> Signature Required
+                    </span>
+                    <div class="doc-sig-detail" id="cocSigDetail"></div>
+                </div>
+                <a href="staff-code-of-conduct.html" class="btn-view-doc">
+                    <i class="fas fa-eye"></i> View &amp; Sign
+                </a>
+            </div>
+
+            <!-- Dress Code -->
+            <div class="doc-card">
+                <div class="doc-icon-wrap icon-amber"><i class="fas fa-vest"></i></div>
+                <div class="doc-info">
+                    <h3>Dress Code &amp; Uniform Standards</h3>
+                    <p class="doc-meta">Version 1.1 &mdash; Required clothing, footwear &amp; PPE for landscaping staff</p>
+                    <span class="doc-sig-badge sig-signed" id="dressBadge" style="display:none">
+                        <i class="fas fa-check-circle"></i> Digitally Signed
+                    </span>
+                    <span class="doc-sig-badge sig-unsigned" id="dressUnsignedBadge" style="display:none">
+                        <i class="fas fa-exclamation-circle"></i> Signature Required
+                    </span>
+                    <div class="doc-sig-detail" id="dressSigDetail"></div>
+                </div>
+                <a href="staff-code-of-conduct.html#dress-code" class="btn-view-doc">
+                    <i class="fas fa-eye"></i> View &amp; Sign
+                </a>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import {
+            getFirestore, collection, addDoc, updateDoc, doc,
+            query, where, orderBy, getDocs, getDoc, serverTimestamp
+        } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyACm0j7I8RX4ExIQRoejfk1HZMOQRGigBw",
+            authDomain: "holiday-lawn-and-garden.firebaseapp.com",
+            projectId: "holiday-lawn-and-garden",
+            storageBucket: "holiday-lawn-and-garden.firebasestorage.app",
+            messagingSenderId: "135322230444",
+            appId: "1:135322230444:web:1a487b25a48aae07368909"
+        };
+
+        const app  = initializeApp(firebaseConfig);
+        const db   = getFirestore(app);
+        const auth = getAuth(app);
+
+        let currentUser   = null;
+        let staffData     = null;
+        let activeEntry   = null;
+        let agreementData = null;
+        let shiftInterval = null;
+        let clockInterval = null;
+
+        const COC_VERSION = '1.1';
+
+        // ── Auth guard ──────────────────────────────────────────────
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.href = 'login.html'; return; }
+            const userDoc = await getDoc(doc(db, 'users', user.uid)).catch(() => null);
+            const udata = userDoc?.exists() ? userDoc.data() : {};
+            const role  = udata.role || null;
+            const roles = Array.isArray(udata.roles) ? udata.roles : (role ? [role] : []);
+            const isAdmin = roles.includes('admin') || role === 'admin';
+            const isStaff = roles.includes('staff') || role === 'staff';
+            if (!isAdmin && !isStaff) {
+                await signOut(auth);
+                window.location.href = 'login.html';
+                return;
+            }
+            // Show admin preview banner
+            if (isAdmin) {
+                const banner = document.getElementById('adminPreviewBanner');
+                if (banner) banner.style.display = 'flex';
+            }
+            // Check code of conduct agreement (skip for admins)
+            const agreeDoc = await getDoc(doc(db, 'staffAgreements', user.uid)).catch(() => null);
+            if (isStaff && !isAdmin) {
+                if (!agreeDoc?.exists() || agreeDoc.data().version !== COC_VERSION) {
+                    window.location.href = 'staff-code-of-conduct.html';
+                    return;
+                }
+            }
+            agreementData = agreeDoc?.exists() ? agreeDoc.data() : null;
+            currentUser = user;
+            await loadStaffProfile();
+            startLiveClock();
+            await checkActiveShift();
+            await loadStats();
+            loadDocumentStatus();
+        });
+
+        // ── Staff profile ───────────────────────────────────────────
+        async function loadStaffProfile() {
+            let snap = await getDoc(doc(db, 'staff', currentUser.uid)).catch(() => null);
+            if (snap?.exists()) {
+                staffData = { id: snap.id, ...snap.data() };
+            } else {
+                const q = query(collection(db, 'staff'), where('email', '==', currentUser.email));
+                const qs = await getDocs(q).catch(() => null);
+                if (qs && !qs.empty) {
+                    staffData = { id: qs.docs[0].id, ...qs.docs[0].data() };
+                } else {
+                    staffData = { id: currentUser.uid, name: currentUser.displayName || currentUser.email };
+                }
+            }
+            const firstName = (staffData.name || currentUser.email).split(' ')[0];
+            document.getElementById('staffName').textContent = firstName;
+        }
+
+        // ── Live clock ──────────────────────────────────────────────
+        function startLiveClock() {
+            const tick = () => {
+                const now = new Date();
+                document.getElementById('liveClock').textContent = now.toLocaleTimeString();
+                document.getElementById('liveDate').textContent = now.toLocaleDateString('en-US', {
+                    weekday: 'long', month: 'long', day: 'numeric'
+                });
+            };
+            tick();
+            clockInterval = setInterval(tick, 1000);
+        }
+
+        // ── Check active shift ──────────────────────────────────────
+        async function checkActiveShift() {
+            const q = query(
+                collection(db, 'timeclock'),
+                where('staffId', '==', staffData.id),
+                where('clockOut', '==', null)
+            );
+            const snap = await getDocs(q).catch(() => null);
+            if (snap && !snap.empty) {
+                activeEntry = { id: snap.docs[0].id, ...snap.docs[0].data() };
+                setUIState('in');
+            } else {
+                activeEntry = null;
+                setUIState('out');
+            }
+        }
+
+        // ── UI state ────────────────────────────────────────────────
+        function setUIState(state) {
+            const badge   = document.getElementById('statusBadge');
+            const dot     = document.getElementById('statusDot');
+            const text    = document.getElementById('statusText');
+            const btn     = document.getElementById('clockBtn');
+            const btnIcon = document.getElementById('clockBtnIcon');
+            const btnText = document.getElementById('clockBtnText');
+            const timer   = document.getElementById('shiftTimer');
+            const line    = document.getElementById('shiftStatusLine');
+
+            if (state === 'in') {
+                badge.className = 'status-badge status-in';
+                dot.className   = 'status-dot dot-in';
+                text.textContent = 'Clocked In';
+                btn.className   = 'clock-btn btn-out';
+                btnIcon.className = 'fas fa-sign-out-alt';
+                btnText.textContent = 'Clock Out';
+                timer.classList.add('visible');
+                line.textContent = 'You are currently on the clock.';
+                startShiftTimer();
+            } else {
+                badge.className = 'status-badge status-out';
+                dot.className   = 'status-dot dot-out';
+                text.textContent = 'Clocked Out';
+                btn.className   = 'clock-btn btn-in';
+                btnIcon.className = 'fas fa-sign-in-alt';
+                btnText.textContent = 'Clock In';
+                timer.classList.remove('visible');
+                line.textContent = "You're not clocked in. Ready to start?";
+                clearInterval(shiftInterval);
+            }
+        }
+
+        function startShiftTimer() {
+            clearInterval(shiftInterval);
+            const tick = () => {
+                if (!activeEntry?.clockIn) return;
+                const inTime  = activeEntry.clockIn.toDate ? activeEntry.clockIn.toDate() : new Date(activeEntry.clockIn);
+                const elapsed = Math.floor((Date.now() - inTime.getTime()) / 1000);
+                document.getElementById('shiftDuration').textContent = formatDuration(elapsed);
+            };
+            tick();
+            shiftInterval = setInterval(tick, 1000);
+        }
+
+        // ── Clock action ────────────────────────────────────────────
+        window.handleClockAction = async function () {
+            const btn = document.getElementById('clockBtn');
+            btn.disabled = true;
+            btn.classList.add('btn-disabled');
+            try {
+                if (!activeEntry) {
+                    const docRef = await addDoc(collection(db, 'timeclock'), {
+                        staffId:   staffData.id,
+                        staffName: staffData.name || currentUser.email,
+                        clockIn:   serverTimestamp(),
+                        clockOut:  null,
+                        totalMinutes: null,
+                        date: new Date().toISOString().split('T')[0]
+                    });
+                    const newDoc = await getDoc(docRef);
+                    activeEntry = { id: newDoc.id, ...newDoc.data() };
+                    setUIState('in');
+                    showMsg('Clocked in successfully!', 'success');
+                } else {
+                    const inTime  = activeEntry.clockIn.toDate ? activeEntry.clockIn.toDate() : new Date(activeEntry.clockIn);
+                    const outTime = new Date();
+                    const totalMinutes = Math.round((outTime - inTime) / 60000);
+                    await updateDoc(doc(db, 'timeclock', activeEntry.id), {
+                        clockOut: serverTimestamp(),
+                        totalMinutes
+                    });
+                    activeEntry = null;
+                    setUIState('out');
+                    showMsg(`Clocked out. Shift: ${formatMinutes(totalMinutes)}`, 'success');
+                    await loadStats();
+                }
+            } catch (err) {
+                showMsg('Error: ' + err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('btn-disabled');
+            }
+        };
+
+        // ── Stats ───────────────────────────────────────────────────
+        async function loadStats() {
+            const today = new Date().toISOString().split('T')[0];
+            const weekStart = (() => {
+                const d = new Date();
+                d.setDate(d.getDate() - 6);
+                return d.toISOString().split('T')[0];
+            })();
+
+            const q = query(
+                collection(db, 'timeclock'),
+                where('staffId', '==', staffData.id),
+                where('date', '>=', weekStart),
+                orderBy('date', 'desc')
+            );
+            const snap = await getDocs(q).catch(() => null);
+            if (!snap) return;
+
+            const entries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            const todayEntries = entries.filter(e => e.date === today && e.totalMinutes != null);
+            const weekEntries  = entries.filter(e => e.totalMinutes != null);
+
+            const todayMins = todayEntries.reduce((s, e) => s + e.totalMinutes, 0);
+            const weekMins  = weekEntries.reduce((s, e) => s + e.totalMinutes, 0);
+            const weekHours = weekMins / 60;
+
+            document.getElementById('hoursToday').textContent = (todayMins / 60).toFixed(1);
+            document.getElementById('hoursWeek').textContent  = weekHours.toFixed(1);
+            document.getElementById('shiftsWeek').textContent = weekEntries.length;
+
+            document.getElementById('payHours').textContent = weekHours.toFixed(2) + ' hrs';
+
+            // Pay rate
+            const rateDoc = await getDoc(doc(db, 'staffPayRates', staffData.id)).catch(() => null);
+            if (rateDoc?.exists()) {
+                const rate = parseFloat(rateDoc.data().hourlyRate);
+                document.getElementById('payRate').textContent  = '$' + rate.toFixed(2) + '/hr';
+                document.getElementById('payTotal').textContent = '$' + (weekHours * rate).toFixed(2);
+            } else {
+                document.getElementById('payRate').textContent  = 'Not set by admin';
+                document.getElementById('payTotal').textContent = 'N/A';
+            }
+        }
+
+        // ── Document status ─────────────────────────────────────────
+        function loadDocumentStatus() {
+            const signed = agreementData && agreementData.version === COC_VERSION;
+
+            // Shared signed-at detail
+            let detail = '';
+            if (signed && agreementData.signedAt) {
+                const ts = agreementData.signedAt.toDate ? agreementData.signedAt.toDate() : new Date(agreementData.signedAt);
+                const dateStr = ts.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                const timeStr = ts.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                const name = agreementData.employeeName || agreementData.name || currentUser.email;
+                detail = `Signed by ${name} &mdash; ${dateStr} at ${timeStr}`;
+            }
+
+            // Code of Conduct card
+            if (signed) {
+                document.getElementById('cocBadge').style.display = 'inline-flex';
+                document.getElementById('cocSigDetail').innerHTML = detail;
+            } else {
+                document.getElementById('cocUnsignedBadge').style.display = 'inline-flex';
+                document.getElementById('cocSigDetail').textContent = 'Please review and sign this document.';
+            }
+
+            // Dress Code card (same agreement covers both — dress code is section 2 of CoC)
+            if (signed) {
+                document.getElementById('dressBadge').style.display = 'inline-flex';
+                document.getElementById('dressSigDetail').innerHTML = detail;
+            } else {
+                document.getElementById('dressUnsignedBadge').style.display = 'inline-flex';
+                document.getElementById('dressSigDetail').textContent = 'Please review and sign this document.';
+            }
+        }
+
+        // ── Helpers ─────────────────────────────────────────────────
+        function formatDuration(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = seconds % 60;
+            return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        }
+        function formatMinutes(mins) {
+            const h = Math.floor(mins / 60);
+            const m = mins % 60;
+            return h > 0 ? `${h}h ${m}m` : `${m}m`;
+        }
+        function showMsg(text, type) {
+            const el = document.getElementById('msg');
+            el.textContent = text;
+            el.className   = `msg msg-${type}`;
+            el.style.display = 'block';
+            setTimeout(() => { el.style.display = 'none'; }, 4000);
+        }
+
+        window.logout = function () {
+            signOut(auth).then(() => { window.location.href = 'login.html'; });
+        };
+    </script>
+</body>
+</html>

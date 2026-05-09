@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Staff Agreements - Admin Dashboard</title>
+    <meta name="robots" content="noindex, nofollow"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <link href="assets/css/admin-dashboard.css" rel="stylesheet"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon/favicon-32x32.png"/>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Montserrat', sans-serif; background: #f5f5f5; color: #333; }
+
+        .admin-header {
+            background: #2e7d32; color: white; padding: 0 2rem; height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+        .header-brand { display: flex; align-items: center; gap: 0.75rem; }
+        .header-brand img { height: 42px; border-radius: 6px; }
+        .header-brand span { font-weight: 700; font-size: 1rem; }
+        .header-nav { display: flex; gap: 1.5rem; align-items: center; }
+        .header-nav a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.88rem; font-weight: 600; transition: color 0.2s; }
+        .header-nav a:hover { color: white; }
+        .header-actions { display: flex; align-items: center; gap: 0.75rem; }
+        .btn-logout { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 0.45rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; }
+        .btn-logout:hover { background: rgba(255,255,255,0.25); }
+
+        .page-main { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+        .page-header {
+            background: white; border-radius: 12px; padding: 1.5rem 2rem;
+            margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+        }
+        .page-header h1 { font-size: 1.6rem; font-weight: 700; color: #2c5530; }
+        .page-header p { color: #666; font-size: 0.9rem; margin-top: 0.25rem; }
+
+        /* Stats row */
+        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-box { background: white; border-radius: 10px; padding: 1.25rem; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+        .stat-num { font-size: 2rem; font-weight: 700; color: #2e7d32; }
+        .stat-lbl { font-size: 0.8rem; color: #777; font-weight: 600; margin-top: 0.2rem; }
+
+        /* Notification banner */
+        .notif-banner {
+            background: #fff8e1; border: 1px solid #ffe082; border-radius: 10px;
+            padding: 0.9rem 1.25rem; margin-bottom: 1.5rem;
+            display: none; align-items: center; gap: 0.75rem; color: #e65100; font-weight: 600; font-size: 0.9rem;
+        }
+        .notif-banner.visible { display: flex; }
+        .btn-mark-read { margin-left: auto; padding: 0.4rem 0.9rem; border-radius: 6px; border: 1.5px solid #e65100; color: #e65100; background: transparent; cursor: pointer; font-size: 0.8rem; font-weight: 700; }
+        .btn-mark-read:hover { background: #e65100; color: white; }
+
+        /* Table */
+        .table-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); overflow: hidden; }
+        .table-toolbar { padding: 1rem 1.5rem; border-bottom: 1px solid #e0e0e0; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+        .table-toolbar h2 { font-size: 1rem; font-weight: 700; color: #333; }
+        .search-input { padding: 0.5rem 0.85rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.875rem; width: 220px; }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        thead th { background: #f8f9fa; padding: 0.85rem 1.25rem; text-align: left; font-size: 0.8rem; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 0.4px; border-bottom: 1px solid #e0e0e0; }
+        tbody td { padding: 1rem 1.25rem; border-bottom: 1px solid #f0f0f0; font-size: 0.88rem; vertical-align: middle; }
+        tbody tr:hover { background: #fafafa; }
+        tbody tr:last-child td { border-bottom: none; }
+
+        .badge-signed { display: inline-flex; align-items: center; gap: 0.3rem; background: #e8f5e9; color: #2e7d32; padding: 0.3rem 0.75rem; border-radius: 20px; font-size: 0.78rem; font-weight: 700; }
+        .badge-pending { background: #fff3e0; color: #e65100; }
+        .btn-view { padding: 0.4rem 0.9rem; border-radius: 6px; border: 1.5px solid #2e7d32; color: #2e7d32; background: transparent; cursor: pointer; font-size: 0.8rem; font-weight: 700; white-space: nowrap; }
+        .btn-view:hover { background: #2e7d32; color: white; }
+        .empty-state { text-align: center; padding: 3rem; color: #888; }
+        .empty-state i { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; opacity: 0.4; }
+
+        /* Modal */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.55); z-index: 1000;
+            align-items: center; justify-content: center; padding: 1rem;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-box {
+            background: white; border-radius: 14px; width: 100%; max-width: 680px;
+            max-height: 90vh; display: flex; flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .modal-header {
+            padding: 1.25rem 1.5rem; border-bottom: 1px solid #e0e0e0;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .modal-header h2 { font-size: 1.05rem; font-weight: 700; color: #2c5530; }
+        .modal-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: #999; padding: 0.25rem; line-height: 1; }
+        .modal-close:hover { color: #333; }
+        .modal-body { overflow-y: auto; padding: 1.5rem; flex: 1; }
+        .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid #e0e0e0; display: flex; gap: 0.75rem; justify-content: flex-end; }
+
+        /* Signed copy document */
+        .signed-copy { font-family: Georgia, 'Times New Roman', serif; }
+        .sc-logo-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; }
+        .sc-logo-row img { height: 52px; }
+        .sc-company h2 { font-size: 1rem; font-weight: 700; color: #2c5530; margin: 0; }
+        .sc-company p { font-size: 0.8rem; color: #777; margin: 0; }
+        .sc-title { text-align: center; border-top: 2px solid #2c5530; border-bottom: 2px solid #2c5530; padding: 0.9rem 0; margin: 1rem 0; }
+        .sc-title h3 { font-size: 1.15rem; color: #2c5530; letter-spacing: 0.5px; }
+        .sc-title p { font-size: 0.82rem; color: #666; margin-top: 0.25rem; }
+        .sc-field { display: flex; gap: 0.5rem; padding: 0.65rem 0; border-bottom: 1px solid #e8e8e8; }
+        .sc-field label { font-size: 0.8rem; font-weight: 700; color: #555; width: 160px; flex-shrink: 0; text-transform: uppercase; letter-spacing: 0.3px; }
+        .sc-field span { font-size: 0.9rem; color: #222; }
+        .sc-sig-block {
+            background: #f0fdf4; border: 1.5px solid #a5d6a7; border-radius: 10px;
+            padding: 1.25rem; margin-top: 1.25rem;
+        }
+        .sc-sig-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: #555; font-weight: 700; margin-bottom: 0.5rem; }
+        .sc-sig-name { font-size: 1.5rem; font-style: italic; color: #1b5e20; border-bottom: 1px solid #a5d6a7; padding-bottom: 0.4rem; margin-bottom: 0.75rem; font-family: cursive; }
+        .sc-sig-meta { font-size: 0.75rem; color: #666; line-height: 1.7; }
+        .sc-audit { margin-top: 1rem; background: #f5f5f5; border-radius: 8px; padding: 0.85rem 1rem; font-size: 0.72rem; color: #888; line-height: 1.6; word-break: break-all; }
+        .sc-audit strong { color: #555; }
+        .sc-disclaimer { margin-top: 1rem; font-size: 0.75rem; color: #999; text-align: center; font-style: italic; }
+
+        .btn-print { padding: 0.6rem 1.4rem; background: #2e7d32; color: white; border: none; border-radius: 7px; font-size: 0.875rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; }
+        .btn-print:hover { background: #1b5e20; }
+        .btn-cancel { padding: 0.6rem 1.4rem; background: transparent; border: 1.5px solid #ccc; color: #555; border-radius: 7px; font-size: 0.875rem; font-weight: 600; cursor: pointer; }
+        .btn-cancel:hover { border-color: #999; color: #333; }
+
+        @media print {
+            .modal-header, .modal-footer, .notif-banner, .stats-row, .table-card, .page-header { display: none !important; }
+            .modal-overlay { display: block !important; position: static !important; background: none !important; }
+            .modal-box { max-height: none !important; box-shadow: none !important; border: none !important; }
+        }
+        @media (max-width: 640px) {
+            .header-nav { display: none; }
+            .page-header { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="admin-header">
+        <div class="header-brand">
+            <img src="assets/images/hollidays-logo.optimized-1280.png" alt="Holliday's Lawn & Garden"/>
+            <span>Admin Dashboard</span>
+        </div>
+        <nav class="header-nav">
+            <a href="admin-dashboard.html"><i class="fas fa-th-large"></i> Dashboard</a>
+            <a href="staff.html"><i class="fas fa-users"></i> Staff</a>
+            <a href="timeclock-admin.html"><i class="fas fa-clock"></i> Time Clock</a>
+        </nav>
+        <div class="header-actions">
+            <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+        </div>
+    </header>
+
+    <main class="page-main">
+
+        <div class="page-header">
+            <div>
+                <h1><i class="fas fa-file-signature" style="color:#2e7d32;margin-right:0.5rem;"></i>Staff Document Agreements</h1>
+                <p>View and manage signed copies of the Code of Conduct and Dress Code for all staff members.</p>
+            </div>
+            <a href="staff-code-of-conduct.html" target="_blank" style="padding:0.6rem 1.25rem;background:#2e7d32;color:white;border-radius:8px;font-weight:700;font-size:0.875rem;text-decoration:none;display:flex;align-items:center;gap:0.4rem;">
+                <i class="fas fa-eye"></i> View Document
+            </a>
+        </div>
+
+        <!-- Notification banner (unread sign events) -->
+        <div class="notif-banner" id="notifBanner">
+            <i class="fas fa-bell"></i>
+            <span id="notifText">New document signature(s) received.</span>
+            <button class="btn-mark-read" id="markReadBtn" onclick="markAllRead()">Mark All Read</button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="stat-num" id="statTotal">—</div>
+                <div class="stat-lbl">Total Agreements</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-num" id="statCurrent">—</div>
+                <div class="stat-lbl">Current Version (v1.1)</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-num" id="statOlder">—</div>
+                <div class="stat-lbl">Older Version</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-num" id="statUnread" style="color:#e65100;">—</div>
+                <div class="stat-lbl">Unread Notifications</div>
+            </div>
+        </div>
+
+        <!-- Agreements Table -->
+        <div class="table-card">
+            <div class="table-toolbar">
+                <h2><i class="fas fa-list"></i> Signed Agreements</h2>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search name or email..." oninput="filterTable()"/>
+            </div>
+            <div class="table-wrap">
+                <table id="agreementsTable">
+                    <thead>
+                        <tr>
+                            <th>Staff Member</th>
+                            <th>Email</th>
+                            <th>Signed Name</th>
+                            <th>Version</th>
+                            <th>Date Signed</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr><td colspan="7" class="empty-state"><i class="fas fa-spinner fa-spin"></i> Loading agreements...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Signed Copy Modal -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-signature"></i> Signed Agreement Copy</h2>
+                <button class="modal-close" onclick="closeModalDirect()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="signed-copy" id="signedCopyContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeModalDirect()">Close</button>
+                <button class="btn-print" onclick="printCopy()"><i class="fas fa-print"></i> Print Signed Copy</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import {
+            getFirestore, collection, getDocs, doc, getDoc,
+            query, orderBy, where, updateDoc, writeBatch
+        } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyACm0j7I8RX4ExIQRoejfk1HZMOQRGigBw",
+            authDomain: "holiday-lawn-and-garden.firebaseapp.com",
+            projectId: "holiday-lawn-and-garden",
+            storageBucket: "holiday-lawn-and-garden.firebasestorage.app",
+            messagingSenderId: "135322230444",
+            appId: "1:135322230444:web:1a487b25a48aae07368909"
+        };
+
+        const app  = initializeApp(firebaseConfig);
+        const db   = getFirestore(app);
+        const auth = getAuth(app);
+
+        const CURRENT_VERSION = '1.1';
+        let allRows = [];
+        let unreadNotifIds = [];
+
+        // ── Auth guard ──────────────────────────────────────────────
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.href = 'login.html'; return; }
+            const userDoc = await getDoc(doc(db, 'users', user.uid)).catch(() => null);
+            const role = userDoc?.exists() ? userDoc.data().role : null;
+            if (role !== 'admin') {
+                await signOut(auth);
+                window.location.href = 'login.html';
+                return;
+            }
+            await Promise.all([loadAgreements(), loadNotifications()]);
+        });
+
+        // ── Load agreements ─────────────────────────────────────────
+        async function loadAgreements() {
+            const snap = await getDocs(collection(db, 'staffAgreements')).catch(() => null);
+            if (!snap || snap.empty) {
+                document.getElementById('tableBody').innerHTML =
+                    `<tr><td colspan="7" class="empty-state"><i class="fas fa-folder-open"></i><br/>No signed agreements yet.</td></tr>`;
+                updateStats([], 0);
+                return;
+            }
+
+            // Build staff name lookup
+            const staffSnap = await getDocs(collection(db, 'staff')).catch(() => null);
+            const staffMap = {};
+            staffSnap?.forEach(d => { staffMap[d.id] = d.data().name || ''; });
+
+            allRows = snap.docs.map(d => {
+                const data = d.data();
+                const staffName = staffMap[data.userId] || data.signedName || 'Unknown';
+                const agreedAt = data.agreedAt?.toDate ? data.agreedAt.toDate() : (data.agreedAt ? new Date(data.agreedAt) : null);
+                return { id: d.id, staffName, ...data, _dateObj: agreedAt };
+            });
+
+            // Sort newest first
+            allRows.sort((a, b) => (b._dateObj || 0) - (a._dateObj || 0));
+
+            renderRows(allRows);
+            updateStats(allRows, 0);
+        }
+
+        function renderRows(rows) {
+            const isCurrent = r => r.version === CURRENT_VERSION;
+            const tbody = document.getElementById('tableBody');
+            if (rows.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="empty-state"><i class="fas fa-search"></i><br/>No results found.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = rows.map(r => {
+                const current = isCurrent(r);
+                const date = r._dateObj
+                    ? r._dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                    : '—';
+                const badge = current
+                    ? `<span class="badge-signed"><i class="fas fa-check-circle"></i> Current</span>`
+                    : `<span class="badge-signed badge-pending"><i class="fas fa-exclamation-circle"></i> Older</span>`;
+                return `<tr>
+                    <td><strong>${escHtml(r.staffName)}</strong></td>
+                    <td>${escHtml(r.email || '—')}</td>
+                    <td><em>${escHtml(r.signedName || '—')}</em></td>
+                    <td>v${escHtml(r.version || '?')}</td>
+                    <td>${date}</td>
+                    <td>${badge}</td>
+                    <td><button class="btn-view" onclick="viewSigned('${r.id}')"><i class="fas fa-eye"></i> View Copy</button></td>
+                </tr>`;
+            }).join('');
+        }
+
+        function updateStats(rows, unread) {
+            document.getElementById('statTotal').textContent = rows.length;
+            document.getElementById('statCurrent').textContent = rows.filter(r => r.version === CURRENT_VERSION).length;
+            document.getElementById('statOlder').textContent  = rows.filter(r => r.version !== CURRENT_VERSION).length;
+            document.getElementById('statUnread').textContent = unread;
+        }
+
+        // ── Load notifications ──────────────────────────────────────
+        async function loadNotifications() {
+            const snap = await getDocs(
+                query(collection(db, 'notifications'),
+                    where('type', '==', 'document_signed'),
+                    where('read', '==', false))
+            ).catch(() => null);
+            unreadNotifIds = snap ? snap.docs.map(d => d.id) : [];
+            const count = unreadNotifIds.length;
+            document.getElementById('statUnread').textContent = count;
+            if (count > 0) {
+                document.getElementById('notifText').textContent =
+                    `${count} new document signature${count > 1 ? 's' : ''} — ${snap.docs.map(d => d.data().staffName).join(', ')}`;
+                document.getElementById('notifBanner').classList.add('visible');
+            }
+        }
+
+        // ── Mark all read ───────────────────────────────────────────
+        window.markAllRead = async function () {
+            if (!unreadNotifIds.length) return;
+            const batch = writeBatch(db);
+            unreadNotifIds.forEach(id => {
+                batch.update(doc(db, 'notifications', id), { read: true });
+            });
+            await batch.commit().catch(() => {});
+            unreadNotifIds = [];
+            document.getElementById('notifBanner').classList.remove('visible');
+            document.getElementById('statUnread').textContent = '0';
+        };
+
+        // ── View signed copy modal ──────────────────────────────────
+        window.viewSigned = async function (docId) {
+            const r = allRows.find(x => x.id === docId);
+            if (!r) return;
+
+            const dateStr = r._dateObj
+                ? r._dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
+                : 'Unknown date';
+            const timeStr = r._dateObj
+                ? r._dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', timeZoneName: 'short' })
+                : '';
+
+            document.getElementById('signedCopyContent').innerHTML = `
+                <div class="sc-logo-row">
+                    <img src="assets/images/hollidays-logo.optimized-1280.png" alt="Holliday's Lawn & Garden"/>
+                    <div class="sc-company">
+                        <h2>Holliday's Lawn &amp; Garden</h2>
+                        <p>7holliday@gmail.com &bull; (504) 717-1887</p>
+                    </div>
+                </div>
+
+                <div class="sc-title">
+                    <h3>STAFF CODE OF CONDUCT &amp; DRESS CODE</h3>
+                    <p>Digitally Signed Employee Agreement Record</p>
+                </div>
+
+                <div class="sc-field">
+                    <label>Employee Name</label>
+                    <span>${escHtml(r.staffName)}</span>
+                </div>
+                <div class="sc-field">
+                    <label>Email Address</label>
+                    <span>${escHtml(r.email || '—')}</span>
+                </div>
+                <div class="sc-field">
+                    <label>Document Version</label>
+                    <span>Version ${escHtml(r.version || '?')} — Holliday's Lawn &amp; Garden</span>
+                </div>
+                <div class="sc-field">
+                    <label>Date Signed</label>
+                    <span>${dateStr}</span>
+                </div>
+                <div class="sc-field">
+                    <label>Time Signed</label>
+                    <span>${timeStr}</span>
+                </div>
+
+                <div class="sc-sig-block">
+                    <div class="sc-sig-label"><i class="fas fa-signature"></i> Digital Signature</div>
+                    ${r.signatureDataUrl
+                        ? `<div style="background:white;border:1px solid #c8e6c9;border-radius:6px;padding:0.75rem;margin-bottom:0.75rem;text-align:center;">
+                               <img src="${r.signatureDataUrl}" alt="Drawn signature" style="max-width:280px;max-height:100px;display:block;margin:0 auto;"/>
+                           </div>`
+                        : `<div class="sc-sig-name">${escHtml(r.signedName || '—')}</div>`
+                    }
+                    <div class="sc-sig-meta">
+                        Legal name: <strong>${escHtml(r.signedName || '—')}</strong><br/>
+                        By drawing their signature above, the employee acknowledged that they read, understood, and agreed to all
+                        terms of the Holliday's Lawn &amp; Garden Staff Code of Conduct &amp; Dress Code (v${escHtml(r.version || '?')}).<br/>
+                        This digital signature is legally equivalent to a handwritten signature under applicable e-signature law.
+                    </div>
+                </div>
+
+                <div class="sc-audit">
+                    <strong>Audit Trail</strong><br/>
+                    User ID: ${escHtml(r.userId || r.id)}<br/>
+                    Signed At (UTC): ${r._dateObj ? r._dateObj.toISOString() : '—'}<br/>
+                    User Agent: ${escHtml(r.userAgent || 'Not recorded')}
+                </div>
+
+                <p class="sc-disclaimer">
+                    This record was generated by Holliday's Lawn &amp; Garden staff management system.<br/>
+                    Document version history is maintained in the company's secure cloud database.
+                </p>
+            `;
+            document.getElementById('modalOverlay').classList.add('open');
+
+            // Mark notifications for this staff as read
+            const relatedIds = unreadNotifIds.filter(id => {
+                const n = allRows.find(x => x.id === docId);
+                return n && n.userId;
+            });
+            if (relatedIds.length) {
+                const batch = writeBatch(db);
+                relatedIds.forEach(id => batch.update(doc(db, 'notifications', id), { read: true }));
+                batch.commit().catch(() => {});
+            }
+        };
+
+        // ── Filter table ────────────────────────────────────────────
+        window.filterTable = function () {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = q
+                ? allRows.filter(r => (r.staffName || '').toLowerCase().includes(q) || (r.email || '').toLowerCase().includes(q) || (r.signedName || '').toLowerCase().includes(q))
+                : allRows;
+            renderRows(filtered);
+        };
+
+        // ── Modal controls ──────────────────────────────────────────
+        window.closeModal = function (e) {
+            if (e.target === document.getElementById('modalOverlay')) closeModalDirect();
+        };
+        window.closeModalDirect = function () {
+            document.getElementById('modalOverlay').classList.remove('open');
+        };
+        window.printCopy = function () { window.print(); };
+
+        // ── Logout ──────────────────────────────────────────────────
+        window.logout = function () {
+            signOut(auth).then(() => { window.location.href = 'login.html'; });
+        };
+
+        function escHtml(str) {
+            return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+    </script>
+</body>
+</html>

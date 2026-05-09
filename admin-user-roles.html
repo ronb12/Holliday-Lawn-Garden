@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>User Role Management - Admin</title>
+    <meta name="robots" content="noindex, nofollow"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <link href="assets/css/admin-dashboard.css" rel="stylesheet"/>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Montserrat', sans-serif; background: #f5f5f5; color: #333; }
+
+        .admin-header {
+            background: #2e7d32; color: white; padding: 0 2rem; height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+        .header-brand { display: flex; align-items: center; gap: 0.75rem; }
+        .header-brand img { height: 42px; border-radius: 6px; }
+        .header-brand span { font-weight: 700; font-size: 1rem; }
+        .header-nav { display: flex; gap: 1.5rem; align-items: center; }
+        .header-nav a { color: rgba(255,255,255,0.85); text-decoration: none; font-size: 0.88rem; font-weight: 600; transition: color 0.2s; }
+        .header-nav a:hover { color: white; }
+        .header-actions { display: flex; align-items: center; gap: 0.75rem; }
+        .btn-logout { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 0.45rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; }
+        .btn-logout:hover { background: rgba(255,255,255,0.25); }
+
+        .page-main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+        .page-header {
+            background: white; border-radius: 12px; padding: 1.5rem 2rem;
+            margin-bottom: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+        }
+        .page-header h1 { font-size: 1.6rem; font-weight: 700; color: #2c5530; }
+        .page-header p { color: #666; font-size: 0.9rem; margin-top: 0.3rem; }
+
+        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-box { background: white; border-radius: 10px; padding: 1.25rem; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+        .stat-num { font-size: 2rem; font-weight: 700; }
+        .stat-num.green { color: #2e7d32; }
+        .stat-num.orange { color: #e65100; }
+        .stat-num.blue { color: #1565c0; }
+        .stat-num.purple { color: #6a1b9a; }
+        .stat-lbl { font-size: 0.78rem; color: #777; font-weight: 600; margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.03em; }
+
+        .table-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); overflow: hidden; }
+        .table-toolbar {
+            padding: 1rem 1.5rem; border-bottom: 1px solid #e0e0e0;
+            display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+        }
+        .table-toolbar h2 { font-size: 1rem; font-weight: 700; color: #333; }
+        .search-wrap { position: relative; }
+        .search-wrap input {
+            padding: 0.55rem 0.9rem 0.55rem 2.3rem; border: 1.5px solid #ddd; border-radius: 8px;
+            font-size: 0.88rem; font-family: inherit; width: 260px; transition: border-color 0.2s;
+        }
+        .search-wrap input:focus { outline: none; border-color: #2e7d32; }
+        .search-wrap i { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #aaa; font-size: 0.85rem; }
+
+        table { width: 100%; border-collapse: collapse; }
+        thead th { background: #f9f9f9; padding: 0.75rem 1rem; text-align: left; font-size: 0.78rem; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1.5px solid #e0e0e0; }
+        tbody tr { border-bottom: 1px solid #f0f0f0; transition: background 0.15s; }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: #fafafa; }
+        tbody td { padding: 0.85rem 1rem; font-size: 0.88rem; vertical-align: middle; }
+
+        .user-info { display: flex; align-items: center; gap: 0.75rem; }
+        .user-avatar {
+            width: 38px; height: 38px; border-radius: 50%; background: #e8f5e9;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; color: #2e7d32; font-weight: 700; flex-shrink: 0;
+        }
+        .user-name { font-weight: 600; color: #222; font-size: 0.88rem; line-height: 1.3; }
+        .user-email { font-size: 0.78rem; color: #888; margin-top: 0.1rem; }
+        .user-uid { font-size: 0.72rem; color: #bbb; font-family: monospace; margin-top: 0.1rem; }
+
+        .role-badge {
+            display: inline-flex; align-items: center; gap: 0.35rem;
+            padding: 0.3rem 0.7rem; border-radius: 20px; font-size: 0.78rem; font-weight: 700; white-space: nowrap;
+        }
+        .role-badge.customer { background: #e8f5e9; color: #2e7d32; }
+        .role-badge.staff    { background: #fff3e0; color: #e65100; }
+        .role-badge.admin    { background: #e3f2fd; color: #1565c0; }
+        .role-badge.unknown  { background: #f3e5f5; color: #6a1b9a; }
+
+        .roles-wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+        .role-check-label {
+            display: inline-flex; align-items: center; gap: 0.3rem;
+            font-size: 0.82rem; font-weight: 600; cursor: pointer;
+            padding: 0.28rem 0.55rem; border: 1.5px solid #e0e0e0; border-radius: 6px;
+            user-select: none; transition: border-color 0.15s, background 0.15s;
+        }
+        .role-check-label:has(input:checked) { border-color: #2e7d32; background: #f0fdf4; color: #1b5e20; }
+        .role-check-label input[type=checkbox] { accent-color: #2e7d32; cursor: pointer; }
+        .btn-save {
+            padding: 0.4rem 0.9rem; background: #2e7d32; color: white; border: none;
+            border-radius: 7px; font-size: 0.82rem; font-weight: 700; cursor: pointer;
+            font-family: inherit; transition: background 0.2s; white-space: nowrap;
+        }
+        .btn-save:hover { background: #1b5e20; }
+        .btn-save:disabled { background: #ccc; cursor: default; }
+        .save-status { font-size: 0.78rem; font-weight: 600; }
+        .save-status.ok   { color: #2e7d32; }
+        .save-status.err  { color: #c62828; }
+
+        .empty-row td { text-align: center; padding: 3rem; color: #aaa; font-size: 0.9rem; }
+
+        .toast {
+            position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(80px);
+            background: #2e7d32; color: white; padding: 0.75rem 1.5rem; border-radius: 8px;
+            font-size: 0.9rem; font-weight: 600; box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            transition: transform 0.3s; z-index: 999;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.err { background: #c62828; }
+
+        .loading-overlay { text-align: center; padding: 3rem; color: #888; }
+        .loading-overlay i { font-size: 2rem; margin-bottom: 0.75rem; display: block; color: #2e7d32; }
+
+        @media (max-width: 700px) {
+            .header-nav { display: none; }
+            .search-wrap input { width: 180px; }
+            .user-uid { display: none; }
+            tbody td:last-child { min-width: 160px; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="admin-header">
+    <div class="header-brand">
+        <img src="assets/images/hollidays-logo.optimized-1280.png" alt="Holliday's Logo"/>
+        <span>Admin Panel</span>
+    </div>
+    <nav class="header-nav">
+        <a href="admin-dashboard.html"><i class="fas fa-th-large"></i> Dashboard</a>
+        <a href="admin-staff-agreements.html"><i class="fas fa-file-signature"></i> Staff Docs</a>
+        <a href="admin-user-roles.html" style="color:white;"><i class="fas fa-users-cog"></i> User Roles</a>
+    </nav>
+    <div class="header-actions">
+        <button class="btn-logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+</header>
+
+<main class="page-main">
+    <div class="page-header">
+        <div>
+            <h1><i class="fas fa-users-cog" style="color:#2e7d32;margin-right:0.5rem;"></i>User Role Management</h1>
+            <p>Change any account's login role — customer, staff, or admin. Useful for testing or onboarding.</p>
+        </div>
+    </div>
+
+    <div class="stats-row" id="statsRow">
+        <div class="stat-box"><div class="stat-num green" id="statTotal">—</div><div class="stat-lbl">Total Users</div></div>
+        <div class="stat-box"><div class="stat-num green" id="statCustomer">—</div><div class="stat-lbl">Customers</div></div>
+        <div class="stat-box"><div class="stat-num orange" id="statStaff">—</div><div class="stat-lbl">Staff</div></div>
+        <div class="stat-box"><div class="stat-num blue" id="statAdmin">—</div><div class="stat-lbl">Admins</div></div>
+    </div>
+
+    <div class="table-card">
+        <div class="table-toolbar">
+            <h2><i class="fas fa-list" style="color:#2e7d32;margin-right:0.5rem;"></i>All Accounts</h2>
+            <div class="search-wrap">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search by name or email…" oninput="filterTable()"/>
+            </div>
+        </div>
+        <div id="tableWrap">
+            <div class="loading-overlay"><i class="fas fa-spinner fa-spin"></i>Loading users…</div>
+        </div>
+    </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, getDocs, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyACm0j7I8RX4ExIQRoejfk1HZMOQRGigBw",
+    authDomain: "holiday-lawn-and-garden.firebaseapp.com",
+    projectId: "holiday-lawn-and-garden",
+    storageBucket: "holiday-lawn-and-garden.appspot.com",
+    messagingSenderId: "762846068789",
+    appId: "1:762846068789:web:b0b0b0b0b0b0b0b0b0b0b0"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let allUsers = [];
+let currentAdminUid = null;
+
+function escHtml(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function initials(name, email) {
+    if (name) return name.trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0,2);
+    return (email || '?')[0].toUpperCase();
+}
+
+function badgeHtml(role, rolesArr) {
+    const map = {
+        customer: ['customer','<i class="fas fa-user"></i> Customer'],
+        staff:    ['staff',   '<i class="fas fa-hard-hat"></i> Staff'],
+        admin:    ['admin',   '<i class="fas fa-lock"></i> Admin'],
+    };
+    const display = (Array.isArray(rolesArr) && rolesArr.length > 0) ? rolesArr : (role ? [role] : ['unknown']);
+    return display.map(r => {
+        const [cls, label] = map[r] || ['unknown', '<i class="fas fa-question"></i> ' + escHtml(r || 'Unknown')];
+        return `<span class="role-badge ${cls}">${label}</span>`;
+    }).join(' ');
+}
+
+function userRolesArr(u) {
+    return Array.isArray(u.roles) ? u.roles : (u.role ? [u.role] : ['customer']);
+}
+
+function renderTable(users) {
+    const wrap = document.getElementById('tableWrap');
+    if (!users.length) {
+        wrap.innerHTML = `<table><tbody><tr class="empty-row"><td colspan="4"><i class="fas fa-search" style="display:block;font-size:1.5rem;margin-bottom:0.5rem;color:#ddd;"></i>No users found</td></tr></tbody></table>`;
+        return;
+    }
+    const rows = users.map(u => {
+        const ur = userRolesArr(u);
+        const uid = escHtml(u.uid);
+        const email = escHtml(u.email || '');
+        return `
+        <tr data-uid="${uid}">
+            <td>
+                <div class="user-info">
+                    <div class="user-avatar">${escHtml(initials(u.displayName || u.fullName, u.email))}</div>
+                    <div>
+                        <div class="user-name">${escHtml(u.displayName || u.fullName || '(no name)')}</div>
+                        <div class="user-email">${escHtml(u.email || '—')}</div>
+                        <div class="user-uid">${uid}</div>
+                    </div>
+                </div>
+            </td>
+            <td>${badgeHtml(u.role, ur)}</td>
+            <td style="font-size:0.8rem;color:#888;">${u.lastLogin ? new Date(u.lastLogin).toLocaleDateString() : '—'}</td>
+            <td>
+                <div class="roles-wrap">
+                    <label class="role-check-label"><input type="checkbox" class="role-cb" data-uid="${uid}" data-role="customer" ${ur.includes('customer') ? 'checked' : ''}> Customer</label>
+                    <label class="role-check-label"><input type="checkbox" class="role-cb" data-uid="${uid}" data-role="staff" ${ur.includes('staff') ? 'checked' : ''}> Staff</label>
+                    <label class="role-check-label"><input type="checkbox" class="role-cb" data-uid="${uid}" data-role="admin" ${ur.includes('admin') ? 'checked' : ''}> Admin</label>
+                    <button class="btn-save" onclick="saveRole('${uid}', '${email}', this)">Save</button>
+                    <span class="save-status" id="status-${uid}"></span>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+    wrap.innerHTML = `
+        <table>
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Current Roles</th>
+                    <th>Last Login</th>
+                    <th>Assign Roles</th>
+                </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+        </table>`;
+}
+
+function updateStats(users) {
+    const hasRole = (u, r) => Array.isArray(u.roles) ? u.roles.includes(r) : u.role === r;
+    document.getElementById('statTotal').textContent    = users.length;
+    document.getElementById('statCustomer').textContent = users.filter(u => hasRole(u, 'customer')).length;
+    document.getElementById('statStaff').textContent    = users.filter(u => hasRole(u, 'staff')).length;
+    document.getElementById('statAdmin').textContent    = users.filter(u => hasRole(u, 'admin')).length;
+}
+
+window.filterTable = function() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = allUsers.filter(u =>
+        (u.email || '').toLowerCase().includes(q) ||
+        (u.displayName || '').toLowerCase().includes(q) ||
+        (u.fullName || '').toLowerCase().includes(q)
+    );
+    renderTable(filtered);
+};
+
+window.saveRole = async function(uid, email, btn) {
+    const statusEl = document.getElementById('status-' + uid);
+
+    // Read which checkboxes are checked for this user
+    const checkboxes = document.querySelectorAll(`.role-cb[data-uid="${uid}"]`);
+    const newRoles = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.dataset.role);
+
+    if (newRoles.length === 0) {
+        showToast('Select at least one role.', true);
+        return;
+    }
+
+    // Block self-demotion — the logged-in admin must keep the admin role
+    if (uid === currentAdminUid && !newRoles.includes('admin')) {
+        showToast('You cannot remove your own Admin role — this prevents lockout.', true);
+        const adminCb = document.querySelector(`.role-cb[data-uid="${uid}"][data-role="admin"]`);
+        if (adminCb) adminCb.checked = true;
+        return;
+    }
+
+    // Primary role = highest privilege
+    const primaryRole = newRoles.includes('admin') ? 'admin'
+        : newRoles.includes('staff') ? 'staff'
+        : 'customer';
+
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    statusEl.textContent = '';
+    statusEl.className = 'save-status';
+
+    try {
+        await updateDoc(doc(db, 'users', uid), { role: primaryRole, roles: newRoles });
+        const u = allUsers.find(x => x.uid === uid);
+        if (u) { u.role = primaryRole; u.roles = newRoles; }
+        const row = document.querySelector(`tr[data-uid="${uid}"]`);
+        if (row) row.cells[1].innerHTML = badgeHtml(primaryRole, newRoles);
+        statusEl.textContent = '✓ Saved';
+        statusEl.className = 'save-status ok';
+        updateStats(allUsers);
+        showToast(`Roles updated for ${email || uid}: ${newRoles.join(', ')}`);
+    } catch (err) {
+        console.error(err);
+        statusEl.textContent = '✗ Error';
+        statusEl.className = 'save-status err';
+        showToast('Failed to save: ' + err.message, true);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Save';
+        setTimeout(() => { statusEl.textContent = ''; statusEl.className = 'save-status'; }, 3000);
+    }
+};
+
+function showToast(msg, isErr = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (isErr ? ' err' : '') + ' show';
+    setTimeout(() => { t.className = 'toast' + (isErr ? ' err' : ''); }, 3500);
+}
+
+async function loadUsers() {
+    try {
+        const snap = await getDocs(collection(db, 'users'));
+        allUsers = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+        allUsers.sort((a, b) => (a.email || '').localeCompare(b.email || ''));
+        renderTable(allUsers);
+        updateStats(allUsers);
+    } catch (err) {
+        document.getElementById('tableWrap').innerHTML =
+            `<div class="loading-overlay" style="color:#c62828;"><i class="fas fa-exclamation-triangle" style="color:#c62828;"></i>Failed to load users: ${escHtml(err.message)}</div>`;
+    }
+}
+
+onAuthStateChanged(auth, async user => {
+    if (!user) { window.location.href = 'admin-login.html'; return; }
+    const userDoc = await getDoc(doc(db, 'users', user.uid)).catch(() => null);
+    if (userDoc?.data()?.role !== 'admin') { window.location.href = 'admin-login.html'; return; }
+    currentAdminUid = user.uid;
+    loadUsers();
+});
+
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.href = 'admin-login.html';
+});
+</script>
+</body>
+</html>

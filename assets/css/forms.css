@@ -1,0 +1,383 @@
+/* ============================================================
+   HOLLIDAY'S LAWN & GARDEN — SHARED PROFESSIONAL FORM STYLES
+   Loaded last on all form pages to ensure consistent look.
+   ============================================================ */
+
+/* ---- Base: all text inputs, selects, textareas ---- */
+.form-group input,
+.form-group select,
+.form-group textarea,
+.schedule-form input,
+.schedule-form select,
+.schedule-form textarea,
+.login-form input,
+.register-form input,
+.register-form select,
+.register-form textarea,
+.contact-form input,
+.contact-form select,
+.contact-form textarea {
+    font-family: 'Montserrat', -apple-system, sans-serif;
+    font-size: 0.9375rem;
+    color: #1a1a2e;
+    background: #fff;
+    border: 1.5px solid #cdd5df;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    line-height: 1.5;
+}
+
+/* ---- Focus states ---- */
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus,
+.schedule-form input:focus,
+.schedule-form select:focus,
+.schedule-form textarea:focus,
+.login-form input:focus,
+.register-form input:focus,
+.register-form select:focus,
+.register-form textarea:focus,
+.contact-form input:focus,
+.contact-form select:focus,
+.contact-form textarea:focus {
+    outline: none;
+    border-color: #2e7d32;
+    box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
+}
+
+/* ---- Error state ---- */
+.form-group input.error,
+.form-group select.error,
+.form-group textarea.error {
+    border-color: #d32f2f;
+    box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.12);
+}
+
+/* ---- Labels ---- */
+.form-group label,
+.schedule-form label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #344054;
+    margin-bottom: 0.375rem;
+    letter-spacing: 0.01em;
+}
+
+/* Required asterisk on labels that end with " *" */
+.form-group label[for]::after,
+.schedule-form label[for]::after {
+    content: '';
+}
+
+/* ---- Placeholder color ---- */
+.form-group input::placeholder,
+.form-group textarea::placeholder,
+.schedule-form input::placeholder,
+.schedule-form textarea::placeholder,
+.login-form input::placeholder,
+.register-form input::placeholder,
+.contact-form input::placeholder,
+.contact-form textarea::placeholder {
+    color: #b0b7c3;
+    font-weight: 400;
+}
+
+/* ---- Select: custom dropdown arrow ---- */
+.form-group select,
+.schedule-form select,
+.register-form select,
+.contact-form select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23667085' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.875rem center;
+    padding-right: 2.5rem;
+    cursor: pointer;
+}
+
+/* Multiple select: no arrow, scrollable */
+.form-group select[multiple] {
+    background-image: none;
+    padding-right: 1rem;
+    min-height: 120px;
+}
+
+/* ---- Textarea ---- */
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* ---- Form group spacing ---- */
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-group:last-of-type {
+    margin-bottom: 0;
+}
+
+/* ---- Form sections (admin forms) ---- */
+.form-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+}
+
+.form-section h3 {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #2e7d32;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding-left: 0.75rem;
+    border-left: 3px solid #4caf50;
+    margin-top: 0;
+    margin-bottom: 1.25rem;
+}
+
+/* ---- Form row (2-column grid) ---- */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+/* ---- Form actions row ---- */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #f0f0f0;
+    flex-wrap: wrap;
+}
+
+/* ---- Primary button ---- */
+.btn-primary,
+.login-button,
+.schedule-form button[type="submit"],
+.btn-submit {
+    background: #2e7d32;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.875rem 1.75rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-family: 'Montserrat', sans-serif;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.btn-primary:hover,
+.login-button:hover,
+.schedule-form button[type="submit"]:hover,
+.btn-submit:hover {
+    background: #1b5e20;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(46, 125, 50, 0.35);
+}
+
+.btn-primary:active,
+.login-button:active,
+.schedule-form button[type="submit"]:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* ---- Secondary / cancel button ---- */
+.btn.btn-secondary,
+a.btn-secondary {
+    background: #f8f9fa;
+    color: #344054;
+    border: 1.5px solid #cdd5df;
+    border-radius: 8px;
+    padding: 0.875rem 1.75rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.btn.btn-secondary:hover,
+a.btn-secondary:hover {
+    background: #e9ecef;
+    border-color: #9aa3af;
+}
+
+/* ---- Helper / hint text below field ---- */
+.form-help {
+    font-size: 0.8rem;
+    color: #667085;
+    margin-top: 0.375rem;
+    line-height: 1.4;
+}
+
+/* ---- Inline field error ---- */
+.field-error {
+    font-size: 0.8rem;
+    color: #d32f2f;
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* ---- Form container card ---- */
+.form-container {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+    padding: 2rem 2.5rem;
+    border: 1px solid #eaecf0;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* ---- Schedule/login/register card forms ---- */
+.schedule-form,
+.login-container,
+.register-container {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.09), 0 1px 4px rgba(0, 0, 0, 0.04);
+    padding: 2.5rem 2rem;
+    border: 1px solid #eaecf0;
+}
+
+/* ---- Widen schedule form ---- */
+.schedule-form {
+    max-width: 560px !important;
+    width: 100%;
+}
+
+/* ---- Checkbox styling ---- */
+.checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #344054;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.checkbox-label input[type="checkbox"],
+.checkbox-container input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    accent-color: #2e7d32;
+    cursor: pointer;
+    margin-top: 2px;
+}
+
+/* ---- Page header above form ---- */
+.page-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 2rem 0 0;
+}
+
+.page-header .page-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #2e7d32;
+    margin-bottom: 0.5rem;
+}
+
+.page-header .page-subtitle {
+    color: #667085;
+    font-size: 0.9375rem;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 640px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn-primary,
+    .btn.btn-secondary,
+    a.btn-secondary,
+    .schedule-form button[type="submit"] {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .form-container {
+        padding: 1.5rem 1rem;
+    }
+
+    .schedule-form {
+        max-width: 100% !important;
+        padding: 1.5rem 1.25rem;
+    }
+}
+
+/* Service checkboxes */
+.checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.6rem;
+    margin-top: 0.4rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 400;
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.checkbox-label:hover {
+    background: #f1f8e9;
+    border-color: #2e7d32;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #2e7d32;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.checkbox-label input[type="checkbox"]:checked + * {
+    color: #2e7d32;
+    font-weight: 500;
+}
+
+.checkbox-label:has(input:checked) {
+    background: #f1f8e9;
+    border-color: #2e7d32;
+}

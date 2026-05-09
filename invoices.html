@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Invoices - Admin Dashboard</title>
+    <meta content="Manage invoices for Holliday Lawn &amp; Garden" name="description"/>
+    <link href="assets/css/main.min.css" rel="stylesheet"/>
+    <link href="assets/css/admin-dashboard.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon/favicon-32x32.png" />
+    <link rel="manifest" href="manifest.json" />
+    <meta content="#2e7d32" name="theme-color"/>
+    <style>
+        body { padding-top: 80px; margin: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; }
+        .dashboard-main { max-width: 1400px; margin: 2rem auto; padding: 0 1.5rem; }
+        .page-header { background: #fff; padding: 1.5rem 2rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .page-title { font-size: 1.8rem; font-weight: 700; color: #2c5530; margin: 0; }
+        .page-subtitle { color: #666; margin: 0.25rem 0 0; font-size: 0.95rem; }
+        .btn { padding: 0.65rem 1.25rem; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; font-size: 0.9rem; transition: all 0.2s; }
+        .btn-primary { background: #4caf50; color: white; }
+        .btn-primary:hover { background: #388e3c; }
+        .btn-danger { background: #e53935; color: white; }
+        .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem; }
+        .stat-card { background: #fff; padding: 1.25rem 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); display: flex; align-items: center; gap: 1rem; }
+        .stat-icon { width: 46px; height: 46px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+        .icon-green { background: #e8f5e8; color: #2e7d32; }
+        .icon-blue { background: #e3f2fd; color: #1565c0; }
+        .icon-orange { background: #fff3e0; color: #e65100; }
+        .icon-red { background: #ffebee; color: #c62828; }
+        .stat-info .stat-number { font-size: 1.7rem; font-weight: 700; color: #2c5530; display: block; line-height: 1; }
+        .stat-info .stat-label { font-size: 0.82rem; color: #777; margin-top: 0.2rem; display: block; }
+        .toolbar { background: #fff; padding: 1rem 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; }
+        .filter-group { display: flex; flex-direction: column; gap: 0.35rem; }
+        .filter-group label { font-size: 0.82rem; font-weight: 600; color: #555; }
+        .filter-group select, .filter-group input { padding: 0.6rem 0.85rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; min-width: 160px; }
+        .toolbar-actions { margin-left: auto; display: flex; gap: 0.75rem; align-items: flex-end; }
+        .table-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); overflow: hidden; }
+        .table-header { background: #f8f9fa; padding: 1rem 1.5rem; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
+        .table-header h3 { margin: 0; font-size: 1rem; color: #333; }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th, td { padding: 0.85rem 1.1rem; text-align: left; border-bottom: 1px solid #f0f0f0; }
+        th { background: #f8f9fa; font-weight: 600; color: #555; white-space: nowrap; }
+        tr:hover td { background: #fafff9; }
+        tr:last-child td { border-bottom: none; }
+        .badge { display: inline-flex; align-items: center; padding: 0.2rem 0.65rem; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+        .badge-paid { background: #dcfce7; color: #16a34a; }
+        .badge-unpaid { background: #fff3e0; color: #e65100; }
+        .badge-overdue { background: #ffebee; color: #c62828; }
+        .badge-draft { background: #f3f4f6; color: #6b7280; }
+        .action-btns { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+        .no-data { text-align: center; padding: 3rem; color: #9e9e9e; }
+        .loading { text-align: center; padding: 3rem; color: #666; }
+        @media (max-width: 768px) { .dashboard-main { padding: 0 1rem; } .page-header { flex-direction: column; align-items: flex-start; } .stats-grid { grid-template-columns: 1fr 1fr; } .toolbar { flex-direction: column; } .toolbar-actions { margin-left: 0; width: 100%; } }
+    </style>
+    <link rel="stylesheet" href="assets/css/mobile.css">
+</head>
+<body>
+    <header class="admin-header">
+        <div class="container header-content">
+            <div class="logo">
+                <img src="assets/images/hollidays-logo.optimized-1280.png" alt="Holliday's Lawn &amp; Garden" />
+                <span style="font-weight:700;color:#2c5530;">Admin Dashboard</span>
+            </div>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle"><i class="fas fa-bars"></i></button>
+            <nav class="admin-nav" id="adminNav">
+                <a href="admin-dashboard.html">Dashboard</a>
+                <a href="appointments.html">Appointments</a>
+                <a href="customers.html">Customers</a>
+                <a href="payments.html">Payments</a>
+                <a href="invoices.html" class="active">Invoices</a>
+                <a href="expenses.html">Expenses</a>
+                <a href="payroll.html">Payroll</a>
+                <a href="analytics.html">Analytics</a>
+                <button class="btn btn-danger" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="dashboard-main">
+        <nav aria-label="Breadcrumb" style="padding:0.6rem 0 0.2rem;font-size:0.85rem;color:#777;">
+            <a href="admin-dashboard.html" style="color:#2e7d32;text-decoration:none;font-weight:500;"><i class="fas fa-home"></i> Dashboard</a>
+            <span style="margin:0 0.4rem;">›</span> Invoices
+        </nav>
+
+        <div class="page-header">
+            <div>
+                <h1 class="page-title"><i class="fas fa-file-invoice" style="color:#4caf50;margin-right:0.5rem;"></i>Invoices</h1>
+                <p class="page-subtitle">Generate and track customer invoices</p>
+            </div>
+            <a href="add-invoice.html" class="btn btn-primary"><i class="fas fa-plus"></i> New Invoice</a>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon icon-blue"><i class="fas fa-file-invoice-dollar"></i></div>
+                <div class="stat-info"><span class="stat-number" id="stat-total">0</span><span class="stat-label">Total Invoices</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon icon-green"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info"><span class="stat-number" id="stat-paid">$0</span><span class="stat-label">Total Paid</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon icon-orange"><i class="fas fa-clock"></i></div>
+                <div class="stat-info"><span class="stat-number" id="stat-unpaid">$0</span><span class="stat-label">Outstanding</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon icon-red"><i class="fas fa-exclamation-circle"></i></div>
+                <div class="stat-info"><span class="stat-number" id="stat-overdue">0</span><span class="stat-label">Overdue</span></div>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <div class="filter-group">
+                <label>Status</label>
+                <select id="filterStatus">
+                    <option value="">All Statuses</option>
+                    <option value="draft">Draft</option>
+                    <option value="unpaid">Unpaid</option>
+                    <option value="paid">Paid</option>
+                    <option value="overdue">Overdue</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Search Customer</label>
+                <input type="text" id="searchInput" placeholder="Name or invoice #..." style="min-width:200px;">
+            </div>
+            <div class="filter-group">
+                <label>From</label>
+                <input type="date" id="filterFrom">
+            </div>
+            <div class="filter-group">
+                <label>To</label>
+                <input type="date" id="filterTo">
+            </div>
+            <div class="toolbar-actions">
+                <button class="btn" style="background:#f1f5f9;color:#374151;" onclick="exportCSV()"><i class="fas fa-download"></i> Export</button>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-header">
+                <h3 id="tableTitle">All Invoices</h3>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Invoice #</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Due Date</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoiceTableBody">
+                        <tr><td colspan="7" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading invoices...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyACm0j7I8RX4ExIQRoejfk1HZMOQRGigBw",
+            authDomain: "holiday-lawn-and-garden.firebaseapp.com",
+            projectId: "holiday-lawn-and-garden",
+            storageBucket: "holiday-lawn-and-garden.firebasestorage.app",
+            messagingSenderId: "135322230444",
+            appId: "1:135322230444:web:1a487b25a48aae07368909"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let allInvoices = [];
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = 'login.html';
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.href = 'login.html'; return; }
+            await loadInvoices();
+        });
+
+        async function loadInvoices() {
+            try {
+                const q = query(collection(db, 'invoices'), orderBy('createdAt', 'desc'));
+                const snap = await getDocs(q);
+                allInvoices = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                updateStats();
+                renderTable(allInvoices);
+            } catch (e) {
+                document.getElementById('invoiceTableBody').innerHTML = '<tr><td colspan="7" class="no-data"><i class="fas fa-info-circle"></i> No invoices found. <a href="add-invoice.html">Create your first invoice.</a></td></tr>';
+            }
+        }
+
+        function updateStats() {
+            const today = new Date().toISOString().split('T')[0];
+            const paid = allInvoices.filter(i => i.status === 'paid');
+            const unpaid = allInvoices.filter(i => i.status === 'unpaid' || i.status === 'draft');
+            const overdue = allInvoices.filter(i => i.status !== 'paid' && i.dueDate && i.dueDate < today);
+            document.getElementById('stat-total').textContent = allInvoices.length;
+            document.getElementById('stat-paid').textContent = '$' + paid.reduce((s, i) => s + parseFloat(i.total || 0), 0).toFixed(2);
+            document.getElementById('stat-unpaid').textContent = '$' + unpaid.reduce((s, i) => s + parseFloat(i.total || 0), 0).toFixed(2);
+            document.getElementById('stat-overdue').textContent = overdue.length;
+        }
+
+        function renderTable(invoices) {
+            const tbody = document.getElementById('invoiceTableBody');
+            document.getElementById('tableTitle').textContent = `${invoices.length} Invoice${invoices.length !== 1 ? 's' : ''}`;
+            if (!invoices.length) {
+                tbody.innerHTML = '<tr><td colspan="7" class="no-data"><i class="fas fa-file-invoice"></i><br>No invoices found</td></tr>';
+                return;
+            }
+            const today = new Date().toISOString().split('T')[0];
+            tbody.innerHTML = invoices.map(inv => {
+                let status = inv.status || 'draft';
+                if (status !== 'paid' && inv.dueDate && inv.dueDate < today) status = 'overdue';
+                const badgeMap = { paid: 'badge-paid', unpaid: 'badge-unpaid', overdue: 'badge-overdue', draft: 'badge-draft' };
+                return `<tr>
+                    <td><strong>${inv.invoiceNumber || inv.id.slice(0,8).toUpperCase()}</strong></td>
+                    <td>${inv.customerName || '—'}</td>
+                    <td>${inv.invoiceDate || '—'}</td>
+                    <td>${inv.dueDate || '—'}</td>
+                    <td><strong>$${parseFloat(inv.total || 0).toFixed(2)}</strong></td>
+                    <td><span class="badge ${badgeMap[status] || 'badge-draft'}">${status.charAt(0).toUpperCase() + status.slice(1)}</span></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="btn btn-sm" style="background:#e3f2fd;color:#1565c0;" onclick="printInvoice('${inv.id}')"><i class="fas fa-print"></i> Print</button>
+                            ${status !== 'paid' ? `<button class="btn btn-sm" style="background:#dcfce7;color:#16a34a;" onclick="markPaid('${inv.id}')"><i class="fas fa-check"></i> Mark Paid</button>` : ''}
+                            <button class="btn btn-sm btn-danger" onclick="deleteInvoice('${inv.id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        window.markPaid = async (id) => {
+            if (!confirm('Mark this invoice as paid?')) return;
+            await updateDoc(doc(db, 'invoices', id), { status: 'paid', paidAt: new Date().toISOString().split('T')[0] });
+            const inv = allInvoices.find(i => i.id === id);
+            if (inv) inv.status = 'paid';
+            updateStats();
+            applyFilters();
+        };
+
+        window.deleteInvoice = async (id) => {
+            if (!confirm('Delete this invoice? This cannot be undone.')) return;
+            await deleteDoc(doc(db, 'invoices', id));
+            allInvoices = allInvoices.filter(i => i.id !== id);
+            updateStats();
+            applyFilters();
+        };
+
+        window.printInvoice = (id) => {
+            window.open(`add-invoice.html?print=${id}`, '_blank');
+        };
+
+        function applyFilters() {
+            const status = document.getElementById('filterStatus').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const from = document.getElementById('filterFrom').value;
+            const to = document.getElementById('filterTo').value;
+            const today = new Date().toISOString().split('T')[0];
+            let filtered = allInvoices.filter(inv => {
+                let s = inv.status || 'draft';
+                if (s !== 'paid' && inv.dueDate && inv.dueDate < today) s = 'overdue';
+                if (status && s !== status) return false;
+                if (search && !(inv.customerName || '').toLowerCase().includes(search) && !(inv.invoiceNumber || '').toLowerCase().includes(search)) return false;
+                if (from && inv.invoiceDate && inv.invoiceDate < from) return false;
+                if (to && inv.invoiceDate && inv.invoiceDate > to) return false;
+                return true;
+            });
+            renderTable(filtered);
+        }
+
+        ['filterStatus','searchInput','filterFrom','filterTo'].forEach(id => {
+            document.getElementById(id).addEventListener('input', applyFilters);
+        });
+
+        window.exportCSV = () => {
+            const rows = [['Invoice #','Customer','Date','Due Date','Amount','Status']];
+            allInvoices.forEach(inv => rows.push([inv.invoiceNumber || inv.id.slice(0,8), inv.customerName, inv.invoiceDate, inv.dueDate, inv.total, inv.status]));
+            const csv = rows.map(r => r.map(v => `"${v || ''}"`).join(',')).join('\n');
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+            a.download = `invoices-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        };
+
+        document.getElementById('mobileMenuToggle')?.addEventListener('click', () => {
+            document.getElementById('adminNav').classList.toggle('open');
+        });
+    </script>
+    <script src="assets/js/hide-loading.js"></script>
+</body>
+</html>

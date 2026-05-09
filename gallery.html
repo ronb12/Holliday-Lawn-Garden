@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gallery - Holliday's Lawn &amp; Garden</title>
+    <meta name="description" content="View our beautiful landscaping and lawn care gallery showcasing our professional work." />
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <link href="assets/css/components/footer.css" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/css/mobile.css" />
+    <link rel="stylesheet" href="assets/css/header.css" />
+    <style>
+        body { margin: 0; font-family: 'Montserrat', sans-serif; background: #f8f9fa; padding-top: 80px; }
+        .gallery-hero {
+            background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+            color: white; text-align: center; padding: 3.5rem 1rem 2.5rem;
+        }
+        .gallery-hero h1 { font-size: 2.4rem; margin: 0 0 0.5rem; font-weight: 700; }
+        .gallery-hero p { font-size: 1.05rem; opacity: 0.9; margin: 0; }
+        .gallery-container { max-width: 1200px; margin: 3rem auto 4rem; padding: 0 1.5rem; }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 1.5rem;
+        }
+        .gallery-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .gallery-card:hover { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(0,0,0,0.14); }
+        .gallery-card img {
+            width: 100%; height: 240px; object-fit: cover; display: block;
+        }
+        .gallery-card-body { padding: 1rem 1.25rem; }
+        .gallery-card-body h3 { margin: 0 0 0.3rem; font-size: 1rem; font-weight: 600; color: #1b5e20; }
+        .gallery-card-body p { margin: 0; font-size: 0.875rem; color: #666; }
+        .gallery-cta {
+            text-align: center; margin-top: 3rem; padding: 2.5rem 1rem;
+            background: #e8f5e9; border-radius: 12px;
+        }
+        .gallery-cta h2 { color: #1b5e20; margin: 0 0 0.75rem; }
+        .gallery-cta p { color: #555; margin: 0 0 1.5rem; }
+        .gallery-cta a {
+            display: inline-block; background: #2e7d32; color: white;
+            padding: 0.8rem 2rem; border-radius: 8px; text-decoration: none;
+            font-weight: 600; font-size: 0.95rem; transition: background 0.2s;
+        }
+        .gallery-cta a:hover { background: #1b5e20; }
+        @media (max-width: 768px) {
+            .gallery-grid { grid-template-columns: 1fr; }
+            .gallery-hero h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="logo">
+            <a href="index.html">
+                <picture>
+                    <source srcset="assets/images/hollidays-logo.optimized-1280.webp" type="image/webp">
+                    <img src="assets/images/hollidays-logo.optimized-1280.png" alt="Holliday's Lawn &amp; Garden Logo" loading="lazy">
+                </picture>
+            </a>
+        </div>
+        <nav id="nav-menu">
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="education.html">Education</a></li>
+                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="testimonials.html">Reviews</a></li>
+                <li><a href="pay-your-bill.html">Pay Your Bill</a></li>
+            </ul>
+            <div class="login-buttons"><div class="login-dropdown"><button class="btn-login-main" onclick="(function(b){var m=b.nextElementSibling;var o=m.classList.toggle('open');if(o){var fn=function(e){if(!b.parentElement.contains(e.target)){m.classList.remove('open');document.removeEventListener('click',fn)}};setTimeout(function(){document.addEventListener('click',fn)},0)}})(this)"><i class="fas fa-sign-in-alt"></i> Login <i class="fas fa-chevron-down login-chevron"></i></button><div class="login-drop-menu"><a href="login.html" class="login-drop-item customer-item"><i class="fas fa-user"></i><div><strong>Customer</strong><span>Pay bills &amp; book services</span></div></a><a href="login.html" class="login-drop-item staff-item"><i class="fas fa-hard-hat"></i><div><strong>Staff</strong><span>Time clock &amp; portal</span></div></a><a href="admin-login.html" class="login-drop-item admin-item"><i class="fas fa-lock"></i><div><strong>Admin</strong><span>Business management</span></div></a></div></div></div>
+        </nav>
+    </header>
+    <div class="mobile-tab-bar">
+        <a href="index.html"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="services.html"><i class="fas fa-tools"></i><span>Services</span></a>
+        <a href="pay-your-bill.html"><i class="fas fa-credit-card"></i><span>Pay Bill</span></a>
+        <a href="contact.html"><i class="fas fa-phone"></i><span>Contact</span></a>
+        <a href="login.html"><i class="fas fa-user"></i><span>Login</span></a>
+    </div>
+
+    <main>
+        <div class="gallery-hero">
+            <h1><i class="fas fa-images"></i> Our Work</h1>
+            <p>Professional landscaping and lawn care — see what we can do for your property</p>
+        </div>
+
+        <div class="gallery-container">
+            <div class="gallery-grid">
+                <div class="gallery-card">
+                    <img src="assets/images/hero-garden-landscaping-640.jpg" alt="Beautiful garden landscaping" loading="lazy" />
+                    <div class="gallery-card-body">
+                        <h3>Garden Landscaping</h3>
+                        <p>Full garden transformation with colorful flower beds and clean lawn edges.</p>
+                    </div>
+                </div>
+                <div class="gallery-card">
+                    <img src="assets/images/hero-garden-landscaping-960.jpg" alt="Lawn maintenance" loading="lazy" />
+                    <div class="gallery-card-body">
+                        <h3>Lawn Maintenance</h3>
+                        <p>Regular mowing, edging, and trimming to keep your lawn pristine.</p>
+                    </div>
+                </div>
+                <div class="gallery-card">
+                    <img src="assets/images/hero-garden-landscaping-1280.jpg" alt="Professional landscaping" loading="lazy" />
+                    <div class="gallery-card-body">
+                        <h3>Professional Landscaping</h3>
+                        <p>Complete landscape design and installation for residential and commercial properties.</p>
+                    </div>
+                </div>
+                <div class="gallery-card">
+                    <img src="assets/images/hero-garden-landscaping-640.jpg" alt="Garden care" loading="lazy" />
+                    <div class="gallery-card-body">
+                        <h3>Garden Care</h3>
+                        <p>Seasonal planting, pruning, and garden bed maintenance.</p>
+                    </div>
+                </div>
+                <div class="gallery-card">
+                    <img src="assets/images/hero-garden-landscaping-960.jpg" alt="Outdoor living space" loading="lazy" />
+                    <div class="gallery-card-body">
+                        <h3>Outdoor Living</h3>
+                        <p>Creating beautiful outdoor spaces you'll enjoy all year round.</p>
+                    </div>
+                </div>
+                <div class="gallery-card">
+                    <img src="assets/images/hero-garden-landscaping-1280.jpg" alt="Commercial landscaping" loading="lazy" />
+                    <div class="gallery-card-body">
+                        <h3>Commercial Services</h3>
+                        <p>Large-scale landscaping and maintenance for commercial properties.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="gallery-cta">
+                <h2>Ready to Transform Your Outdoor Space?</h2>
+                <p>Get a free, no-obligation quote from our professional landscaping team.</p>
+                <a href="request-quote.html"><i class="fas fa-file-invoice-dollar"></i> Request a Free Quote</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li><i class="fas fa-phone"></i> Karl Holliday (504) 717-1887</li>
+                        <li><i class="fas fa-envelope"></i> 7holliday@gmail.com</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="services.html">Services</a></li>
+                        <li><a href="education.html">Education</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Customer Portal</h3>
+                    <ul>
+                        <li><a href="login.html">Login</a></li>
+                        <li><a href="register.html">Register</a></li>
+                        <li><a href="pay-your-bill.html">Pay Your Bill</a></li>
+                        <li><a href="book-appointment.html">Book Appointment</a></li>
+                        <li><a href="request-quote.html">Request a Quote</a></li>
+                        <li><a href="customer-dashboard.html">Dashboard</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Legal</h3>
+                    <ul>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Follow Us</h3>
+                    <div class="social-links">
+                        <a href="#" class="social-link" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-link" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="copyright">
+                    <p>© <span id="current-year"></span> Holliday's Lawn &amp; Garden. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
