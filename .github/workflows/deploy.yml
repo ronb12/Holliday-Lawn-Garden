@@ -1,9 +1,7 @@
 name: Deploy to GitHub Pages
 
+# Legacy GitHub Pages deployment is manual-only; production uses Bradley Hosting.
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:  # Allow manual triggering
 
 permissions:
