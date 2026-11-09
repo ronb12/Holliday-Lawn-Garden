@@ -27,10 +27,17 @@ service cloud.firestore {
     // IMPORTANT: a user must ALWAYS be able to read their own document
     // without calling isAdmin() — otherwise isAdmin() deadlocks.
     match /users/{userId} {
-      allow read:  if isAuthenticated() && request.auth.uid == userId;
-      allow write: if isAuthenticated() && request.auth.uid == userId;
-      // Admins can read/write any user doc
-      allow read, write: if isAdmin();
+      // Prevent account holders from granting themselves the admin role.
+      // Match the user profile permissions already deployed in Firebase.
+      allow read: if (isAuthenticated() && request.auth.uid == userId) || isAdmin();
+      allow create: if isAuthenticated()
+        && request.auth.uid == userId
+        && request.resource.data.role == 'customer';
+      allow update: if isAuthenticated()
+        && request.auth.uid == userId
+        && resource.data.role == request.resource.data.role;
+      allow delete: if isAdmin();
+      allow write: if isAdmin();
     }
 
     // ── Appointments ──────────────────────────────────────────────
