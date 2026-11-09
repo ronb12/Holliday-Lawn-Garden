@@ -1,9 +1,7 @@
 name: Deploy to Firebase Hosting
 
+# Legacy Firebase Hosting is retained for manual rollback; production uses Bradley Hosting.
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
